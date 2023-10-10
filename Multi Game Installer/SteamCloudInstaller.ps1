@@ -25,7 +25,7 @@ $ids = Get-ChildItem -Path "$steamPath\userdata\"
 $steamid = [System.Collections.ArrayList](@())
 foreach ($id in $ids) {
     if (test-path "$steamPath\userdata\$($id.basename)\inventorymsgcache\") {
-        $steamid.add($id.basename)
+        $steamid.add($id.basename) | Out-Null
     }
 }
 
@@ -36,11 +36,11 @@ if ($steamid.count -eq 0) {
     exit
 }
 
-if ($steamid.count -gt 1) {
+if ($steamid.count -eq 1) {
     foreach ($id in $steamid) {
         $lines = Get-Content "$steampath\userdata\$($id)\config\localconfig.vdf"
         $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
-        $newLines.Add("{")
+        $newLines.Add("{") | Out-Null
         foreach ($line in $lines) {
             $matchCollection = [regex]::Matches($line, '\s*(\".*?\")')
             if ($matchCollection.Count -eq 2) {
@@ -50,14 +50,14 @@ if ($steamid.count -gt 1) {
                 if ([int64]::TryParse($secondVal.Replace('"', ''), [ref] $tryLongVal)) {
                     $secondVal = $secondVal.Replace('"', '')
                 }
-                $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal)))
+                $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal))) | Out-Null
             } elseif ($matchCollection.Count -eq 1) {
-                $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value)))
+                $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))) | Out-Null
             } else {
-                $newLines.Add($line)
+                $newLines.Add($line) | Out-Null
             }
         }
-        $newLines.Add("}")
+        $newLines.Add("}") | Out-Null
         $joinedLine = $newLines -join "`n"
         $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
         $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
@@ -68,7 +68,7 @@ if ($steamid.count -gt 1) {
         $data = ConvertFrom-Json $validJson
 
         $steamAccountName = [System.Collections.ArrayList](@())
-        $steamAccountName.add($data.PersonaName)
+        $steamAccountName.add($data.PersonaName) | Out-Null
     }
     echo "Multiple Steam accounts found, please select the one you would like to use"
     $i=1
@@ -77,7 +77,7 @@ if ($steamid.count -gt 1) {
         ++$i
     }
     $choice = Read-Host "What Steam account would you like to use?"
-    $steamid = $steamid[$choice]
+    $steamid = $steamid[$choice-1]
     if ($steamid -eq $null) {
         echo "That is not a valid Steam account"
         echo "Press any key to exit"
@@ -88,7 +88,7 @@ if ($steamid.count -gt 1) {
 
 $lines = Get-Content "$steamPath\steamapps\libraryfolders.vdf"
 $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
-$newLines.Add("{")
+$newLines.Add("{") | Out-Null
 foreach ($line in $lines) {
     $matchCollection = [regex]::Matches($line, '\s*(\".*?\")')
     if ($matchCollection.Count -eq 2) {
@@ -98,14 +98,14 @@ foreach ($line in $lines) {
         if ([int64]::TryParse($secondVal.Replace('"', ''), [ref] $tryLongVal)) {
             $secondVal = $secondVal.Replace('"', '')
         }
-        $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal)))
+        $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal))) | Out-Null
     } elseif ($matchCollection.Count -eq 1) {
-        $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value)))
+        $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))) | Out-Null
     } else {
-        $newLines.Add($line)
+        $newLines.Add($line) | Out-Null
     }
 }
-$newLines.Add("}")
+$newLines.Add("}") | Out-Null
 $joinedLine = $newLines -join "`n"
 $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
 $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
