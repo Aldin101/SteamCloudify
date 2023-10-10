@@ -1,18 +1,18 @@
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
-$gameName = "[INSERT GAME NAME]" # name of the game
-$steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
-$gameExecutableName = "[INSERT EXECUTABLE NAME]" # executable name should be structured, "GAME NAME.exe"
-$gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "[INSERT SAVE LOCATION]" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameName = "Beat Saber" # name of the game
+$steamAppID = "620980" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
+$gameExecutableName = "Beat Saber.exe" # executable name should be structured, "GAME NAME.exe"
+$gameFolderName = "Beat Saber" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
+$gameSaveFolder = "$env:appdata\..\Hyperbolic Magnetism\Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
-$gameSaveExtentions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder sometimes contains information other than just game saves, and some-
+$gameSaveExtentions = ".dat" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
-$gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
+# $gameRegistryEntries = ".dat" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$file = Invoke-WebRequest "[DATABASE URL]" -UseBasicParsing
+$file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/Beat%20Saber.json" -UseBasicParsing
 # The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------

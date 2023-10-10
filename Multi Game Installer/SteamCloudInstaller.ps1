@@ -1,3 +1,5 @@
+$ProgressPreference = "SilentlyContinue"
+$ErrorActionPreference = "SilentlyContinue"
 $database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/GameList.json" -UseBasicParsing
 $database = $database.Content | ConvertFrom-Json
 if ($database -eq $null) {
@@ -68,5 +70,3 @@ if ([int]$choice -gt $i-1 -or [int]$choice -lt 1) {
 }
 
 [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($options[$choice-1].installer.Script)) | iex
-
-echo "Steam Cloud for $($options[$choice-1].name) has been enabled! Remeber to install on other computers" "to sync your saves"
