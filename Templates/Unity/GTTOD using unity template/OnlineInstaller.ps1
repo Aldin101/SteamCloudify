@@ -11,10 +11,16 @@ $gameSaveExtentions = ".od2" # the game save folder sometimes contains informati
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
 # $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
+
+$database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/Get%20To%20The%20Orange%20Door.json" -UseBasicParsing
+# The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
+
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 
+
 $cloudName = "$gameName Steam Cloud"
+$database = $file.Content | ConvertFrom-Json
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
@@ -29,6 +35,8 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
         $line
     }) -Join "`n"
 }
+
+$database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/Get%20To%20The%20Orange%20Door.json" -UseBasicParsing
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -72,38 +80,6 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     }
 }
 
-"funnyword" | Set-Content "$env:appdata\$cloudName\SteamCloud.set"
-$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-# if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-#     echo "Welcome to Steam Cloud setup"
-#     echo "Here are some things to know:"
-#     echo "Your saves will only be synced with other computers that have this tool installed"
-#     echo "When you install on a second (or third, fourth and so on) computer the saves from that computer will be added, not" "deleted"
-#     echo "You can disable Steam Cloud on this computer from the same menu to enabled it from"
-#     echo "Sometimes an update for this tool is required, when it is you will receive an UAC prompt when starting the game"
-#     echo "Steam Deck (and other non-windows devices) are unsupported at this time"
-#     echo ""
-#     echo "This tool requires administrator permissions to continue, so press any key once you are done reading and then accept" "the admin prompt"
-#     timeout -1 | Out-Null
-#     $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'GTTOD Save Editor.exe'" -ErrorAction SilentlyContinue
-#     if ($fileLocation -eq $null) {
-#         echo "Unable to restart automaticly, please manually run the program as administrator to continue"
-#         echo "Press any key to exit"
-#         timeout -1 |out-null
-#         exit
-#     }
-#     taskkill /f /im "GTTOD Save Editor.exe" 2>$null | Out-Null
-#     $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
-#     try {
-#         Start-Process "$filelocation1" -Verb RunAs
-#     } catch {
-#         echo "You need to accept the admin prompt to continue"
-#         echo "Press any key to exit"
-#         timeout -1 | out-null
-#     }
-#     exit
-# }
-Remove-Item "$env:appdata\$cloudName\SteamCloud.set"
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
 $ids = Get-ChildItem -Path "$steamPath\userdata\"
@@ -181,8 +157,8 @@ mkdir "$env:appdata\$gamename Steam Cloud\"
 Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
-Invoke-WebRequest "https://aldin101.github.io/GTTODLevelEdit/SteamCloudSync.exe" -OutFile ".\$gameExecutableName" #TEMP
-Invoke-WebRequest "https://aldin101.github.io/GTTODLevelEdit/GTTODSteamCloud.exe" -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe" #TEMP
+Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName" 
+Invoke-WebRequest $database.gameUpdateChecker -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
         $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtentions | ForEach-Object { "*$_" }) -File -Recurse
@@ -200,7 +176,7 @@ $CloudConfig = @{}
 $CloudConfig.Add("gamepath",$gamepath)
 $CloudConfig.Add("steampath",$steamPath)
 $CloudConfig.Add("steamID",$steamid)
-$CloudConfig.Add("CloudSyncDownload", "https://aldin101.github.io/GTTODLevelEdit/SteamCloudSync.exe")
+$CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 #cls
