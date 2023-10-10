@@ -36,7 +36,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
-    $disableChoice = Read-Host "Would you like to disable Steam Cloud [y/n]"
+    $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
         echo "Disabling cloud sync on this computer..."
         $CloudConfig = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json

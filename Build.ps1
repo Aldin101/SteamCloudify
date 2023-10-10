@@ -12,7 +12,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
             $line
     }) -Join "`n"
 }
-
+$Config = Get-Content .\BuildTool.json | ConvertFrom-Json
 # if (Test-Path .\BuildTool.json) {
 #     $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
 #     cls
@@ -53,21 +53,15 @@ while (1) {
     echo "[5] Build Steam Cloud executable"
     $selection = Read-Host "What would you like to do"
     if ($selection -eq 1) {
-        $database = Get-Content ".\Multi Game Installer\GameList.json" | ConvertFrom-Json
-        $s = Get-Content ".\Get To The Orange Door\OnlineInstaller.ps1" | Out-String
-        $j = [PSCustomObject]@{
-          "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
+        foreach ($games in $config.games) {
+            $s = Get-Content ".\$($games.name)\OnlineInstaller.ps1" | Out-String
+            $j = [PSCustomObject]@{
+              "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
+            }
+            $games.installer = $j
         }
-        $database.Games[0].installer = $j
-
-        $database = Get-Content ".\Multi Game Installer\GameList.json" | ConvertFrom-Json
-        $s = Get-Content ".\Beat Saber\OnlineInstaller.ps1" | Out-String
-        $j = [PSCustomObject]@{
-          "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
-        }        
-        $database.Games[1].installer = $j
-
-        $database | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Multi Game Installer\GameList.json"
+        $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Multi Game Installer\GameList.json"
+        $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
     }
 
     if ($selection -eq 2) {

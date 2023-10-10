@@ -36,7 +36,7 @@ if ($steamid.count -eq 0) {
     exit
 }
 
-if ($steamid.count -eq 1) {
+if ($steamid.count -gt 1) {
     foreach ($id in $steamid) {
         $lines = Get-Content "$steampath\userdata\$($id)\config\localconfig.vdf"
         $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
@@ -111,30 +111,32 @@ $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline
 $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
 $libaryfolders = $joinedLine | ConvertFrom-Json
 
-$i=1
+
 $options = [System.Collections.ArrayList](@())
 foreach ($game in $database.games) {
     if (test-path "$steamPath\steamapps\appmanifest_$($game.steamID).acf") {
-        echo "[$i] $($game.name)"
         $options.add($game) | out-null
-        ++$i
     }
 }
 if ($libaryfolders.LibraryFolders.count -gt 1) {
-    $j=1
+    $i=1
     foreach ($folder in $libaryfolders.LibraryFolders."$j".path) {
         foreach ($game in $database.games) {
             if ($j -gt 1) {
                 $steamapps = "$($folder)\steamapps"
                 if (test-path "$steamapps\appmanifest_$($game.steamID).acf") {
-                    echo "[$i] $($game.name)"
                     $options.add($game) | out-null
-                    ++$i
                 }
             }
-            ++$j
+            ++$i
         }
     }
+}
+
+$i=1
+foreach($game in $options) {
+    echo "[$i] $($game.name)"
+    ++$i
 }
 echo "[$i] Not listed? Add one!"
 $choice = Read-Host "What game would you like to enable Steam Cloud for?"
