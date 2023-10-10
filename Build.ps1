@@ -58,7 +58,7 @@ while (1) {
         $j = [PSCustomObject]@{
           "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
         }
-        $database.Games[1].installer = $j
+        $database.Games[0].installer = $j
 
         $database = Get-Content ".\Multi Game Installer\GameList.json" | ConvertFrom-Json
         $s = Get-Content ".\Beat Saber\OnlineInstaller.ps1" | Out-String
