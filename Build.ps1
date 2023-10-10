@@ -12,39 +12,8 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
             $line
     }) -Join "`n"
 }
+cd $script:PSScriptRoot
 $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
-# if (Test-Path .\BuildTool.json) {
-#     $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
-#     cls
-# } else {
-#     $firstName = Read-Host "Please name your first branch"
-#     cls
-#     $mainMenuFile = Read-Host "Please enter the main menu filename for this branch"
-#     if (!(Test-Path ./$mainMenuFile)) {
-#         echo "That file does not exist"
-#         echo "Press any key to exit"
-#         timeout -1 | Out-Nu1ll
-#         exit
-#     }
-#     $fileOne = Read-Host "Please enter the file name for the first menu option"
-#     if (!(Test-Path ./$fileOne)) {
-#         echo "That file does not exist"
-#         echo "Press any key to exit"
-#         timeout -1 | Out-Null
-#         exit
-#     }
-#     $Config = @{}
-#     $Config.Add("Version","1.0.0") | Out-Null
-#     $branches = New-Object System.Collections.ArrayList
-#     $files = New-Object System.Collections.ArrayList
-#     $files.Add($mainMenuFile) | Out-Null
-#     $files.Add($fileOne) | Out-Null
-#     $branches.Add([PSCustomObject]@{"branchName"="$firstName"; "files"=$files}) | Out-Null
-#     $Config.Add("branches", $branches) | Out-Null
-#     $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
-#     $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
-#     cls
-# }
 while (1) {
     echo "[1] Build database"
     echo "[2] Build online installer"
