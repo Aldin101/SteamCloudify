@@ -79,27 +79,6 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
 
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
-$ids = Get-ChildItem -Path "$steamPath\userdata\"
-$found = $false
-foreach ($id in $ids) {
-    $gameids = Get-ChildItem -Path "$steamPath\userdata\$($id.basename)\config\librarycache\"
-    foreach ($gameid in $gameids) {
-        if ($gameid.Name -eq "$steamAppID.json") {
-            $steamid = $id.Name
-            $found = $true
-            break
-        }
-    }
-    if ($found) {
-        break
-    }
-}
-if ($steamid -eq $null) {
-    echo "Unable to find your Steam ID"
-    echo "Press any key to exit"
-    timeout -1 | Out-Null
-    exit
-}
 $i=0
 if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName") {
     $gamepath = "$steamPath\steamapps\common\$gameFolderName\"
