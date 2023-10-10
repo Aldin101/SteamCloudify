@@ -12,7 +12,7 @@ $gameSaveExtentions = ".od2" # the game save folder sometimes contains informati
 # $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/Get%20To%20The%20Orange%20Door.json" -UseBasicParsing
+$file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/Get%20To%20The%20Orange%20Door.json" -UseBasicParsing
 # The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
@@ -36,7 +36,6 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     }) -Join "`n"
 }
 
-$database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/Get%20To%20The%20Orange%20Door.json" -UseBasicParsing
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())

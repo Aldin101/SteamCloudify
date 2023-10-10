@@ -11,12 +11,15 @@ $gameSaveExtentions = ".od2" # the game save folder sometimes contains informati
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
 # $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
+
+$file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/Get%20To%20The%20Orange%20Door.json" -UseBasicParsing
+# The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
+
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 $cloudName = "$gameName Steam Cloud"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 $clientVersion = "2.0.2"
-$file = Invoke-WebRequest https://aldin101.github.io/GTTODLevelEdit/SteamCloudDatabase.json -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
@@ -119,6 +122,9 @@ foreach ($file in $cloudFiles) {
         Copy-Item $file "$gameSaveFolder\$($file.BaseName)"
     }
 }
+if ($gameRegistryEntries -ne $null) {
+    reg import "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+}
 Start-Process ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 timeout 5
 $i=0
@@ -135,6 +141,9 @@ foreach ($file in $cloudFiles) {
     Remove-Item $file
 }
 $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtentions | ForEach-Object { "*$_" }) -File -Recurse
+if ($gameRegistryEntries -ne $null) {
+    reg export $gameRegistryEntries "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+}
 foreach ($file in $clientFiles) {
     mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
     Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.name).vdf"
