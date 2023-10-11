@@ -17,10 +17,8 @@ $file = Invoke-WebRequest "[DATABASE URL]" -UseBasicParsing
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
-
 $cloudName = "$gameName Steam Cloud"
 $database = $file.Content | ConvertFrom-Json
-
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
@@ -36,29 +34,10 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     }) -Join "`n"
 }
 
+
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
-        $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-        if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-        $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'GTTOD Save Editor.exe'" -ErrorAction SilentlyContinue
-        if ($fileLocation -eq $null) {
-            echo "Unable to restart automaticly, please manually run the program as administrator to disable"
-            echo "Press any key to exit"
-            timeout -1 |out-null
-            exit
-        }
-        taskkill /f /im "GTTOD Save Editor.exe" 2>$null | Out-Null
-        $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
-        try {
-            Start-Process "$filelocation1" -Verb RunAs
-        } catch {
-            echo "You need to accept the admin prompt to continue"
-            echo "Press any key to exit"
-            timeout -1 | out-null
-        }
-        exit
-    }
-    $userIsUpgrade = Read-Host "Would you like to disable Steam Cloud [y/n]"
-    if ($userIsUpgrade -ne "n" -and $userIsUpgrade -ne "N" -and $userIsUpgrade -ne "no") {
+    $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
+    if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
         echo "Disabling cloud sync on this computer..."
         $CloudConfig = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
         cd $CloudConfig.gamepath
@@ -80,27 +59,6 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
 
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
-$ids = Get-ChildItem -Path "$steamPath\userdata\"
-$found = $false
-foreach ($id in $ids) {
-    $gameids = Get-ChildItem -Path "$steamPath\userdata\$($id.basename)\config\librarycache\"
-    foreach ($gameid in $gameids) {
-        if ($gameid.Name -eq "$steamAppID.json") {
-            $steamid = $id.Name
-            $found = $true
-            break
-        }
-    }
-    if ($found) {
-        break
-    }
-}
-if ($steamid -eq $null) {
-    echo "Unable to find your Steam ID"
-    echo "Press any key to exit"
-    timeout -1 | Out-Null
-    exit
-}
 $i=0
 if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName") {
     $gamepath = "$steamPath\steamapps\common\$gameFolderName\"
@@ -145,13 +103,13 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
         echo "That is not a valid option"
         timeout -1
         $choice = $null
-        #cls
+        cls
         echo "Setting up Steam Cloud..."
     }
 } else {
     $choice = 1
 }
-mkdir "$env:appdata\$gamename Steam Cloud\" | Out-Null
+mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
@@ -177,7 +135,7 @@ $CloudConfig.Add("steamID",$steamid)
 $CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
-#cls
+cls
 echo "Steam Cloud setup has compleated, remember to install on other computers to sync saves"
 echo "Press any key to exit"
 timeout -1 |Out-Null

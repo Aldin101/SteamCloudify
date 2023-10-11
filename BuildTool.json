@@ -1,1 +1,14 @@
-null
+{
+  "games": [
+    {
+      "name": "Beat Saber",
+      "steamID": "620980",
+      "installer": ".\\Beat Saber\\"
+    },
+    {
+      "name": "Get To The Orange Door",
+      "steamID": "541200",
+      "installer": ".\\Get To The Orange Door\\"
+    }
+  ]
+}
