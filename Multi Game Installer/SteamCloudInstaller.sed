@@ -22,11 +22,11 @@ UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
 VersionInfo=VersionSection
 [VersionSection]
-FileDescription=Steam Cloud Sync Background Task
+FileDescription=Steam Cloud For All Installer
 CompanyName=Aldin101
 FileVersion=1.0.0
 ProductVersion=1.0.0
-OriginalFilename=SteamCloudBackground.exe
+OriginalFilename=Steam Cloud For All Installer.exe
 LegalCopyright=
 ProductName=Steam Cloud For All
 InternalName=
@@ -34,13 +34,13 @@ InternalName=
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud\GTTODSteamCloud.exe
+TargetName=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud\SteamCloudSync.exe
 FriendlyName=Cloud Sync
-AppLaunched=cmd /c powershell .\Background.ps1
+AppLaunched=cmd /c powershell .\SteamCloudSync.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="Background.ps1"
+FILE0="SteamCloudSync.ps1"
 [SourceFiles]
 SourceFiles0=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud
 [SourceFiles0]

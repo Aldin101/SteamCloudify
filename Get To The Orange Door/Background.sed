@@ -20,6 +20,16 @@ PostInstallCmd=%PostInstallCmd%
 AdminQuietInstCmd=%AdminQuietInstCmd%
 UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
+VersionInfo=VersionSection
+[VersionSection]
+FileDescription=Steam Cloud Sync Background Task
+CompanyName=Aldin101
+FileVersion=1.0.0
+ProductVersion=1.0.0
+OriginalFilename=SteamCloudBackground.exe
+LegalCopyright=
+ProductName=Steam Cloud For All
+InternalName=
 [Strings]
 InstallPrompt=
 DisplayLicense=

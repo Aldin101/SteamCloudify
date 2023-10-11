@@ -19,7 +19,7 @@ $file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/B
 
 $cloudName = "$gameName Steam Cloud"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-$clientVersion = "2.0.2"
+$clientVersion = "1.0.0"
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
