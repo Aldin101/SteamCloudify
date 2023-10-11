@@ -28,7 +28,7 @@ FileVersion=1.0.0
 ProductVersion=1.0.0
 OriginalFilename=SteamCloudBackground.exe
 LegalCopyright=
-ProductName=Steam Cloud For All
+ProductName=Steam Cloud Sync
 InternalName=
 [Strings]
 InstallPrompt=

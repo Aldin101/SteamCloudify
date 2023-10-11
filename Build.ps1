@@ -38,11 +38,11 @@ while (1) {
         $sed.Split([Environment]::NewLine)
         $sed[36] = "TargetName=$(Get-Location)\Multi Game Installer\SteamCloudInstaller.exe"
         $sed[44] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
-        $sed | Set-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
+        $sed | Set-Content "C:\SteamCloudInstaller.sed"
         $h=Get-Location
         cls
         try {
-            Start-Process "iexpress.exe" "/M /Q /N $($h.Path)\Multi Game Installer\SteamCloudInstaller.sed" -Verb runAs
+            Start-Process "iexpress.exe" "C:\SteamCloudInstaller.sed" -Verb runAs
         } catch {
             echo "You need to accept the admin prompt"
             timeout -1
@@ -68,7 +68,7 @@ while (1) {
         $h=Get-Location
         cls
         try {
-            Start-Process "iexpress.exe" "/M /Q /N $($h.Path)\GTTODLevelLoader.sed" -Verb runAs
+            Start-Process "iexpress.exe" "/Q /N $($h.Path)\GTTODLevelLoader.sed" -Verb runAs
         } catch {
             echo "You need to accept the admin prompt"
             timeout -1
@@ -83,7 +83,7 @@ while (1) {
         $h=Get-Location
         cls
         try {
-            Start-Process "iexpress.exe" "/M /Q /N $($h.Path)\SteamCloud\SteamCloudSync.sed" -Verb runAs
+            Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\SteamCloudSync.sed" -Verb runAs
         } catch {
             echo "You need to accept the admin prompt"
             timeout -1
@@ -96,7 +96,7 @@ while (1) {
         $h=Get-Location
         cls
         try {
-            Start-Process "iexpress.exe" "/M /Q /N $($h.Path)\SteamCloud\Background.sed" -Verb runAs
+            Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\Background.sed" -Verb runAs
         } catch {
             echo "You need to accept the admin prompt"
             timeout -1
