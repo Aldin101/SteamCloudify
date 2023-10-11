@@ -3,7 +3,7 @@ Class=IEXPRESS
 SEDVersion=3
 [Options]
 PackagePurpose=InstallApp
-ShowInstallProgramWindow=1
+ShowInstallProgramWindow=0
 HideExtractAnimation=1
 UseLongFileName=1
 InsideCompressed=0
@@ -34,14 +34,14 @@ InternalName=
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud\SteamCloudSync.exe
-FriendlyName=Cloud Sync
-AppLaunched=cmd /c powershell .\SteamCloudSync.ps1
+TargetName=C:\Users\jinda\Desktop\Steam-Cloud\Multi Game Installer\SteamCloudInstaller.exe
+FriendlyName=Steam Cloud For All Installer
+AppLaunched=cmd /c powershell .\SteamCloudInstaller.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="SteamCloudSync.ps1"
+FILE0="SteamCloudInstaller.ps1"
 [SourceFiles]
-SourceFiles0=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud
+SourceFiles0=C:\Users\jinda\Desktop\Steam-Cloud\Multi Game Installer\
 [SourceFiles0]
 %FILE0%=

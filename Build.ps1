@@ -16,8 +16,8 @@ cd $script:PSScriptRoot
 $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
 while (1) {
     echo "[1] Build database"
-    echo "[2] Build online installer"
-    echo "[3] Build offline installer"
+    echo "[2] Build multi game installer"
+    echo "[3] Build single game installer"
     echo "[4] Build Steam Cloud Runtime executable"
     echo "[5] Build Steam Cloud executable"
     $selection = Read-Host "What would you like to do"
@@ -34,136 +34,21 @@ while (1) {
     }
 
     if ($selection -eq 2) {
-        $i=1
+        $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
+        $sed.Split([Environment]::NewLine)
+        $sed[36] = "TargetName=$(Get-Location)\Multi Game Installer\SteamCloudInstaller.exe"
+        $sed[44] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
+        $sed | Set-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
+        $h=Get-Location
         cls
-        foreach ($branch in $Config.branches.branchName) {
-            echo "[$i] $branch"
-            ++$i
-        }
-        echo "[$i] New branch"
-        [int]$branchSelection = Read-Host "What branch would you like to edit"
-        if ($branchSelection -eq $i) {
-            cls
-            $newName = Read-Host "What would you like to name this branch"
-            cls
-            $mainMenuFile = Read-Host "Please enter the main menu filename for this branch"
-            if (!(Test-Path ./$mainMenuFile)) {
-                echo "That file does not exist"
-                echo "Press any key to exit"
-                timeout -1 | Out-Null
-                exit
-            }
-            cls
-            $fileOne = Read-Host "Please enter the file name for the first menu option"
-            if (!(Test-Path ./$fileOne)) {
-                echo "That file does not exist"
-                echo "Press any key to exit"
-                timeout -1 | Out-Null
-                exit
-            }
-            $branchList = [System.Collections.ArrayList]($Config.branches)
-            $files = New-Object System.Collections.ArrayList
-            $files.Add($mainMenuFile) | Out-Null
-            $files.Add($fileOne) | Out-Null
-            $branchList.Add([PSCustomObject]@{"branchName"="$newName"; "files"=$files}) | Out-Null
-            $Config.branches = $branchList.ToArray()
-        } else {
-            cls
-            echo "[1] Add file to branch"
-            echo "[2] Remove file from branch"
-            echo "[3] Adjust a file's index in branch"
-            echo "[4] Delete branch"
-            $settingsSelection = Read-Host "What would you like to do?"
-            cls
-            if ($settingsSelection -eq 1) {
-                $filesToAdd = Read-Host "What file would you like to add to the branch"
-                $filesToAdd = $filesToAdd -replace " ", ""
-                $filesToAdd = $filesToAdd -split ","
-                foreach($filename in $filesToAdd) {
-                    if (!(Test-Path ./$filename)) {
-                        echo "One of the files you entered does not exist"
-                        echo "Press any key to exit"
-                        timeout -1 | Out-Null
-                        exit
-                    }
-                }
-                $fileList = [System.Collections.ArrayList]($Config.branches[$branchSelection-1].files)
-                foreach ($file in $filesToAdd) {
-                    $fileList.Add($file) | Out-Null
-                }
-                $Config.branches[$branchSelection-1].files = $fileList.ToArray()
-            }
-
-
-            if ($settingsSelection -eq 2) {
-                $i=1
-                foreach($file in $Config.branches[$branchSelection-1].files){
-                    echo "[$i] $file"
-                    ++$i
-                }
-                $fileSelection = Read-Host "What file would you like to remove"
-
-                if ($fileSelection -ne 1) {
-                $fileList = [System.Collections.ArrayList]($Config.branches[$branchSelection-1].files)
-                $fileList.Remove($fileList[$fileSelection-1])
-                $Config.branches[$branchSelection-1].files = $fileList.ToArray()
-                } else {
-                    echo "You can't remove the main menu file from a branch"
-                    timeout -1
-                }
-            }
-
-            if ($settingsSelection -eq 3) {
-                $fileList = [System.Collections.ArrayList]($Config.branches[$branchSelection-1].files)
-                $i=1
-                cls
-                foreach($file in $Config.branches[$branchSelection-1].files){
-                    echo "[$i] $file"
-                    ++$i
-                }
-                $fileSelection = Read-Host "What file would you like to move"
-                $fileList.Remove($fileList[$fileSelection-1])
-                cls
-                if ($fileSelection -ne 1) {
-                    $i=1
-                    foreach($file in $fileList){
-                        echo "[$i] $file"
-                        ++$i
-                    }
-                    $position = Read-Host "What file would you like to move $($Config.branches[$branchSelection-1].files[$fileSelection-1]) below"
-                    $newFileList = New-Object System.Collections.ArrayList
-                    $i=0
-                    while ([int]$position -gt $i) {
-                        $newFileList.Add($fileList[$i]) | Out-Null
-                        ++$i
-                    }
-                    $newFileList.Add($Config.branches[$branchSelection-1].files[$fileSelection-1]) | Out-Null
-                    $Config.branches[$branchSelection-1].PSobject.Properties.Remove("files")
-                    while ($fileList.Count -gt $i) {
-                        $newFileList.Add($fileList[$i]) | Out-Null
-                        ++$i
-                    }
-                    $Config.branches[$branchSelection-1] | Add-Member -MemberType NoteProperty -Name "files" -Value $newFileList
-                } else {
-                    echo "You can't move the main menu file"
-                    timeout -1
-                }
-            }
-            if ($settingsSelection -eq 4) {
-                $fileSelection = Read-Host "Are you sure you want to remove this branch [y/N]"
-                if ($fileSelection -eq "y" -or $fileSelection -eq "Y" -or $fileSelection -eq "yes") {
-                    if ($Config.branches.Count -ne 1) {
-                    $fileList = [System.Collections.ArrayList]($Config.branches)
-                    $fileList.Remove($Config.branches[$branchSelection-1])
-                    $Config.branches = $fileList.ToArray()
-                    } else {
-                        echo "You need to have at least one branch"
-                        timeout -1
-                    }
-                }
-            }
+        try {
+            Start-Process "iexpress.exe" "/M /Q /N $($h.Path)\Multi Game Installer\SteamCloudInstaller.sed" -Verb runAs
+        } catch {
+            echo "You need to accept the admin prompt"
+            timeout -1
         }
     }
+
     if ($selection -eq 3) {
         if (test-path "$env:appdata\GTTODLevelLoader\database.json") {
             del "$env:appdata\GTTODLevelLoader\database.json"
@@ -177,8 +62,8 @@ while (1) {
     if ($selection -eq 4) {
         $sed = Get-Content .\GTTODLevelLoader.SED
         $sed.Split([Environment]::NewLine)
-        $sed[26] = "TargetName=$(Get-Location)\GTTOD Save Editor.exe"
-        $sed[34] = "SourceFiles0=$(Get-Location)\"
+        $sed[36] = "TargetName=$(Get-Location)\GTTOD Save Editor.exe"
+        $sed[44] = "SourceFiles0=$(Get-Location)\"
         $sed | Set-Content .\GTTODLevelLoader.SED
         $h=Get-Location
         cls
@@ -192,8 +77,8 @@ while (1) {
     if ($selection -eq 5) {
         $sed = Get-Content ".\SteamCloud\SteamCloudSync.sed"
         $sed.Split([Environment]::NewLine)
-        $sed[26] = "TargetName=$(Get-Location)\SteamCloud\SteamCloudSync.exe"
-        $sed[34] = "SourceFiles0=$(Get-Location)\SteamCloud"
+        $sed[36] = "TargetName=$(Get-Location)\SteamCloud\SteamCloudSync.exe"
+        $sed[44] = "SourceFiles0=$(Get-Location)\SteamCloud"
         $sed | Set-Content ".\SteamCloud\SteamCloudSync.sed"
         $h=Get-Location
         cls
@@ -205,8 +90,8 @@ while (1) {
         }
         $sed = Get-Content ".\SteamCloud\Background.sed"
         $sed.Split([Environment]::NewLine)
-        $sed[26] = "TargetName=$(Get-Location)\SteamCloud\GTTODSteamCloud.exe"
-        $sed[34] = "SourceFiles0=$(Get-Location)\SteamCloud"
+        $sed[36] = "TargetName=$(Get-Location)\SteamCloud\GTTODSteamCloud.exe"
+        $sed[45] = "SourceFiles0=$(Get-Location)\SteamCloud"
         $sed | Set-Content ".\SteamCloud\Background.sed"
         $h=Get-Location
         cls
