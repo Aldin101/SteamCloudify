@@ -1,6 +1,37 @@
 
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
+$clientVersion = "1.0.0"
+$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
+    $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer.exe'" -ErrorAction SilentlyContinue
+    if ($fileLocation -eq $null) {
+        echo "Unable request admin, please manually run the program as administrator to continue"
+        echo "Press any key to exit"
+        timeout -1 |out-null
+        exit
+    }
+    taskkill /f /im "Steam Cloud Installer.exe" 2>$null | Out-Null
+    $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
+    try {
+        Start-Process "$filelocation1" -Verb RunAs
+    } catch {
+        echo "The Steam Cloud installer requires administator privileges, please accept the admin prompt to continue"
+        echo "Press any key to try again"
+        timeout -1 | out-null
+        try {
+            Start-Process "$filelocation1" -Verb RunAs
+        } catch {
+            cls
+            echo "The Steam Cloud installer cannot continue without administator privileges"
+            echo "Press any key to exit"
+            timeout -1 | out-null
+        }
+    }
+    exit
+}
+
 
 $database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/GameList.json" -UseBasicParsing
 $database = $database.Content | ConvertFrom-Json

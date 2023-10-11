@@ -24,6 +24,9 @@ while (1) {
         echo "[2] Build multi game installer"
         echo "[3] Build single game installer"
         echo "[4] Build Steam Cloud runtime and background executables"
+        if (test-path "c:/program files (x86)/resource hacker/") {
+            echo "[5] Uninstall Resource Hacker"
+        }
         $selection = Read-Host "What would you like to do"
     } else {
         $selection = [int]$1
@@ -44,19 +47,18 @@ while (1) {
         echo "Resource Hacker is not installed, it is required to build executables."
         $choice = read-host "Would you like to install Resource Hacker [Y/n]"
         if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
-            try {
-                winget install AngusJohnson.ResourceHacker --source winget --force
-            }
-            catch {
+            echo "Installing..."
+            winget install AngusJohnson.ResourceHacker --source winget --force --silent
+            if (!(test-path "C:\Program Files (x86)\Resource Hacker\")) {
                 echo "Failed to install Resource Hacker, please check your internet connection and try again, or install manually from https://www.angusj.com/resourcehacker/"
                 echo "Press any key to exit"
-                timeout -1
+                timeout -1 | Out-Null
                 exit
             }
         } else {
             echo "Resource Hacker is required to build executables, please install before continuing"
             echo "Press any key to exit"
-            timeout -1
+            timeout -1 | Out-Null
             exit
         }
     }
@@ -115,7 +117,7 @@ while (1) {
             timeout -1
         }
     }
-    if ($selection -eq 5) {
+    if ($selection -eq 9) {
         $sed = Get-Content ".\SteamCloud\SteamCloudSync.sed"
         $sed.Split([Environment]::NewLine)
         $sed[36] = "TargetName=$(Get-Location)\SteamCloud\SteamCloudSync.exe"
@@ -140,6 +142,15 @@ while (1) {
             Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\Background.sed" -Verb runAs
         } catch {
             echo "You need to accept the admin prompt"
+            timeout -1
+        }
+    }
+    if (test-path "c:/program files (x86)/resource hacker/" -and $selection -eq 5) {
+        winget uninstall AngusJohnson.ResourceHacker --silent
+        if (Test-Path "c:/program files (x86)/resource hacker/") {
+            echo "Failed to uninstall Resource Hacker, you can uninstall manually from the add or remove programs menu in settings"
+        } else {
+            echo "Resource Hacker has been uninstalled"
             timeout -1
         }
     }
