@@ -20,16 +20,6 @@ PostInstallCmd=%PostInstallCmd%
 AdminQuietInstCmd=%AdminQuietInstCmd%
 UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
-VersionInfo=VersionSection
-[VersionSection]
-FileDescription=Steam Cloud Installer
-CompanyName=Aldin101
-FileVersion=1.0.0
-ProductVersion=1.0.0
-OriginalFilename=Steam Cloud Installer.exe
-LegalCopyright=
-ProductName=Steam Cloud For All
-InternalName=
 [Strings]
 InstallPrompt=
 DisplayLicense=

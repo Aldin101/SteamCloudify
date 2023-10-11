@@ -1,3 +1,6 @@
+param (
+    [string]$1
+)
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
@@ -15,12 +18,16 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 cd $script:PSScriptRoot
 $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
 while (1) {
-    echo "[1] Build database"
-    echo "[2] Build multi game installer"
-    echo "[3] Build single game installer"
-    echo "[4] Build Steam Cloud Runtime executable"
-    echo "[5] Build Steam Cloud executable"
-    $selection = Read-Host "What would you like to do"
+    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
+        echo "[1] Build database"
+        echo "[2] Build multi game installer"
+        echo "[3] Build single game installer"
+        echo "[4] Build Steam Cloud runtime and background executables"
+        $selection = Read-Host "What would you like to do"
+    } else {
+        $selection = [int]$1
+    }
     if ($selection -eq 1) {
         foreach ($games in $config.games) {
             $s = Get-Content ".\$($games.name)\OnlineInstaller.ps1" | Out-String
@@ -33,20 +40,54 @@ while (1) {
         $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
     }
 
+    if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\")) {
+        echo "Resource Hacker is not installed, it is required to build executables."
+        $choice = read-host "Would you like to install Resource Hacker [Y/n]"
+        if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
+            try {
+                winget install AngusJohnson.ResourceHacker --source winget --force
+            }
+            catch {
+                echo "Failed to install Resource Hacker, please check your internet connection and try again, or install manually from https://www.angusj.com/resourcehacker/"
+                echo "Press any key to exit"
+                timeout -1
+                exit
+            }
+        } else {
+            echo "Resource Hacker is required to build executables, please install before continuing"
+            echo "Press any key to exit"
+            timeout -1
+            exit
+        }
+    }
+
     if ($selection -eq 2) {
+        if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
+            try {
+                Start-Process powershell.exe -Verb runAs -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 2"
+                exit
+            }
+            catch {
+                echo "You need to accept the admin prompt"
+                timeout -1
+                exit
+            }
+        }
+        echo "Building..."
         $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
         $sed.Split([Environment]::NewLine)
-        $sed[36] = "TargetName=$(Get-Location)\Multi Game Installer\SteamCloudInstaller.exe"
-        $sed[44] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
-        $sed | Set-Content "C:\SteamCloudInstaller.sed"
-        $h=Get-Location
         cls
-        try {
-            Start-Process "iexpress.exe" "C:\SteamCloudInstaller.sed" -Verb runAs
-        } catch {
-            echo "You need to accept the admin prompt"
-            timeout -1
-        }
+        echo "Building..."
+        $sed[26] = "TargetName=$(Get-Location)\Multi Game Installer\Steam Cloud Installer.exe"
+        $sed[34] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
+        $sed | Set-Content "C:\SteamCloudInstaller.sed"
+        Start-Process "iexpress.exe" "/Q /N C:\SteamCloudInstaller.sed"
+        timeout 3 /nobreak | Out-Null
+        del "C:\SteamCloudInstaller.sed"
+        Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033"
+        timeout 1 /nobreak | Out-Null
+        Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033"
+        exit
     }
 
     if ($selection -eq 3) {
