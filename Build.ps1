@@ -65,31 +65,67 @@ while (1) {
 
     if ($selection -eq 2) {
         if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
+            $versionString = read-host "What is the desired version number, you can have up to 4 numbers seperated by periods"
+            $version = $versionString.Split(".")
+            if ($version.count -gt 4) {
+                echo "Invalid version number"
+                echo "Press any key to exit"
+                timeout -1
+                exit
+            }
+            $i=0
+            while ($i -lt 4) {
+                if ($version[$i] -eq $null) {
+                    $versionNumber = [System.Collections.ArrayList]($version)
+                    $versionNumber.Add(0) | out-null
+                    $version = $versionNumber.ToArray()
+                }
+                if ($version[$i] -lt 0 -or $version[$i] -gt 65535) {
+                    $version[$i] = 0
+                }
+                ++$i
+            }
+            $rc = Get-Content ".\Multi Game Installer\VersionInfo.rc"
+            $rc.Split([Environment]::NewLine) | Out-Null
+            $rc[1] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+            $rc[2] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+            $rc[12] = "        VALUE `"FileVersion`", `"$versionString`""
+            $rc[17] = "        VALUE `"ProductVersion`", `"$versionString`""
+            $rc | Set-Content ".\Multi Game Installer\VersionInfo.rc"
             try {
                 Start-Process powershell.exe -Verb runAs -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 2"
-                exit
             }
             catch {
                 echo "You need to accept the admin prompt"
                 timeout -1
-                exit
             }
         }
-        echo "Building..."
-        $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
-        $sed.Split([Environment]::NewLine)
-        cls
-        echo "Building..."
-        $sed[26] = "TargetName=$(Get-Location)\Multi Game Installer\Steam Cloud Installer.exe"
-        $sed[34] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
-        $sed | Set-Content "C:\SteamCloudInstaller.sed"
-        Start-Process "iexpress.exe" "/Q /N C:\SteamCloudInstaller.sed"
-        timeout 3 /nobreak | Out-Null
-        del "C:\SteamCloudInstaller.sed"
-        Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033"
-        timeout 1 /nobreak | Out-Null
-        Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033"
-        exit
+        if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
+            echo "Building..."
+            $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
+            $sed.Split([Environment]::NewLine)
+            $sed[26] = "TargetName=$(Get-Location)\Multi Game Installer\Steam Cloud Installer.exe"
+            $sed[34] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
+            $sed | Set-Content "C:\SteamCloudInstaller.sed"
+            Start-Process "iexpress.exe" "/Q /N C:\SteamCloudInstaller.sed"
+            while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
+                timeout 1 | out-null
+            }
+            del "C:\SteamCloudInstaller.sed"
+            Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.rc`" -save `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -action compile"
+            while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
+                timeout 1 | out-null
+            }
+            Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033"
+            while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
+                timeout 1 | out-null
+            }
+            Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033"
+            while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
+                timeout 1 | out-null
+            }
+            exit
+        }
     }
 
     if ($selection -eq 3) {
@@ -145,12 +181,13 @@ while (1) {
             timeout -1
         }
     }
-    if (test-path "c:/program files (x86)/resource hacker/" -and $selection -eq 5) {
+    if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 5) {
         winget uninstall AngusJohnson.ResourceHacker --silent
+        timeout 3 /nobreak | Out-Null
         if (Test-Path "c:/program files (x86)/resource hacker/") {
             echo "Failed to uninstall Resource Hacker, you can uninstall manually from the add or remove programs menu in settings"
+            timeout -1
         } else {
-            echo "Resource Hacker has been uninstalled"
             timeout -1
         }
     }

@@ -20,16 +20,6 @@ PostInstallCmd=%PostInstallCmd%
 AdminQuietInstCmd=%AdminQuietInstCmd%
 UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
-VersionInfo=VersionSection
-[VersionSection]
-FileDescription=Steam Cloud Sync
-CompanyName=Aldin101
-FileVersion=1.0.0
-ProductVersion=1.0.0
-OriginalFilename=SteamCloudSync.exe
-LegalCopyright=
-ProductName=Steam Cloud
-InternalName=
 [Strings]
 InstallPrompt=
 DisplayLicense=

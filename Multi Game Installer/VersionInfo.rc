@@ -1,0 +1,27 @@
+1 VERSIONINFO
+FILEVERSION 1,2,5,0
+PRODUCTVERSION 1,2,5,0
+FILEOS 0x40004
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+	BLOCK "040904B0"
+	{
+		VALUE "CompanyName", "Aldin101"
+		VALUE "FileDescription", "Steam Cloud Installer"
+        VALUE "FileVersion", "1.2.5"
+		VALUE "InternalName", "Steam Cloud Installer"
+		VALUE "LegalCopyright", "Aldin101"
+		VALUE "OriginalFilename", "Steam Cloud Installer.exe"
+		VALUE "ProductName", "Steam Cloud"
+        VALUE "ProductVersion", "1.2.5"
+	}
+}
+
+BLOCK "VarFileInfo"
+{
+	VALUE "Translation", 0x0409 0x04B0  
+}
+}
+
