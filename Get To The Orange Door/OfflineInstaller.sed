@@ -24,14 +24,18 @@ SourceFiles=SourceFiles
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=C:\Users\jinda\Desktop\Steam-Cloud\Multi Game Installer\SteamCloudInstaller.exe
-FriendlyName=Steam Cloud Installer
-AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass .\SteamCloudInstaller.ps1
+TargetName=C:\Users\jinda\Desktop\Steam-Cloud\file.exe
+FriendlyName=Steam Cloud Offline Installer
+AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass ./OfflineInstaller.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="SteamCloudInstaller.ps1"
+FILE0="SteamCloudBackground.exe"
+FILE1="SteamCloudSync.exe"
+FILE2="OfflineInstaller.ps1"
 [SourceFiles]
-SourceFiles0=C:\Users\jinda\Desktop\Steam-Cloud\Multi Game Installer
+SourceFiles0=C:\Users\jinda\Desktop\Steam-Cloud\Get To The Orange Door\
 [SourceFiles0]
 %FILE0%=
+%FILE1%=
+%FILE2%=

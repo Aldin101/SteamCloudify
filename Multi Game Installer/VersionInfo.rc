@@ -10,12 +10,12 @@ BLOCK "StringFileInfo"
 	{
 		VALUE "CompanyName", "Aldin101"
 		VALUE "FileDescription", "Steam Cloud Installer                                                     "
-		VALUE "FileVersion", "1.0.0.0"
+		VALUE "FileVersion", "1.0.0"
 		VALUE "InternalName", "Steam Cloud Installer                                                     "
 		VALUE "LegalCopyright", "Aldin101"
 		VALUE "OriginalFilename", "Steam Cloud Installer.exe"
 		VALUE "ProductName", "Steam Cloud"
-		VALUE "ProductVersion", "1.0.0.0"
+		VALUE "ProductVersion", "1.0.0"
 	}
 }
 
