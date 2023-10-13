@@ -24,7 +24,7 @@ SourceFiles=SourceFiles
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud\GTTODSteamCloud.exe
+[FILLED IN BY TOOL]
 FriendlyName=Cloud Sync
 AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass .\Background.ps1
 PostInstallCmd=<None>
@@ -32,6 +32,6 @@ AdminQuietInstCmd=
 UserQuietInstCmd=
 FILE0="Background.ps1"
 [SourceFiles]
-SourceFiles0=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud
+[FILLED IN BY TOOL]
 [SourceFiles0]
 %FILE0%=

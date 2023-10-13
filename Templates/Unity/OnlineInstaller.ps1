@@ -43,7 +43,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         cd $CloudConfig.gamepath
         Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
         Remove-Item ".\$gameExecutableName"
-        Rename-Item ".\$gameExecutableName" "$gameExecutableName"
+        Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
         Remove-Item "$env:appdata\$cloudName\CloudConfig.json"
@@ -84,11 +84,12 @@ cd $gamepath
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
         echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
-        echo "[1] Override your saves on this computer with the ones in Steam Cloud"
-        echo "[2] Override your Steam Cloud saves with the ones on this computer"
+        echo "[1] Override your Steam Cloud saves with the ones on this computer"
+        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
         echo "[3] Cancel installation"
         $choice = Read-Host "What would you like to do"
         if ($choice -eq 1) {
+            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
             break
         }
         if ($choice -eq 2) {

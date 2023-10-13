@@ -3,7 +3,7 @@ Class=IEXPRESS
 SEDVersion=3
 [Options]
 PackagePurpose=InstallApp
-ShowInstallProgramWindow=1
+ShowInstallProgramWindow=0
 HideExtractAnimation=1
 UseLongFileName=1
 InsideCompressed=0
@@ -24,14 +24,20 @@ SourceFiles=SourceFiles
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud\GTTODSteamCloud.exe
-FriendlyName=Cloud Sync
-AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass .\Background.ps1
+[FILLED IN BY TOOL]
+FriendlyName=Steam Cloud Offline Installer
+AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass ./OfflineInstaller.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="Background.ps1"
+FILE0="OfflineInstaller.ps1"
+FILE1="SteamCloudBackground.exe"
+FILE2="SteamCloudSync.exe"
 [SourceFiles]
-SourceFiles0=C:\Users\jinda\Desktop\GTTOD-Save-Editor\SteamCloud
+[FILLED IN BY TOOL]
+[FILLED IN BY TOOL]
 [SourceFiles0]
 %FILE0%=
+[SourceFiles1]
+%FILE1%=
+%FILE2%=

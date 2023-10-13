@@ -9,6 +9,11 @@
       "name": "Get To The Orange Door",
       "steamID": "541200",
       "installer": ".\\Get To The Orange Door\\"
+    },
+    {
+      "name": "Template test",
+      "steamID": "541200",
+      "installer": ".\\GTTOD using unity template\\"
     }
   ]
 }

@@ -12,7 +12,7 @@ $gameSaveExtentions = ".dat" # the game save folder sometimes contains informati
 # $gameRegistryEntries = ".dat" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/Beat%20Saber.json" -UseBasicParsing
+$file = Invoke-WebRequest "[DATABASE URL]" -UseBasicParsing
 # The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------

@@ -12,9 +12,9 @@ $gameSaveExtentions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder som
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$updateLink = "[STEAM CLOUD RUNTIME TASK DOWNLOAD URL]"
-# The URL where the runtime executable can be found so that this background task knows where to download the runtime task from. This link is not used by this-
-# installer as all the required files are bundled. This is used by the background task to download the runtime task when the game updates.
+$updateLink = "[URL FOR GAME LAUNCH TASK]"
+# The URL where the launch executable can be found so that this background task knows where to download the launch task from. This link is not used by this-
+# installer as all the required files are bundled. This is used by the background task to download the launch task when the game updates.
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         cd $CloudConfig.gamepath
         Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
         Remove-Item ".\$gameExecutableName"
-        Rename-Item ".\$gameExecutableName" "$gameExecutableName"
+        Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
         Remove-Item "$env:appdata\$cloudName\CloudConfig.json"
@@ -195,11 +195,12 @@ if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName")
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
         echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
-        echo "[1] Override your saves on this computer with the ones in Steam Cloud"
-        echo "[2] Override your Steam Cloud saves with the ones on this computer"
+        echo "[1] Override your Steam Cloud saves with the ones on this computer"
+        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
         echo "[3] Cancel installation"
         $choice = Read-Host "What would you like to do"
         if ($choice -eq 1) {
+            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
             break
         }
         if ($choice -eq 2) {

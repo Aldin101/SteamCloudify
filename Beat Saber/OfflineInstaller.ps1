@@ -1,20 +1,20 @@
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
-$gameName = "Get To The Orange Door" # name of the game
-$steamAppID = "541200" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
-$gameExecutableName = "Get To The Orange Door.exe" # executable name should be structured, "GAME NAME.exe"
-$gameFolderName = "Get To The Orange Door" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "$env:appdata\..\locallow\layers deep\get to the orange door" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameName = "Beat Saber" # name of the game
+$steamAppID = "620980" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
+$gameExecutableName = "Beat Saber.exe" # executable name should be structured, "GAME NAME.exe"
+$gameFolderName = "Beat Saber" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
+$gameSaveFolder = "$env:appdata\..\Hyperbolic Magnetism\Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
-$gameSaveExtentions = ".od2" # the game save folder sometimes contains information other than just game saves, and some-
+$gameSaveExtentions = ".dat" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
-# $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
+# $gameRegistryEntries = ".dat" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$updateLink = "https://aldin101.github.io/GTTODLevelEdit/SteamCloudSync.exe"
-# The URL where the runtime executable can be found so that this background task knows where to download the runtime task from. This link is not used by this-
-# installer as all the required files are bundled. This is used by the background task to download the runtime task when the game updates.
+$updateLink = "[URL FOR GAME LAUNCH TASK]"
+# The URL where the launch executable can be found so that this background task knows where to download the launch task from. This link is not used by this-
+# installer as all the required files are bundled. This is used by the background task to download the launch task when the game updates.
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 

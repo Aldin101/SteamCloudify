@@ -3,7 +3,7 @@ Class=IEXPRESS
 SEDVersion=3
 [Options]
 PackagePurpose=InstallApp
-ShowInstallProgramWindow=0
+ShowInstallProgramWindow=1
 HideExtractAnimation=1
 UseLongFileName=1
 InsideCompressed=0
@@ -24,18 +24,14 @@ SourceFiles=SourceFiles
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=C:\Users\jinda\Desktop\Steam-Cloud\file.exe
-FriendlyName=Steam Cloud Offline Installer
-AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass ./OfflineInstaller.ps1
+[FILLED IN BY TOOL]
+FriendlyName=Cloud Sync
+AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass .\Background.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="SteamCloudBackground.exe"
-FILE1="SteamCloudSync.exe"
-FILE2="OfflineInstaller.ps1"
+FILE0="Background.ps1"
 [SourceFiles]
-SourceFiles0=C:\Users\jinda\Desktop\Steam-Cloud\Get To The Orange Door\
+[FILLED IN BY TOOL]
 [SourceFiles0]
 %FILE0%=
-%FILE1%=
-%FILE2%=

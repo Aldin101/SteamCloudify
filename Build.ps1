@@ -161,6 +161,7 @@ while (1) {
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
+                del ".\Multi Game Installer\*.res" -Force
                 exit
             }
         }
@@ -177,6 +178,11 @@ while (1) {
                 $path = $Config.games[$selection-1].installer
                 if ($path -eq $null) {
                     echo "Invalid game"
+                    timeout -1
+                    break
+                }
+                if (!(test-path "$($path)Built Exectuctables\SteamCloudSync.exe")) {
+                    echo "Steam Cloud Sync executables not found, please build it first using option 4"
                     timeout -1
                     break
                 }
@@ -199,15 +205,14 @@ while (1) {
                     }
                     ++$i
                 }
-                $rc = Get-Content "$($path)Offline.rc"
+                $rc = Get-Content "$($path)Resources\Offline.rc"
                 $rc.Split([Environment]::NewLine) | Out-Null
                 $rc[2] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
                 $rc[3] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
                 $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
                 $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
-                $rc | Set-Content "$($path)Offline.rc"
+                $rc | Set-Content "$($path)Resources\Offline.rc"
 
-                
                 try {
                     Start-Process pwsh -Verb runAs -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($path.trimend("\"))`""
                 }
@@ -245,60 +250,33 @@ while (1) {
                         $gameName = $game.name
                     }
                 }
-                $sed = Get-Content ".\$path\OfflineInstaller.sed"
+                $sed = Get-Content ".\$path\SEDs\OfflineInstaller.sed"
                 $sed.Split([Environment]::NewLine)
-                $sed[26] = "TargetName=$(Get-Location)\$path\Steam Cloud Installer for $gameName.exe"
-                $sed[36] = "SourceFiles0=$(Get-Location)\$path"
+                $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\Steam Cloud Installer for $gameName.exe"
+                $sed[36] = "SourceFiles0=$(Get-Location)\$path\"
+                $sed[37] = "SourceFiles1=$(Get-Location)\$path\Built Executables\"
                 $sed | Set-Content "C:\OfflineInstaller.sed"
                 Start-Process "iexpress.exe" "/Q /N C:\OfflineInstaller.sed"
                 while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
                 del "C:\OfflineInstaller.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Offline.rc`" -save `"$($script:PSScriptRoot)\$path\Offline.res`" -action compile"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Offline.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -action compile"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Offline.res`" -mask VERSIONINFO,1,1033"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -mask VERSIONINFO,1,1033"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Icon.ico`" -mask ICONGROUP,3000,1033"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
+                del "$path\Resources\*.res" -Force
                 exit
             }
         }
-        if ($selection -eq 9) {
-            $sed = Get-Content ".\SteamCloud\SteamCloudSync.sed"
-            $sed.Split([Environment]::NewLine)
-            $sed[36] = "TargetName=$(Get-Location)\SteamCloud\SteamCloudSync.exe"
-            $sed[44] = "SourceFiles0=$(Get-Location)\SteamCloud"
-            $sed | Set-Content ".\SteamCloud\SteamCloudSync.sed"
-            $h=Get-Location
-            cls
-            try {
-                Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\SteamCloudSync.sed" -Verb runAs
-            } catch {
-                echo "You need to accept the admin prompt"
-                timeout -1
-            }
-            $sed = Get-Content ".\SteamCloud\Background.sed"
-            $sed.Split([Environment]::NewLine)
-            $sed[36] = "TargetName=$(Get-Location)\SteamCloud\GTTODSteamCloud.exe"
-            $sed[45] = "SourceFiles0=$(Get-Location)\SteamCloud"
-            $sed | Set-Content ".\SteamCloud\Background.sed"
-            $h=Get-Location
-            cls
-            try {
-                Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\Background.sed" -Verb runAs
-            } catch {
-                echo "You need to accept the admin prompt"
-                timeout -1
-            }
-        }
-
         if ($selection -eq 4) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
                 $i=1
@@ -333,13 +311,13 @@ while (1) {
                     }
                     ++$i
                 }
-                $rc = Get-Content "$($path)CloudSync.rc"
+                $rc = Get-Content "$($path)Resources\CloudSync.rc"
                 $rc.Split([Environment]::NewLine) | Out-Null
                 $rc[2] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
                 $rc[3] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
                 $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
                 $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
-                $rc | Set-Content "$($path)CloudSync.rc"
+                $rc | Set-Content "$($path)Resources\CloudSync.rc"
 
                 $versionString = read-host "What is the desired version number for the background exe, you can have up to 4 numbers seperated by periods"
                 $version = $versionString.Split(".")
@@ -360,13 +338,13 @@ while (1) {
                     }
                     ++$i
                 }
-                $rc = Get-Content "$($path)Background.rc"
+                $rc = Get-Content "$($path)Resources\Background.rc"
                 $rc.Split([Environment]::NewLine) | Out-Null
                 $rc[2] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
                 $rc[3] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
                 $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
                 $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
-                $rc | Set-Content "$($path)Background.rc"
+                $rc | Set-Content "$($path)Resources\Background.rc"
 
                 try {
                     Start-Process pwsh -Verb runAs -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($path.trimend("\"))`""
@@ -400,80 +378,53 @@ while (1) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $path = $2
                 $path = $path.TrimStart(".\")
-                $sed = Get-Content ".\$path\SteamCloudSync.sed"
+                $sed = Get-Content ".\$path\SEDs\SteamCloudSync.sed"
                 $sed.Split([Environment]::NewLine)
-                $sed[26] = "TargetName=$(Get-Location)\$path\SteamCloudSync.exe"
-                $sed[34] = "SourceFiles0=$(Get-Location)\$path"
+                $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudSync.exe"
+                $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed | Set-Content "C:\SteamCloudSync.sed"
                 Start-Process "iexpress.exe" "/Q /N C:\SteamCloudSync.sed"
                 while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
                 del "C:\SteamCloudSync.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\CloudSync.rc`" -save `"$($script:PSScriptRoot)\$path\CloudSync.res`" -action compile"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\CloudSync.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -action compile"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\CloudSync.res`" -mask VERSIONINFO,1,1033"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -mask VERSIONINFO,1,1033"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Icon.ico`" -mask ICONGROUP,3000,1033"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
 
-                $sed = Get-Content ".\$path\Background.sed"
+                $sed = Get-Content ".\$path\SEDs\Background.sed"
                 $sed.Split([Environment]::NewLine)
-                $sed[26] = "TargetName=$(Get-Location)\$path\SteamCloudBackground.exe"
-                $sed[34] = "SourceFiles0=$(Get-Location)\$path"
+                $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudBackground.exe"
+                $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed | Set-Content "C:\Background.sed"
                 Start-Process "iexpress.exe" "/Q /N C:\Background.sed"
                 while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
                 del "C:\Background.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Background.rc`" -save `"$($script:PSScriptRoot)\$path\Background.res`" -action compile"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Background.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -action compile"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Background.res`" -mask VERSIONINFO,1,1033"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -mask VERSIONINFO,1,1033"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Icon.ico`" -mask ICONGROUP,3000,1033"
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"
                 while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
                     timeout 1 | out-null
                 }
+                del "$path\Resources\*.res" -Force
                 exit
-            }
-        }
-        if ($selection -eq 9) {
-            $sed = Get-Content ".\SteamCloud\SteamCloudSync.sed"
-            $sed.Split([Environment]::NewLine)
-            $sed[36] = "TargetName=$(Get-Location)\SteamCloud\SteamCloudSync.exe"
-            $sed[44] = "SourceFiles0=$(Get-Location)\SteamCloud"
-            $sed | Set-Content ".\SteamCloud\SteamCloudSync.sed"
-            $h=Get-Location
-            cls
-            try {
-                Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\SteamCloudSync.sed" -Verb runAs
-            } catch {
-                echo "You need to accept the admin prompt"
-                timeout -1
-            }
-            $sed = Get-Content ".\SteamCloud\Background.sed"
-            $sed.Split([Environment]::NewLine)
-            $sed[36] = "TargetName=$(Get-Location)\SteamCloud\GTTODSteamCloud.exe"
-            $sed[45] = "SourceFiles0=$(Get-Location)\SteamCloud"
-            $sed | Set-Content ".\SteamCloud\Background.sed"
-            $h=Get-Location
-            cls
-            try {
-                Start-Process "iexpress.exe" "/Q /N $($h.Path)\SteamCloud\Background.sed" -Verb runAs
-            } catch {
-                echo "You need to accept the admin prompt"
-                timeout -1
             }
         }
         if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 5) {

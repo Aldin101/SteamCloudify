@@ -12,7 +12,7 @@ $gameSaveExtentions = ".dat" # the game save folder sometimes contains informati
 # $gameRegistryEntries = ".dat" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/Beat%20Saber.json" -UseBasicParsing
+$file = Invoke-WebRequest "[DATABASE URL]" -UseBasicParsing
 # The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
 
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         cd $CloudConfig.gamepath
         Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
         Remove-Item ".\$gameExecutableName"
-        Rename-Item ".\$gameExecutableName" "$gameExecutableName"
+        Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
         Remove-Item "$env:appdata\$cloudName\CloudConfig.json"
@@ -84,11 +84,12 @@ cd $gamepath
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
         echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
-        echo "[1] Override your saves on this computer with the ones in Steam Cloud"
-        echo "[2] Override your Steam Cloud saves with the ones on this computer"
+        echo "[1] Override your Steam Cloud saves with the ones on this computer"
+        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
         echo "[3] Cancel installation"
         $choice = Read-Host "What would you like to do"
         if ($choice -eq 1) {
+            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
             break
         }
         if ($choice -eq 2) {

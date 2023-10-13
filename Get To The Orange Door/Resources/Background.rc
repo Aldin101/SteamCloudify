@@ -1,7 +1,7 @@
 
 1 VERSIONINFO
-FILEVERSION 3,0,0,0
-PRODUCTVERSION 3,0,0,0
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
 FILEOS 0x40004
 FILETYPE 0x1
 {
@@ -11,12 +11,12 @@ BLOCK "StringFileInfo"
 	{
 		VALUE "CompanyName", "Aldin101"
 		VALUE "FileDescription", "Steam Cloud Sync Background Task                                          "
-		VALUE "FileVersion", "3.0"
+		VALUE "FileVersion", "1.0.0"
 		VALUE "InternalName", "SteamCloudBackground                                "
 		VALUE "LegalCopyright", "Aldin101"
 		VALUE "OriginalFilename", "SteamCloudBackground.exe"
 		VALUE "ProductName", "Steam Cloud"
-		VALUE "ProductVersion", "3.0"
+		VALUE "ProductVersion", "1.0.0"
 	}
 }
 

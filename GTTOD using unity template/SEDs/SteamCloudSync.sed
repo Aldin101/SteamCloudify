@@ -3,7 +3,7 @@ Class=IEXPRESS
 SEDVersion=3
 [Options]
 PackagePurpose=InstallApp
-ShowInstallProgramWindow=0
+ShowInstallProgramWindow=1
 HideExtractAnimation=1
 UseLongFileName=1
 InsideCompressed=0
@@ -25,12 +25,12 @@ InstallPrompt=
 DisplayLicense=
 FinishMessage=
 [FILLED IN BY TOOL]
-FriendlyName=Steam Cloud Installer
-AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass .\SteamCloudInstaller.ps1
+FriendlyName=Cloud Sync
+AppLaunched=cmd /c powershell -NoLogo -NoProfile -ExecutionPolicy Bypass .\SteamCloudSync.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
-FILE0="SteamCloudInstaller.ps1"
+FILE0="SteamCloudSync.ps1"
 [SourceFiles]
 [FILLED IN BY TOOL]
 [SourceFiles0]
