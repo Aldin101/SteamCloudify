@@ -181,7 +181,7 @@ while (1) {
                     timeout -1
                     break
                 }
-                if (!(test-path "$($path)Built Exectuctables\SteamCloudSync.exe")) {
+                if (!(test-path "$($path)Built Executables\SteamCloudSync.exe")) {
                     echo "Steam Cloud Sync executables not found, please build it first using option 4"
                     timeout -1
                     break
