@@ -189,7 +189,7 @@ while (1) {
                                 exit
                             }
                         }
-                        $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
+                        $versionString = read-host "What is the desired version number for the exe, you can have up to 4 numbers separated by periods"
                         $version = $versionString.Split(".")
                         if ($version.count -gt 4) {
                             echo "Invalid version number"
@@ -333,7 +333,89 @@ while (1) {
                     echo "[$i] $($game.name)"
                     ++$i
                 }
+                echo "[$i] All games"
                 $selection = read-host "What game would you like to build executables for"
+                if ($selection -eq $i) {
+                    $i=$i*9
+                    if ($i -gt 60) {
+                        $timeunit = "minutes"
+                        $i=$i/60
+                    } else {
+                        $timeunit = "seconds"
+                    }
+                    $selection = read-host "Building all games will take approximately $i $timeunit, would you like to build all games? [Y/n]"
+                    if ($selection -eq "n" -or $selection -eq "N" -or $selection -eq "no") {
+                        echo "Canceled"
+                        timeout -1
+                        break
+                    } else {
+                        $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
+                        $version = $versionString.Split(".")
+                        if ($version.count -gt 4) {
+                            echo "Invalid version number"
+                            timeout -1
+                            break
+                        }
+                        $i=0
+                        while ($i -lt 4) {
+                            if ($version[$i] -eq $null) {
+                                $versionNumber = [System.Collections.ArrayList]($version)
+                                $versionNumber.Add(0) | out-null
+                                $version = $versionNumber.ToArray()
+                            }
+                            if ($version[$i] -lt 0 -or $version[$i] -gt 65535) {
+                                $version[$i] = 0
+                            }
+                            ++$i
+                        }
+                        foreach ($game in $config.games) {
+                            $rc = Get-Content "$($game.installer)Resources\CloudSync.rc"
+                            $rc.Split([Environment]::NewLine) | Out-Null
+                            $rc[2] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+                            $rc[3] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+                            $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
+                            $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
+                            $rc | Set-Content "$($game.installer)Resources\CloudSync.rc"
+                        }
+                        $versionString = read-host "What is the desired version number for the background exe, you can have up to 4 numbers separated by periods"
+                        $version = $versionString.Split(".")
+                        if ($version.count -gt 4) {
+                            echo "Invalid version number"
+                            timeout -1
+                            break
+                        }
+                        $i=0
+                        while ($i -lt 4) {
+                            if ($version[$i] -eq $null) {
+                                $versionNumber = [System.Collections.ArrayList]($version)
+                                $versionNumber.Add(0) | out-null
+                                $version = $versionNumber.ToArray()
+                            }
+                            if ($version[$i] -lt 0 -or $version[$i] -gt 65535) {
+                                $version[$i] = 0
+                            }
+                            ++$i
+                        }
+                        foreach ($game in $config.games) {
+                            $rc = Get-Content "$($game.installer)Resources\Background.rc"
+                            $rc.Split([Environment]::NewLine) | Out-Null
+                            $rc[2] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+                            $rc[3] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+                            $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
+                            $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
+                            $rc | Set-Content "$($game.installer)Resources\Background.rc"
+                        }
+                        try {
+                            Start-Process pwsh -Verb runAs -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 104"
+                        }
+                        catch {
+                            echo "You need to accept the admin prompt"
+                            timeout -1
+                            break
+                        }
+                        break
+                    }
+                }
                 $selection = [int]$selection
                 $path = $Config.games[$selection-1].installer
                 if ($path -eq $null) {
@@ -501,6 +583,25 @@ while (1) {
             timeout -1 | out-null
             exit
         }
+        if ($selection -eq 104) {
+            foreach ($game in $config.games) {
+                echo "Building $($game.name)..."
+                try {
+                    Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
+                }
+                catch {
+                    echo "An error occurred, please try again"
+                    echo "Press any key to exit"
+                    timeout -1 | out-null
+                    exit
+                }
+            }
+            echo "Build completed"
+            echo "Press any key to exit"
+            timeout -1 | out-null
+            exit
+        }
+
         if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 5) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
