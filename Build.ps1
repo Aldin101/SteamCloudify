@@ -35,9 +35,21 @@ while (1) {
         }
         if ($selection -eq 1) {
             foreach ($games in $config.games) {
-                $s = Get-Content "$($games.installer)OnlineInstaller.ps1" | Out-String
+                $s = Get-Content "$($games.installer)OnlineInstaller.ps1"
+                $s.Split([Environment]::NewLine) | Out-Null
+                $template = get-content ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1"
+                if ($s[0].TrimStart("# !") -ne $s[0].TrimStart("#")) {
+                    $i=20
+                    while ($i -lt $s.count) {
+                        $s[$i] = $template[$i]
+                        ++$i
+                    }
+                    $template | Set-Content ".\temp.ps1"
+                    $s = Get-Content ".\temp.ps1"
+                    del ".\temp.ps1"
+                }
                 $j = [PSCustomObject]@{
-                "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
+                    "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
                 }
                 $games.installer = $j
             }
