@@ -13,7 +13,7 @@ $gameSaveExtensions = ".od2" # the game save folder sometimes contains informati
 # $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
-$updateLink = "https://aldin101.github.io/GTTODLevelEdit/SteamCloudSync.exe"
+$updateLink = "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/SteamCloudSync.exe"
 # The URL where the runtime executable can be found so that this background task knows where to download the runtime task from. This link is not used by this-
 # installer as all the required files are bundled. This is used by the background task to download the runtime task when the game updates.
 

@@ -12,6 +12,11 @@ $gameSaveExtensions = "[INSERT SAVE FILE EXTENSIONS]" # the game save folder som
 # "[EXTENSION1]", "[EXTENSION2]", "[EXTENSION3]"
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
+$databaseURL = "[DATABASE URL]"
+# The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
+$updateLink = "[URL FOR GAME LAUNCH TASK]"
+# The URL where the launch executable can be found so that this background task knows where to download the launch task from. This link is not used by this-
+# installer as all the required files are bundled. This is used by the background task to download the launch task when the game updates.
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 
