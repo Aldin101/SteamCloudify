@@ -55,7 +55,6 @@ while (1) {
                     }
                     $newfile | Set-Content ".\temp.ps1"
                     $s = Get-Content ".\temp.ps1"
-                    pause
                     del ".\temp.ps1"
                 }
                 $j = [PSCustomObject]@{
@@ -105,7 +104,7 @@ while (1) {
 
         if ($selection -eq 2) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-                $versionString = read-host "What is the desired version number, you can have up to 4 numbers seperated by periods"
+                $versionString = read-host "What is the desired version number, you can have up to 4 numbers separated by periods"
                 $version = $versionString.Split(".")
                 if ($version.count -gt 4) {
                     echo "Invalid version number"
@@ -131,34 +130,17 @@ while (1) {
                 $rc[12] = "		VALUE `"FileVersion`", `"$versionString`""
                 $rc[17] = "		VALUE `"ProductVersion`", `"$versionString`""
                 $rc | Set-Content ".\Multi Game Installer\VersionInfo.rc"
+                echo "Building..."
                 try {
-                    Start-Process pwsh -Verb runAs -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 2"
+                    Start-Process pwsh -Verb runAs -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 2"
                 }
                 catch {
                     echo "You need to accept the admin prompt"
                     timeout -1
                     break
                 }
-                echo "Building..."
-                $proccess = Get-CimInstance Win32_Process -Filter "name = 'pwsh.exe'" -ErrorAction SilentlyContinue
-                foreach ($p in $proccess) {
-                    if ($p.CommandLine -eq $null) {
-                        $ID = $p.ProcessId
-                    }
-                }
-                $i=0
-                while ($(Get-Process -pid $ID -erroraction SilentlyContinue) -ne $null -and $i -lt 20) {
-                    timeout 1 | out-null
-                    ++$i
-                }
-                if ($i -eq 20) {
-                    taskkill /f /pid $id 2>$null | Out-Null
-                    echo "Build timed out, please try again"
-                    timeout -1
-                } else {
-                    echo "Build completed in $i seconds"
-                    timeout -1
-                }
+                echo "Build completed"
+                timeout -1
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
@@ -166,23 +148,11 @@ while (1) {
                 $sed[26] = "TargetName=$(Get-Location)\Multi Game Installer\Steam Cloud Installer.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
                 $sed | Set-Content "C:\SteamCloudInstaller.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\SteamCloudInstaller.sed"
-                while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
+                Start-Process "iexpress.exe" "/Q /N C:\SteamCloudInstaller.sed" -Wait
                 del "C:\SteamCloudInstaller.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.rc`" -save `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -action compile"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.rc`" -save `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -action compile" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033" -Wait
                 del ".\Multi Game Installer\*.res" -Force
                 exit
             }
@@ -195,7 +165,69 @@ while (1) {
                     echo "[$i] $($game.name)"
                     ++$i
                 }
+                echo "[$i] All games"
                 $selection = read-host "What game would you like to build executables for"
+                if ($selection -eq $i) {
+                    $i=$i*5
+                    if ($i -gt 60) {
+                        $timeunit = "minutes"
+                        $i=$i/60
+                    } else {
+                        $timeunit = "seconds"
+                    }
+                    $selection = read-host "Building all games will take approximately $i $timeunit, would you like to build all games? [Y/n]"
+                    if ($selection -eq "n" -or $selection -eq "N" -or $selection -eq "no") {
+                        echo "Canceled"
+                        timeout -1
+                        break
+                    } else {
+                        foreach ($game in $config.games) {
+                            if (!(test-path "$($game.installer)Built Executables\SteamCloudSync.exe")) {
+                                echo "Steam Cloud Sync executables for $($game.name) not found, please build it first using option 4"
+                                echo "Press any key to exit"
+                                timeout -1 | out-null
+                                exit
+                            }
+                        }
+                        $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
+                        $version = $versionString.Split(".")
+                        if ($version.count -gt 4) {
+                            echo "Invalid version number"
+                            timeout -1
+                            break
+                        }
+                        $i=0
+                        while ($i -lt 4) {
+                            if ($version[$i] -eq $null) {
+                                $versionNumber = [System.Collections.ArrayList]($version)
+                                $versionNumber.Add(0) | out-null
+                                $version = $versionNumber.ToArray()
+                            }
+                            if ($version[$i] -lt 0 -or $version[$i] -gt 65535) {
+                                $version[$i] = 0
+                            }
+                            ++$i
+                        }
+                        foreach ($game in $config.games) {
+                            $rc = Get-Content "$($game.installer)Resources\Offline.rc"
+                            $rc.Split([Environment]::NewLine) | Out-Null
+                            $rc[2] = "FILEVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+                            $rc[3] = "PRODUCTVERSION $($version[0]),$($version[1]),$($version[2]),$($version[3])"
+                            $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
+                            $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
+                            $rc | Set-Content "$($game.installer)Resources\Offline.rc"
+                        }
+                        try {
+                            Start-Process pwsh -Verb runAs -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 103"
+                        }
+                        catch {
+                            echo "You need to accept the admin prompt"
+                            timeout -1
+                            break
+                        }
+                        break
+                    }
+                }
                 $selection = [int]$selection
                 $path = $Config.games[$selection-1].installer
                 if ($path -eq $null) {
@@ -208,7 +240,7 @@ while (1) {
                     timeout -1
                     break
                 }
-                $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers seperated by periods"
+                $versionString = read-host "What is the desired version number for the exe, you can have up to 4 numbers separated by periods"
                 $version = $versionString.Split(".")
                 if ($version.count -gt 4) {
                     echo "Invalid version number"
@@ -234,35 +266,17 @@ while (1) {
                 $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
                 $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
                 $rc | Set-Content "$($path)Resources\Offline.rc"
-
+                echo "Building..."
                 try {
-                    Start-Process pwsh -Verb runAs -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($path.trimend("\"))`""
+                    Start-Process pwsh -Verb runAs -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($path.trimend("\"))`""
                 }
                 catch {
                     echo "You need to accept the admin prompt"
                     timeout -1
                     break
                 }
-                echo "Building..."
-                $proccess = Get-CimInstance Win32_Process -Filter "name = 'pwsh.exe'" -ErrorAction SilentlyContinue
-                foreach ($p in $proccess) {
-                    if ($p.CommandLine -eq $null) {
-                        $ID = $p.ProcessId
-                    }
-                }
-                $i=0
-                while ($(Get-Process -pid $ID -erroraction SilentlyContinue) -ne $null -and $i -lt 20) {
-                    timeout 1 | out-null
-                    ++$i
-                }
-                if ($i -eq 20) {
-                    taskkill /f /pid $id 2>$null | Out-Null
-                    echo "Build timed out, please try again"
-                    timeout -1
-                } else {
-                    echo "Build completed in $i seconds"
-                    timeout -1
-                }
+                echo "Build completed"
+                timeout -1
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $path = $2
@@ -272,30 +286,43 @@ while (1) {
                         $gameName = $game.name
                     }
                 }
+                $s = Get-Content ".\$path\OfflineInstaller.ps1"
+                $s.Split([Environment]::NewLine) | Out-Null
+                if (test-path ".\$($s[0].TrimStart("# !"))\OfflineInstaller.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# !"))\OfflineInstaller.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    Rename-Item ".\$path\OfflineInstaller.ps1" "OfflineInstaller.ps1.bak"
+                    $newfile | Set-Content ".\$path\OfflineInstaller.ps1"
+                }
                 $sed = Get-Content ".\$path\SEDs\OfflineInstaller.sed"
                 $sed.Split([Environment]::NewLine)
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\Steam Cloud Installer for $gameName.exe"
                 $sed[36] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed[37] = "SourceFiles1=$(Get-Location)\$path\Built Executables\"
                 $sed | Set-Content "C:\OfflineInstaller.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\OfflineInstaller.sed"
-                while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
+                Start-Process "iexpress.exe" "/Q /N C:\OfflineInstaller.sed"  -Wait
                 del "C:\OfflineInstaller.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Offline.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -action compile"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
+                if (test-path ".\$path\OfflineInstaller.ps1.bak") {
+                    del ".\$path\OfflineInstaller.ps1"
+                    Rename-Item ".\$path\OfflineInstaller.ps1.bak" "OfflineInstaller.ps1"
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -mask VERSIONINFO,1,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-                del "$path\Resources\*.res" -Force
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Offline.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -action compile"  -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -mask VERSIONINFO,1,1033"  -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"  -Wait
+                del ".\$path\Resources\*.res" -Force
                 exit
             }
         }
@@ -314,7 +341,7 @@ while (1) {
                     timeout -1
                     break
                 }
-                $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers seperated by periods"
+                $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
                 $version = $versionString.Split(".")
                 if ($version.count -gt 4) {
                     echo "Invalid version number"
@@ -341,7 +368,7 @@ while (1) {
                 $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
                 $rc | Set-Content "$($path)Resources\CloudSync.rc"
 
-                $versionString = read-host "What is the desired version number for the background exe, you can have up to 4 numbers seperated by periods"
+                $versionString = read-host "What is the desired version number for the background exe, you can have up to 4 numbers separated by periods"
                 $version = $versionString.Split(".")
                 if ($version.count -gt 4) {
                     echo "Invalid version number"
@@ -367,87 +394,112 @@ while (1) {
                 $rc[13] = "		VALUE `"FileVersion`", `"$versionString`""
                 $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
                 $rc | Set-Content "$($path)Resources\Background.rc"
-
+                echo "Building..."
                 try {
-                    Start-Process pwsh -Verb runAs -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($path.trimend("\"))`""
+                    Start-Process pwsh -Verb runAs -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($path.trimend("\"))`""
                 }
                 catch {
                     echo "You need to accept the admin prompt"
                     timeout -1
                     break
                 }
-                echo "Building..."
-                $proccess = Get-CimInstance Win32_Process -Filter "name = 'pwsh.exe'" -ErrorAction SilentlyContinue
-                foreach ($p in $proccess) {
-                    if ($p.CommandLine -eq $null) {
-                        $ID = $p.ProcessId
-                    }
-                }
-                $i=0
-                while ($(Get-Process -pid $ID -erroraction SilentlyContinue) -ne $null -and $i -lt 20) {
-                    timeout 1 | out-null
-                    ++$i
-                }
-                if ($i -eq 20) {
-                    taskkill /f /pid $id 2>$null | Out-Null
-                    echo "Build timed out, please try again"
-                    timeout -1
-                } else {
-                    echo "Build completed in $i seconds"
-                    timeout -1
-                }
+                echo "Build completed in $i seconds"
+                timeout -1
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $path = $2
                 $path = $path.TrimStart(".\")
+                $s = Get-Content ".\$path\SteamCloudSync.ps1"
+                $s.Split([Environment]::NewLine) | Out-Null
+                if (test-path ".\$($s[0].TrimStart("# !"))\SteamCloudSync.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# !"))\SteamCloudSync.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    Rename-Item ".\$path\SteamCloudSync.ps1" "SteamCloudSync.ps1.bak"
+                    $newfile | Set-Content ".\$path\SteamCloudSync.ps1"
+                }
                 $sed = Get-Content ".\$path\SEDs\SteamCloudSync.sed"
                 $sed.Split([Environment]::NewLine)
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudSync.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed | Set-Content "C:\SteamCloudSync.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\SteamCloudSync.sed"
-                while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
+                Start-Process "iexpress.exe" "/Q /N C:\SteamCloudSync.sed" -Wait
                 del "C:\SteamCloudSync.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\CloudSync.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -action compile"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
+                if (test-path ".\$path\SteamCloudSync.ps1.bak") {
+                    del ".\$path\SteamCloudSync.ps1"
+                    Rename-Item ".\$path\SteamCloudSync.ps1.bak" "SteamCloudSync.ps1"
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -mask VERSIONINFO,1,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\CloudSync.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -action compile" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -mask VERSIONINFO,1,1033" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033" -Wait
+                $s = Get-Content ".\$path\Background.ps1"
+                $s.Split([Environment]::NewLine) | Out-Null
+                if (test-path ".\$($s[0].TrimStart("# !"))\Background.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# !"))\Background.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    Rename-Item ".\$path\Background.ps1" "Background.ps1.bak"
+                    $newfile | Set-Content ".\$path\Background.ps1"
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-
                 $sed = Get-Content ".\$path\SEDs\Background.sed"
                 $sed.Split([Environment]::NewLine)
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudBackground.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed | Set-Content "C:\Background.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\Background.sed"
-                while ($(Get-Process "iexpress" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
+                Start-Process "iexpress.exe" "/Q /N C:\Background.sed" -Wait
                 del "C:\Background.sed"
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Background.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -action compile"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
+                if (test-path ".\$path\Background.ps1.bak") {
+                    del ".\$path\Background.ps1"
+                    Rename-Item ".\$path\Background.ps1.bak" "Background.ps1"
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -mask VERSIONINFO,1,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"
-                while ($(Get-Process "ResourceHacker" -erroraction SilentlyContinue) -ne $null) {
-                    timeout 1 | out-null
-                }
-                del "$path\Resources\*.res" -Force
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Background.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -action compile"  -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -mask VERSIONINFO,1,1033"  -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"  -Wait
+                del ".\$path\Resources\*.res" -Force
                 exit
             }
+        }
+        if ($selection -eq 103) {
+            foreach ($game in $config.games) {
+                echo "Building $($game.name)..."
+                try {
+                    Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
+                }
+                catch {
+                    echo "An error occurred, please try again"
+                    echo "Press any key to exit"
+                    timeout -1 | out-null
+                    exit
+                }
+            }
+            echo "Build completed"
+            echo "Press any key to exit"
+            timeout -1 | out-null
+            exit
         }
         if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 5) {
             winget uninstall AngusJohnson.ResourceHacker --silent
