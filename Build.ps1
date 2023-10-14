@@ -35,6 +35,7 @@ while (1) {
             $selection = [int]$1
         }
         if ($selection -eq 1) {
+            echo "Building scripts..."
             foreach ($games in $config.games) {
                 $s = Get-Content "$($games.installer)OnlineInstaller.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
@@ -63,8 +64,14 @@ while (1) {
                 }
                 $games.installer = $j
             }
-            $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Multi Game Installer\GameList.json"
+            $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Database\GameList.json"
             $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
+            echo "Transfering files..."
+            foreach ($games in $config.games) {
+                mkdir ".\Database\$($games.name)" -Force | out-null
+                Copy-Item "$($games.installer)\Built Executables\*" ".\Database\$($games.name)\" -Force
+                Copy-Item "$($games.installer)\$($games.name).json" ".\Database\$($games.name)\" -Force
+            }
         }
 
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\")) {

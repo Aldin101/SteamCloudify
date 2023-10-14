@@ -1,0 +1,12 @@
+{
+    "latestClient": "1.0.0",
+    "allowedClient": [
+        "1.0.0"
+      ],
+    "updateLink": "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/SteamCloudSync.exe",
+    "latestUpdater": "1.0.0",
+    "allowedUpdater": [
+        "1.0.0"
+      ],
+    "gameUpdateChecker": "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/SteamCloudBackground.exe"
+}
