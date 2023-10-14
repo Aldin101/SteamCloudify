@@ -3,24 +3,26 @@
 $gameName = "Beat Saber" # name of the game
 $steamAppID = "620980" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "Beat Saber.exe" # executable name should be structured, "GAME NAME.exe"
-$gameFolderName = "Beat Saber" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "$env:appdata\..\LocalLow\Hyperbolic Magnetism\Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
+$gameSaveFolder = "Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
-# -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
+# -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
 $gameSaveExtensions = ".dat" # the game save folder sometimes contains information other than just game saves, and some-
-# -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
-# "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
-# $gameRegistryEntries = ".dat" # the location where registry entries are located, if the game does not store save files in the registry-
+# -files should not be uploaded to Steam Cloud. If there is one extension format it like this ".[EXTENSION]". If there are more that one format it like this
+# "[EXTENSION1]", "[EXTENSION2]", "[EXTENSION3]"
+# $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
-
-$file = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/Beat%20Saber.json" -UseBasicParsing
+$databaseURL = "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/Beat%20Saber.json"
 # The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
-
+$updateLink = "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/SteamCloudSync.exe"
+# The URL where the launch executable can be found so that this background task knows where to download the launch task from. This link is not used by this-
+# installer as all the required files are bundled. This is used by the background task to download the launch task when the game updates.
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 $cloudName = "$gameName Steam Cloud"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 $clientVersion = "1.0.0"
+$file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
@@ -113,18 +115,19 @@ foreach ($file in $clientFiles) {
         $item.InvokeVerb("delete")
     }
 }
+$choice = "Yes"
 foreach ($file in $cloudFiles) {
     if ($(Get-Item -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.Name)").LastWriteTimeUtc -lt $(Get-Item -Path "$gameSaveFolder\$($file.BaseName)").LastWriteTimeUtc) {
-        $choice = [System.Windows.Forms.MessageBox]::Show( "Sync conflict: The version of $('"')$($($file.BaseName).TrimEnd(".od2"))$('"') on your computer is newer then the version on Steam Cloud. Would you like to override the version on your computer with the Steam Cloud version?", "Sync Conflict", "YesNo", "Warning" )
-    } else {
-        $choice = "Yes"
-    }
-    if ($choice -eq "Yes") {
-        Copy-Item $file "$gameSaveFolder\$($file.BaseName)"
+        $choice = [System.Windows.Forms.MessageBox]::Show( "Sync conflict: The save files on your computer is newer then the files on Steam Cloud. Would you like to override the save files on your computer with the Steam Cloud files?", "Sync Conflict", "YesNo", "Warning" )
     }
 }
-if ($gameRegistryEntries -ne $null) {
-    reg import "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+if ($choice -eq "Yes") {
+    foreach ($file in $cloudFiles) {
+        Copy-Item $file "$gameSaveFolder\$($file.BaseName)"
+    }
+    if ($gameRegistryEntries -ne $null) {
+        reg import "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+    }
 }
 Start-Process ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 timeout 5
@@ -147,5 +150,5 @@ if ($gameRegistryEntries -ne $null) {
 }
 foreach ($file in $clientFiles) {
     mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
-    Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.name).vdf"
+    Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf"
 }

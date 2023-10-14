@@ -3,20 +3,20 @@
 $gameName = "Beat Saber" # name of the game
 $steamAppID = "620980" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "Beat Saber.exe" # executable name should be structured, "GAME NAME.exe"
-$gameFolderName = "Beat Saber" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "$env:appdata\..\LocalLow\Hyperbolic Magnetism\Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
+$gameSaveFolder = "Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
-# -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
+# -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
 $gameSaveExtensions = ".dat" # the game save folder sometimes contains information other than just game saves, and some-
-# -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
-# "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
-# $gameRegistryEntries = ".dat" # the location where registry entries are located, if the game does not store save files in the registry-
+# -files should not be uploaded to Steam Cloud. If there is one extension format it like this ".[EXTENSION]". If there are more that one format it like this
+# "[EXTENSION1]", "[EXTENSION2]", "[EXTENSION3]"
+# $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
-
+$databaseURL = "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/Beat%20Saber.json"
+# The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
 $updateLink = "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/SteamCloudSync.exe"
 # The URL where the launch executable can be found so that this background task knows where to download the launch task from. This link is not used by this-
 # installer as all the required files are bundled. This is used by the background task to download the launch task when the game updates.
-
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 $cloudName = "$gameName Steam Cloud"
@@ -233,8 +233,7 @@ if ($choice -eq 1) {
         $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
         foreach ($file in $files) {
             mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
-            Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.name).vdf"
-        }
+            Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf"        }
     }
     if ($gameRegistryEntries -ne $null) {
         reg export $gameRegistryEntries "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
@@ -249,6 +248,6 @@ $CloudConfig.Add("CloudSyncDownload", $updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 cls
-echo "Steam Cloud setup has compleated, remember to install on other computers to sync saves"
+echo "Steam Cloud setup has completed, remember to install on other computers to sync saves"
 echo "Press any key to exit"
 timeout -1 |Out-Null

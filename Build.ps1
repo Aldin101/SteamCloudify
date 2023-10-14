@@ -2,6 +2,7 @@ param (
     [string]$1,
     [string]$2
 )
+cls
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
@@ -168,7 +169,7 @@ while (1) {
                 echo "[$i] All games"
                 $selection = read-host "What game would you like to build executables for"
                 if ($selection -eq $i) {
-                    $i=$i*5
+                    $i=$i*5-5
                     if ($i -gt 60) {
                         $timeunit = "minutes"
                         $i=$i/60
@@ -336,7 +337,7 @@ while (1) {
                 echo "[$i] All games"
                 $selection = read-host "What game would you like to build executables for"
                 if ($selection -eq $i) {
-                    $i=$i*9
+                    $i=$i*9-9
                     if ($i -gt 60) {
                         $timeunit = "minutes"
                         $i=$i/60
@@ -485,7 +486,7 @@ while (1) {
                     timeout -1
                     break
                 }
-                echo "Build completed in $i seconds"
+                echo "Build completed"
                 timeout -1
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {

@@ -11,12 +11,12 @@ BLOCK "StringFileInfo"
 	{
 		VALUE "CompanyName", "Aldin101"
 		VALUE "FileDescription", "Steam Cloud Sync Offline Installer                                                                                    "
-		VALUE "FileVersion", "1.0"
+		VALUE "FileVersion", "1.0.0"
 		VALUE "InternalName", "SteamCloudOffline                                                                                    "
 		VALUE "LegalCopyright", "Aldin101"
 		VALUE "OriginalFilename", "SteamCloudOfflineInstaller.exe"
 		VALUE "ProductName", "Steam Cloud"
-		VALUE "ProductVersion", "1.0"
+		VALUE "ProductVersion", "1.0.0"
 	}
 }
 
