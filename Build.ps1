@@ -37,8 +37,8 @@ while (1) {
             foreach ($games in $config.games) {
                 $s = Get-Content "$($games.installer)OnlineInstaller.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
-                $template = get-content ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1"
-                if ($s[0].TrimStart("# !") -ne $s[0].TrimStart("#")) {
+                if (test-path ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1"
                     $i=20
                     while ($i -lt $s.count) {
                         $s[$i] = $template[$i]
