@@ -1,3 +1,4 @@
+# !templates\unreal
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -5,10 +6,10 @@ $gameExecutableName = "[INSERT EXECUTABLE NAME]" # executable name should be str
 $gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
 $gameSaveFolder = "[INSERT SAVE LOCATION]" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
-# -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
-$gameSaveExtentions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder sometimes contains information other than just game saves, and some-
-# -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
-# "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
+# -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
+$gameSaveExtensions = "[INSERT SAVE FILE EXTENSIONS]" # the game save folder sometimes contains information other than just game saves, and some-
+# -files should not be uploaded to Steam Cloud. If there is one extension format it like this ".[EXTENSION]". If there are more that one format it like this
+# "[EXTENSION1]", "[EXTENSION2]", "[EXTENSION3]"
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 
@@ -38,14 +39,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     try {
         Start-Process "$filelocation1" -Verb RunAs
     } catch {
-        echo "The Steam Cloud installer requires administator privileges, please accept the admin prompt to continue"
+        echo "The Steam Cloud installer requires administrator privileges, please accept the admin prompt to continue"
         echo "Press any key to try again"
         timeout -1 | out-null
         try {
             Start-Process "$filelocation1" -Verb RunAs
         } catch {
             cls
-            echo "The Steam Cloud installer cannot continue without administator privileges"
+            echo "The Steam Cloud installer cannot continue without administrator privileges"
             echo "Press any key to exit"
             timeout -1 | out-null
         }
@@ -70,7 +71,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 
 echo "Welcome to Steam Cloud setup"
 echo "Here are some things to know:"
-echo "This tool is not inteded as a backup, it is only inteded to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
+echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
 echo "Your saves will only be synced with other computers that have this tool installed"
 echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
 echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
@@ -206,7 +207,7 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
             break
         }
         if ($choice -eq 3) {
-            echo "Installation cancled"
+            echo "Installation canceled"
             echo "Press any key to exit"
             timeout -1 | Out-Null
             exit
@@ -227,7 +228,7 @@ Copy-Item ".\SteamCloudSync.exe" "$gamepath\$gameExecutableName"
 Copy-Item ".\SteamCloudBackground.exe" "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
-        $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtentions | ForEach-Object { "*$_" }) -File -Recurse
+        $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
         foreach ($file in $files) {
             mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
             Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf"        }
@@ -245,6 +246,6 @@ $CloudConfig.Add("CloudSyncDownload", $updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 cls
-echo "Steam Cloud setup has compleated, remember to install on other computers to sync saves"
+echo "Steam Cloud setup has completed, remember to install on other computers to sync saves"
 echo "Press any key to exit"
 timeout -1 |Out-Null

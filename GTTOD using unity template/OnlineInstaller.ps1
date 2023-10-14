@@ -1,3 +1,4 @@
+# !templates\unity
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "Get To The Orange Door" # name of the game
 $steamAppID = "541200" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -6,7 +7,7 @@ $gameFolderName = "Get To The Orange Door" # install folder should be structured
 $gameSaveFolder = "$env:appdata\..\locallow\layers deep\get to the orange door" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
-$gameSaveExtentions = ".od2" # the game save folder sometimes contains information other than just game saves, and some-
+$gameSaveExtensions = ".od2" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
 # $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
@@ -159,7 +160,7 @@ Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName"
 Invoke-WebRequest $database.gameUpdateChecker -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
-        $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtentions | ForEach-Object { "*$_" }) -File -Recurse
+        $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
         foreach ($file in $files) {
             mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
             Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.name).vdf"

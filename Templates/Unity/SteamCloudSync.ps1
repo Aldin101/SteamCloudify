@@ -1,3 +1,4 @@
+# !templates\unity
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -6,7 +7,7 @@ $gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured l
 $gameSaveFolder = "[INSERT SAVE LOCATION]" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
-$gameSaveExtentions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder sometimes contains information other than just game saves, and some-
+$gameSaveExtensions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
@@ -103,8 +104,8 @@ if ($database -ne $null) {
 del "$env:appdata\$cloudName\updateClient.set"
 del "$env:appdata\$cloudName\updateBackground.set"
 cd $gamepath
-$cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Include ($gameSaveExtentions | ForEach-Object { "*$_.vdf" }) -File -Recurse
-$clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtentions | ForEach-Object { "*$_" }) -File -Recurse
+$cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
+$clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
 foreach ($file in $clientFiles) {
     if (!(Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.BaseName).od2.vdf")) {
         $shell = new-object -comobject "Shell.Application"
@@ -136,11 +137,11 @@ while ($(Get-Process "$($gameExecutableName.TrimEnd(".exe")) Game") -ne $null -o
         $i=0
     }
 }
-$cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtentions | ForEach-Object { "*$_.vdf" }) -File -Recurse
+$cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
 foreach ($file in $cloudFiles) {
     Remove-Item $file
 }
-$clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtentions | ForEach-Object { "*$_" }) -File -Recurse
+$clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
 if ($gameRegistryEntries -ne $null) {
     reg export $gameRegistryEntries "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
 }

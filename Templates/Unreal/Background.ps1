@@ -1,3 +1,4 @@
+# !templates\unreal
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -6,7 +7,7 @@ $gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured l
 $gameSaveFolder = "[INSERT SAVE LOCATION]" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -enviorment varables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
-$gameSaveExtentions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder sometimes contains information other than just game saves, and some-
+$gameSaveExtensions = "[INSERT SAVE FILE EXTENTIONS]" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extention format it like this ".[EXTENTION]". If there are more that one format it like this
 # "[EXTENTION1]", "[EXTENTION2]", "[EXTENTION3]"
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-

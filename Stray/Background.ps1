@@ -1,3 +1,4 @@
+# !templates\unreal
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "Stray" # name of the game
 $steamAppID = "1332010" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
