@@ -248,6 +248,6 @@ $CloudConfig.Add("CloudSyncDownload", $updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 cls
-echo "Steam Cloud setup has compleated, remember to install on other computers to sync saves"
+echo "Steam Cloud setup has completed, remember to install on other computers to sync saves"
 echo "Press any key to exit"
 timeout -1 |Out-Null

@@ -1,4 +1,4 @@
-# !templates\unreal
+# !templates\generic
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -113,18 +113,19 @@ foreach ($file in $clientFiles) {
         $item.InvokeVerb("delete")
     }
 }
+$choice = "Yes"
 foreach ($file in $cloudFiles) {
     if ($(Get-Item -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.Name)").LastWriteTimeUtc -lt $(Get-Item -Path "$gameSaveFolder\$($file.BaseName)").LastWriteTimeUtc) {
-        $choice = [System.Windows.Forms.MessageBox]::Show( "Sync conflict: The version of $('"')$($($file.BaseName).TrimEnd(".od2"))$('"') on your computer is newer then the version on Steam Cloud. Would you like to override the version on your computer with the Steam Cloud version?", "Sync Conflict", "YesNo", "Warning" )
-    } else {
-        $choice = "Yes"
-    }
-    if ($choice -eq "Yes") {
-        Copy-Item $file "$gameSaveFolder\$($file.BaseName)"
+        $choice = [System.Windows.Forms.MessageBox]::Show( "Sync conflict: The save files on your computer is newer then the files on Steam Cloud. Would you like to override the save files on your computer with the Steam Cloud files?", "Sync Conflict", "YesNo", "Warning" )
     }
 }
-if ($gameRegistryEntries -ne $null) {
-    reg import "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+if ($choice -eq "Yes") {
+    foreach ($file in $cloudFiles) {
+        Copy-Item $file "$gameSaveFolder\$($file.BaseName)"
+    }
+    if ($gameRegistryEntries -ne $null) {
+        reg import "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+    }
 }
 Start-Process ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 timeout 5
