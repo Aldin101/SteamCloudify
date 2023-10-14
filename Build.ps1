@@ -39,13 +39,23 @@ while (1) {
                 $s.Split([Environment]::NewLine) | Out-Null
                 if (test-path ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1") {
                     $template = get-content ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1"
-                    $i=20
-                    while ($i -lt $s.count) {
-                        $s[$i] = $template[$i]
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
                         ++$i
                     }
-                    $template | Set-Content ".\temp.ps1"
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    $newfile | Set-Content ".\temp.ps1"
                     $s = Get-Content ".\temp.ps1"
+                    pause
                     del ".\temp.ps1"
                 }
                 $j = [PSCustomObject]@{
