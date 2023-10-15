@@ -177,6 +177,10 @@ while (1) {
                 $selection = read-host "What game would you like to build executables for"
                 if ($selection -eq $i) {
                     $i=$i*5-5
+                    $i=$i/8
+                    if ($i -lt 5) {
+                        $i = 5
+                    }
                     if ($i -gt 60) {
                         $timeunit = "minutes"
                         $i=$i/60
@@ -345,6 +349,10 @@ while (1) {
                 $selection = read-host "What game would you like to build executables for"
                 if ($selection -eq $i) {
                     $i=$i*9-9
+                    $i=$i/8
+                    if ($i -lt 9) {
+                        $i = 9
+                    }
                     if ($i -gt 60) {
                         $timeunit = "minutes"
                         $i=$i/60
@@ -574,10 +582,17 @@ while (1) {
             }
         }
         if ($selection -eq 103) {
+            $i=0
             foreach ($game in $config.games) {
                 echo "Building $($game.name)..."
                 try {
-                    Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
+                    if ($i -eq 7) {
+                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
+                        $i=0
+                        timeout 5 /nobreak | Out-Null
+                    } else {
+                        Start-Process pwsh -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
+                    }
                 }
                 catch {
                     echo "An error occurred, please try again"
@@ -585,6 +600,7 @@ while (1) {
                     timeout -1 | out-null
                     exit
                 }
+                ++$i
             }
             echo "Build completed"
             echo "Press any key to exit"
@@ -592,10 +608,17 @@ while (1) {
             exit
         }
         if ($selection -eq 104) {
+            $i=0
             foreach ($game in $config.games) {
                 echo "Building $($game.name)..."
                 try {
-                    Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
+                    if ($i -eq 7) {
+                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
+                        $i=0
+                        timeout 5 /nobreak | Out-Null
+                    } else {
+                        Start-Process pwsh -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
+                    }
                 }
                 catch {
                     echo "An error occurred, please try again"
@@ -603,6 +626,7 @@ while (1) {
                     timeout -1 | out-null
                     exit
                 }
+                ++$i
             }
             echo "Build completed"
             echo "Press any key to exit"
