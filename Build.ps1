@@ -2,6 +2,7 @@ param (
     [string]$1,
     [string]$2
 )
+$host.ui.RawUI.WindowTitle = "Build Tool"
 cls
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
@@ -590,6 +591,8 @@ while (1) {
                         Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
                         $i=0
                         timeout 5 /nobreak | Out-Null
+                    } elseif ($game -eq $config.games[$config.games.count-1]) {
+                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
                     } else {
                         Start-Process pwsh -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
                     }
@@ -616,6 +619,8 @@ while (1) {
                         Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
                         $i=0
                         timeout 5 /nobreak | Out-Null
+                    } elseif ($game -eq $config.games[$config.games.count-1]) {
+                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
                     } else {
                         Start-Process pwsh -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
                     }
