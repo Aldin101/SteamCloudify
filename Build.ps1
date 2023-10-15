@@ -28,8 +28,9 @@ while (1) {
             echo "[2] Build multi game installer"
             echo "[3] Build single game installer"
             echo "[4] Build Steam Cloud runtime and background executables"
+            echo "[5] Add a new game to the build config"
             if (test-path "c:/program files (x86)/resource hacker/") {
-                echo "[5] Uninstall Resource Hacker"
+                echo "[6] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
         } else {
@@ -369,6 +370,7 @@ while (1) {
                         timeout -1
                         break
                     } else {
+                        mkdir "$($path)Built Executables" -Force | out-null
                         $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
                         $version = $versionString.Split(".")
                         if ($version.count -gt 4) {
@@ -443,6 +445,7 @@ while (1) {
                     timeout -1
                     break
                 }
+                mkdir "$($path)Built Executables" -Force | out-null
                 $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
                 $version = $versionString.Split(".")
                 if ($version.count -gt 4) {
@@ -646,8 +649,39 @@ while (1) {
             timeout -1 | out-null
             exit
         }
+        if ($selection -eq 5) {
+            $gamesList = [System.Collections.ArrayList]($config.games)
+            $files = get-childitem -path ".\" -Depth 1 -include "*.json" -Exclude "BuildTool.json", "Settings.json", "GameList.json"
+            $i=1
+            foreach ($file in $files) {
+                echo "[$i] $($file.basename)"
+                ++$i
+            }
+            $selection = read-host "What game would you like to add"
+            $selection = $selection-1
+            $path = $files[$selection].basename
+            $Background = get-content "$path\Background.ps1"
+            $Background.Split([Environment]::NewLine) | Out-Null
+            $gameInfo = [System.Collections.ArrayList]@()
+            $gameInfo.add($Background[2].trimstart("`$gameName = `"").trimend("`" # name of the game")) | Out-Null
+            $gameInfo.add($Background[3].trimstart("`$steamAppID = `"").trimend("`" # you can find this on https://steamdb.info, it should be structured like this, `"NUMBER`"")) | Out-Null
+            $gameInfo.add(".\$($gameInfo[0])\") | Out-Null
+            echo "Is the following information correct?"
+            echo "Game name: $($gameInfo[0])"
+            echo "Steam App ID: $($gameInfo[1])"
+            echo "Folder Location $($gameInfo[2])"
+            $selection = read-host "[Y/n]"
+            if ($selection -eq "n" -or $selection -eq "N" -or $selection -eq "no") {
+                $gameInfo[0] = read-host "What is the name of the game"
+                $gameInfo[1] = read-host "What is the steam app id"
+                $gameInfo[2] = read-host "What is the folder location"
+            }
+            $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]})
+            $config.games = $gamesList.ToArray()
+            $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
+        }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 5) {
+        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 6) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
             if (Test-Path "c:/program files (x86)/resource hacker/") {
