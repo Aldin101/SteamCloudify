@@ -573,7 +573,7 @@ while (1) {
                 $sed.Split([Environment]::NewLine)
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudBackground.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
-                $sed | Set-Content "C:\Background.sed"
+                $sed | Set-Content "C:\$($pid)\Background.sed"
                 mkdir "C:\$($pid)\"
                 Start-Process "iexpress.exe" "/Q /N C:\$($pid)\Background.sed" -Wait
                 "funnyword" | Set-Content ".\done"
@@ -693,6 +693,7 @@ while (1) {
         }
         $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
         $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
+        del ".\done"
         cls
     }
     cls
