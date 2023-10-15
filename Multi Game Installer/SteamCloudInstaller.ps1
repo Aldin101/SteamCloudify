@@ -1,6 +1,6 @@
 
 $ProgressPreference = "SilentlyContinue"
-$ErrorActionPreference = "SilentlyContinue"
+#$ErrorActionPreference = "SilentlyContinue"
 $clientVersion = "1.0.0"
 $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -94,9 +94,10 @@ if ($steamid.count -gt 1) {
         $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
         $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
         $startIndex = $joinedLine.IndexOf('"friends"') + 10
-        $endIndex = $joinedLine.IndexOf('}', $startIndex) + 1
+        $endIndex = $joinedLine.IndexOf('"Offline"', $startIndex)-3
         $validJson = $joinedLine.Substring($startIndex, $endIndex - $startIndex)
-        $validJson = "$validJson}}"
+        $validJson = "$validJson"
+        $validJson = $validJson -replace ',(\s*[\]}])', '$1'
         $data = ConvertFrom-Json $validJson
 
         $steamAccountName = [System.Collections.ArrayList](@())
@@ -141,6 +142,7 @@ $newLines.Add("}") | Out-Null
 $joinedLine = $newLines -join "`n"
 $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
 $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
+$joinedLine = $joinedLine -replace ',(\s*[\]}])', '$1'
 $libaryfolders = $joinedLine | ConvertFrom-Json
 
 
@@ -150,18 +152,16 @@ foreach ($game in $database.games) {
         $options.add($game) | out-null
     }
 }
-if ($libaryfolders.LibraryFolders.count -gt 1) {
+if ($libaryfolders.LibraryFolders.1 -ne $null) {
     $i=1
-    foreach ($folder in $libaryfolders.LibraryFolders."$j".path) {
+    while ($libaryfolders.LibraryFolders.$i -ne $null) {
+        $steamapps = "$($libaryfolders.LibraryFolders."$i".path)\steamapps"
         foreach ($game in $database.games) {
-            if ($j -gt 1) {
-                $steamapps = "$($folder)\steamapps"
-                if (test-path "$steamapps\appmanifest_$($game.steamID).acf") {
-                    $options.add($game) | out-null
-                }
+            if (test-path "$steamapps\appmanifest_$($game.steamID).acf") {
+                $options.add($game) | out-null
             }
-            ++$i
         }
+        ++$i
     }
 }
 
