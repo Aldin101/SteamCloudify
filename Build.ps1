@@ -573,9 +573,9 @@ while (1) {
                 $sed.Split([Environment]::NewLine)
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudBackground.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
-                $sed | Set-Content "C:\$($pid)\Background.sed"
                 mkdir "C:\$($pid)\"
-                Start-Process "iexpress.exe" "/Q /N C:\$($pid)\Background.sed" -Wait
+                $sed | Set-Content "C:\$($pid)\Background.sed"
+                Start-Process "iexpress.exe" " /N C:\$($pid)\Background.sed" -Wait
                 "funnyword" | Set-Content ".\done"
                 del "C:\$($pid)\Background.sed"
                 rmdir "C:\$($pid)\" -Force
