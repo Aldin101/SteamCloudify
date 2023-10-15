@@ -1,4 +1,4 @@
-# !templates\unity
+# .templates\unity
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -20,40 +20,8 @@ $updateLink = "[URL FOR GAME LAUNCH TASK]"
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 $cloudName = "$gameName Steam Cloud"
-
-$ProgressPreference = "SilentlyContinue"
-$ErrorActionPreference = "SilentlyContinue"
-$clientVersion = "1.0.0"
-$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
-$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-    $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
-    if ($fileLocation -eq $null) {
-        echo "Unable request admin, please manually run the program as administrator to continue"
-        echo "Press any key to exit"
-        timeout -1 |out-null
-        exit
-    }
-    taskkill /f /im "Steam Cloud Installer for $gameName.exe" 2>$null | Out-Null
-    $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
-    try {
-        Start-Process "$filelocation1" -Verb RunAs
-    } catch {
-        echo "The Steam Cloud installer requires administator privileges, please accept the admin prompt to continue"
-        echo "Press any key to try again"
-        timeout -1 | out-null
-        try {
-            Start-Process "$filelocation1" -Verb RunAs
-        } catch {
-            cls
-            echo "The Steam Cloud installer cannot continue without administator privileges"
-            echo "Press any key to exit"
-            timeout -1 | out-null
-        }
-    }
-    exit
-}
-
+$file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
+$database = $file.Content | ConvertFrom-Json
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
@@ -69,81 +37,6 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     }) -Join "`n"
 }
 
-echo "Welcome to Steam Cloud setup"
-echo "Here are some things to know:"
-echo "This tool is not inteded as a backup, it is only inteded to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
-echo "Your saves will only be synced with other computers that have this tool installed"
-echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
-echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
-echo "Steam Deck (and other non-windows devices) are unsupported at this time"
-timeout -1
-cls
-
-$steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
-$ids = Get-ChildItem -Path "$steamPath\userdata\"
-$steamid = [System.Collections.ArrayList](@())
-foreach ($id in $ids) {
-    if (test-path "$steamPath\userdata\$($id.basename)\inventorymsgcache\") {
-        $steamid.add($id.basename) | Out-Null
-    }
-}
-
-if ($steamid.count -eq 0) {
-    echo "Unable to find your Steam ID"
-    echo "Press any key to exit"
-    timeout -1 | Out-Null
-    exit
-}
-
-if ($steamid.count -gt 1) {
-    foreach ($id in $steamid) {
-        $lines = Get-Content "$steampath\userdata\$($id)\config\localconfig.vdf"
-        $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
-        $newLines.Add("{") | Out-Null
-        foreach ($line in $lines) {
-            $matchCollection = [regex]::Matches($line, '\s*(\".*?\")')
-            if ($matchCollection.Count -eq 2) {
-                $line = $line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))
-                $secondVal = $matchCollection[1].Groups[1].Value.Clone()
-                [int64]$tryLongVal = 0
-                if ([int64]::TryParse($secondVal.Replace('"', ''), [ref] $tryLongVal)) {
-                    $secondVal = $secondVal.Replace('"', '')
-                }
-                $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal))) | Out-Null
-            } elseif ($matchCollection.Count -eq 1) {
-                $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))) | Out-Null
-            } else {
-                $newLines.Add($line) | Out-Null
-            }
-        }
-        $newLines.Add("}") | Out-Null
-        $joinedLine = $newLines -join "`n"
-        $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
-        $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
-        $startIndex = $joinedLine.IndexOf('"friends"') + 10
-        $endIndex = $joinedLine.IndexOf('}', $startIndex) + 1
-        $validJson = $joinedLine.Substring($startIndex, $endIndex - $startIndex)
-        $validJson = "$validJson}}"
-        $data = ConvertFrom-Json $validJson
-
-        $steamAccountName = [System.Collections.ArrayList](@())
-        $steamAccountName.add($data.PersonaName) | Out-Null
-    }
-    echo "Multiple Steam accounts found, please select the one you would like to use"
-    $i=1
-    foreach ($name in $steamAccountName) {
-        echo "[$i] $name"
-        ++$i
-    }
-    $choice = Read-Host "What Steam account would you like to use?"
-    $steamid = $steamid[$choice-1]
-    if ($steamid -eq $null) {
-        echo "That is not a valid Steam account"
-        echo "Press any key to exit"
-        timeout -1 | Out-Null
-        exit
-    }
-}
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
@@ -167,13 +60,10 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     }
 }
 
-echo "Steam Cloud setup is ready to begin, press any key to continue with setup"
-timeout -1 | Out-Null
-cls
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
 $i=0
-if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName") {
+if (test-path "$steamPath\steamapps\common\$gameFolderName\") {
     $gamepath = "$steamPath\steamapps\common\$gameFolderName\"
 } else {
     explorer.exe "steam://launch/$steamAppID"
@@ -193,6 +83,7 @@ if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName")
     taskkill /f /im $gameExecutableName 2>$null | Out-Null
 }
 
+cd $gamepath
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
         echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
@@ -223,11 +114,11 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
     $choice = 1
 }
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
-Rename-Item "$gamepath\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
-Copy-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe"))_Data" "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
+Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
+Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
-Copy-Item ".\SteamCloudSync.exe" "$gamepath\$gameExecutableName" 
-Copy-Item ".\SteamCloudBackground.exe" "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
+Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName" 
+Invoke-WebRequest $database.gameUpdateChecker -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
         $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
@@ -244,7 +135,7 @@ $CloudConfig = @{}
 $CloudConfig.Add("gamepath",$gamepath)
 $CloudConfig.Add("steampath",$steamPath)
 $CloudConfig.Add("steamID",$steamid)
-$CloudConfig.Add("CloudSyncDownload", $updateLink)
+$CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 cls

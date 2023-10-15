@@ -1,4 +1,4 @@
-# !templates\unity
+# .templates\generic
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
@@ -6,12 +6,12 @@ $gameExecutableName = "[INSERT EXECUTABLE NAME]" # executable name should be str
 $gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
 $gameSaveFolder = "[INSERT SAVE LOCATION]" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
-# -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
+# -environment variables instead.
 $gameSaveExtensions = "[INSERT SAVE FILE EXTENSIONS]" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extension format it like this ".[EXTENSION]". If there are more that one format it like this
 # "[EXTENSION1]", "[EXTENSION2]", "[EXTENSION3]"
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
-# - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
+# - comment this out. If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]" (this is where most games store entires).
 $databaseURL = "[DATABASE URL]"
 # The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
 $updateLink = "[URL FOR GAME LAUNCH TASK]"
@@ -20,7 +20,7 @@ $updateLink = "[URL FOR GAME LAUNCH TASK]"
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 $cloudName = "$gameName Steam Cloud"
-$file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
+$file = Invoke-WebRequest $databaseURL -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
@@ -44,7 +44,6 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         echo "Disabling cloud sync on this computer..."
         $CloudConfig = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
         cd $CloudConfig.gamepath
-        Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
         Remove-Item ".\$gameExecutableName"
         Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
@@ -63,7 +62,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
 $i=0
-if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName") {
+if (test-path "$steamPath\steamapps\common\$gameFolderName\") {
     $gamepath = "$steamPath\steamapps\common\$gameFolderName\"
 } else {
     explorer.exe "steam://launch/$steamAppID"
@@ -115,7 +114,6 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
 }
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
-Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
 Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName" 
 Invoke-WebRequest $database.gameUpdateChecker -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"

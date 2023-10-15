@@ -1,4 +1,4 @@
-# !templates\unity
+# .templates\unity
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "Get To The Orange Door" # name of the game
 $steamAppID = "5412000" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"

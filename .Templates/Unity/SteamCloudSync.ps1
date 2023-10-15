@@ -1,4 +1,4 @@
-# !templates\unity
+# .templates\unity
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"

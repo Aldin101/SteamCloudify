@@ -40,8 +40,8 @@ while (1) {
             foreach ($games in $config.games) {
                 $s = Get-Content "$($games.installer)OnlineInstaller.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
-                if (test-path ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1") {
-                    $template = get-content ".\$($s[0].TrimStart("# !"))\OnlineInstaller.ps1"
+                if (test-path ".\$($s[0].TrimStart("# "))\OnlineInstaller.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\OnlineInstaller.ps1"
                     $newfile = New-Object System.Collections.ArrayList
                     $i=0
                     while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
@@ -301,8 +301,8 @@ while (1) {
                 }
                 $s = Get-Content ".\$path\OfflineInstaller.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
-                if (test-path ".\$($s[0].TrimStart("# !"))\OfflineInstaller.ps1") {
-                    $template = get-content ".\$($s[0].TrimStart("# !"))\OfflineInstaller.ps1"
+                if (test-path ".\$($s[0].TrimStart("# "))\OfflineInstaller.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\OfflineInstaller.ps1"
                     $newfile = New-Object System.Collections.ArrayList
                     $i=0
                     while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
@@ -513,8 +513,8 @@ while (1) {
                 $path = $path.TrimStart(".\")
                 $s = Get-Content ".\$path\SteamCloudSync.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
-                if (test-path ".\$($s[0].TrimStart("# !"))\SteamCloudSync.ps1") {
-                    $template = get-content ".\$($s[0].TrimStart("# !"))\SteamCloudSync.ps1"
+                if (test-path ".\$($s[0].TrimStart("# "))\SteamCloudSync.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\SteamCloudSync.ps1"
                     $newfile = New-Object System.Collections.ArrayList
                     $i=0
                     while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
@@ -547,8 +547,8 @@ while (1) {
                 }
                 $s = Get-Content ".\$path\Background.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
-                if (test-path ".\$($s[0].TrimStart("# !"))\Background.ps1") {
-                    $template = get-content ".\$($s[0].TrimStart("# !"))\Background.ps1"
+                if (test-path ".\$($s[0].TrimStart("# "))\Background.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\Background.ps1"
                     $newfile = New-Object System.Collections.ArrayList
                     $i=0
                     while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
