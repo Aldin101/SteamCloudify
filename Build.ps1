@@ -68,7 +68,7 @@ while (1) {
             }
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Database\GameList.json"
             $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
-            echo "Transfering files..."
+            echo "Transferring files..."
             foreach ($games in $config.games) {
                 mkdir ".\Database\$($games.name)" -Force | out-null
                 Copy-Item "$($games.installer)\Built Executables\*" ".\Database\$($games.name)\" -Force
