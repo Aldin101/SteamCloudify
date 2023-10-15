@@ -177,8 +177,8 @@ while (1) {
                 echo "[$i] All games"
                 $selection = read-host "What game would you like to build executables for"
                 if ($selection -eq $i) {
-                    $i=$i*5-5
-                    $i=$i/8
+                    $i=$i*4-4
+                    $i=$i/3
                     if ($i -lt 5) {
                         $i = 5
                     }
@@ -325,9 +325,12 @@ while (1) {
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\Steam Cloud Installer for $gameName.exe"
                 $sed[36] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed[37] = "SourceFiles1=$(Get-Location)\$path\Built Executables\"
-                $sed | Set-Content "C:\OfflineInstaller.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\OfflineInstaller.sed"  -Wait
-                del "C:\OfflineInstaller.sed"
+                mkdir "C:\$($pid)\"
+                $sed | Set-Content "C:\$($pid)\OfflineInstaller.sed"
+                Start-Process "iexpress.exe" "/Q /N C:\$($pid)\OfflineInstaller.sed"  -Wait
+                "funnyword" | Set-Content ".\done"
+                del "C:\$($pid)\OfflineInstaller.sed"
+                rmdir "C:\$($pid)\" -Force
                 if (test-path ".\$path\OfflineInstaller.ps1.bak") {
                     del ".\$path\OfflineInstaller.ps1"
                     Rename-Item ".\$path\OfflineInstaller.ps1.bak" "OfflineInstaller.ps1"
@@ -350,7 +353,7 @@ while (1) {
                 $selection = read-host "What game would you like to build executables for"
                 if ($selection -eq $i) {
                     $i=$i*9-9
-                    $i=$i/8
+                    $i=$i/3
                     if ($i -lt 9) {
                         $i = 9
                     }
@@ -533,16 +536,15 @@ while (1) {
                 $sed.Split([Environment]::NewLine)
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudSync.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
-                $sed | Set-Content "C:\SteamCloudSync.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\SteamCloudSync.sed" -Wait
-                del "C:\SteamCloudSync.sed"
+                mkdir "C:\$($pid)\"
+                $sed | Set-Content "C:\$($pid)\SteamCloudSync.sed"
+                Start-Process "iexpress.exe" "/Q /N C:\$($pid)\SteamCloudSync.sed" -Wait
+                del "C:\$($pid)\SteamCloudSync.sed"
+                rmdir "C:\$($pid)\" -Force
                 if (test-path ".\$path\SteamCloudSync.ps1.bak") {
                     del ".\$path\SteamCloudSync.ps1"
                     Rename-Item ".\$path\SteamCloudSync.ps1.bak" "SteamCloudSync.ps1"
                 }
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\CloudSync.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -action compile" -Wait
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -mask VERSIONINFO,1,1033" -Wait
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033" -Wait
                 $s = Get-Content ".\$path\Background.ps1"
                 $s.Split([Environment]::NewLine) | Out-Null
                 if (test-path ".\$($s[0].TrimStart("# !"))\Background.ps1") {
@@ -569,12 +571,18 @@ while (1) {
                 $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudBackground.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed | Set-Content "C:\Background.sed"
-                Start-Process "iexpress.exe" "/Q /N C:\Background.sed" -Wait
-                del "C:\Background.sed"
+                mkdir "C:\$($pid)\"
+                Start-Process "iexpress.exe" "/Q /N C:\$($pid)\Background.sed" -Wait
+                "funnyword" | Set-Content ".\done"
+                del "C:\$($pid)\Background.sed"
+                rmdir "C:\$($pid)\" -Force
                 if (test-path ".\$path\Background.ps1.bak") {
                     del ".\$path\Background.ps1"
                     Rename-Item ".\$path\Background.ps1.bak" "Background.ps1"
                 }
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\CloudSync.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -action compile" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\CloudSync.res`" -mask VERSIONINFO,1,1033" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudSync.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033" -Wait
                 Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Background.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -action compile"  -Wait
                 Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Background.res`" -mask VERSIONINFO,1,1033"  -Wait
                 Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudBackground.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"  -Wait
@@ -583,18 +591,18 @@ while (1) {
             }
         }
         if ($selection -eq 103) {
-            $i=0
             foreach ($game in $config.games) {
                 echo "Building $($game.name)..."
                 try {
-                    if ($i -eq 7) {
-                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
-                        $i=0
-                        timeout 5 /nobreak | Out-Null
-                    } elseif ($game -eq $config.games[$config.games.count-1]) {
-                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
-                    } else {
+                    if (!($game -eq $config.games[$config.games.count-1])) {
                         Start-Process pwsh -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
+                        while (!(test-path ".\done")) {
+                            timeout 1 /nobreak | Out-Null
+                        }
+                        del ".\done"
+                    } else {
+                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
+                        del ".\done"
                     }
                 }
                 catch {
@@ -611,18 +619,18 @@ while (1) {
             exit
         }
         if ($selection -eq 104) {
-            $i=0
             foreach ($game in $config.games) {
                 echo "Building $($game.name)..."
                 try {
-                    if ($i -eq 7) {
-                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
-                        $i=0
-                        timeout 5 /nobreak | Out-Null
-                    } elseif ($game -eq $config.games[$config.games.count-1]) {
-                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 3 `"$($game.installer.trimend("\"))`""
-                    } else {
+                    if (!($game -eq $config.games[$config.games.count-1])) {
                         Start-Process pwsh -WindowStyle Hidden -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
+                        while (!(test-path ".\done")) {
+                            timeout 1 /nobreak | Out-Null
+                        }
+                        del ".\done"
+                    } else {
+                        Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 4 `"$($game.installer.trimend("\"))`""
+                        del ".\done"
                     }
                 }
                 catch {
