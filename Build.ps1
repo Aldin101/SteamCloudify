@@ -180,6 +180,7 @@ while (1) {
                 if ($selection -eq $i) {
                     $i=$i*4-4
                     $i=$i/3
+                    $i=$i+4
                     if ($i -lt 5) {
                         $i = 5
                     }
@@ -355,6 +356,7 @@ while (1) {
                 if ($selection -eq $i) {
                     $i=$i*9-9
                     $i=$i/3
+                    $i=$i+6
                     if ($i -lt 9) {
                         $i = 9
                     }
