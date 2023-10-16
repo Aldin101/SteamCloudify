@@ -29,8 +29,9 @@ while (1) {
             echo "[3] Build single game installer"
             echo "[4] Build Steam Cloud runtime and background executables"
             echo "[5] Add a new game to the build config"
+            echo "[6] Sync Background.ps1 game specific information with other files"
             if (test-path "c:/program files (x86)/resource hacker/") {
-                echo "[6] Uninstall Resource Hacker"
+                echo "[7] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
         } else {
@@ -683,7 +684,73 @@ while (1) {
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 6) {
+        if ($selection -eq 6) {
+            $i=1
+            foreach ($game in $Config.games) {
+                echo "[$i] $($game.name)"
+                ++$i
+            }
+            $selection = read-host "What game would you like to sync game specific information for"
+            if ($config.games[$selection-1].installer -eq $null) {
+                echo "Invalid game"
+                timeout -1
+                break
+            }
+            $path = $config.games[$selection-1].installer
+            $filledIn = get-content "$($path)Background.ps1"
+            $toFillIn = get-content "$($path)OfflineInstaller.ps1"
+            $newfile = New-Object System.Collections.ArrayList
+            $i=0
+            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+                $newfile.Add($filledIn[$i]) | Out-Null
+                ++$i
+            }
+            $i=0
+            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+                ++$i
+            }
+            while ($i -lt $toFillIn.count) {
+                $newfile.Add($toFillIn[$i]) | Out-Null
+                ++$i
+            }
+            $newfile | Set-Content "$($path)OfflineInstaller.ps1"
+            $toFillIn = get-content "$($path)OnlineInstaller.ps1"
+            $newfile = New-Object System.Collections.ArrayList
+            $i=0
+            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+                $newfile.Add($filledIn[$i]) | Out-Null
+                ++$i
+            }
+            $i=0
+            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+                ++$i
+            }
+            while ($i -lt $toFillIn.count) {
+                $newfile.Add($toFillIn[$i]) | Out-Null
+                ++$i
+            }
+            $newfile | Set-Content "$($path)OnlineInstaller.ps1"
+            $toFillIn = get-content "$($path)SteamCloudSync.ps1"
+            $newfile = New-Object System.Collections.ArrayList
+            $i=0
+            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+                $newfile.Add($filledIn[$i]) | Out-Null
+                ++$i
+            }
+            $i=0
+            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+                ++$i
+            }
+            while ($i -lt $toFillIn.count) {
+                $newfile.Add($toFillIn[$i]) | Out-Null
+                ++$i
+            }
+            $newfile | Set-Content "$($path)SteamCloudSync.ps1"
+            echo "All files for $($config.games[$selection-1].name) have had their game specific information synced"
+            timeout -1
+        }
+
+        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 7) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
             if (Test-Path "c:/program files (x86)/resource hacker/") {
