@@ -762,7 +762,7 @@ while (1) {
         }
         $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
         $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
-        del ".\done"
+        del ".\done" -erroraction SilentlyContinue
         cls
     }
     cls
