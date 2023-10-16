@@ -17,7 +17,7 @@ Adding games is super easy, and you can do it yourself! Just follow the steps be
 
 ## Additional technical information
 Information about how this tool works, this information is not needed to add most games, but is here for those who are interested.
-# Build Tool
+### Build Tool
 - The build tool is the `Build.ps1` file in root of the project. It does a lot of things that would be time consuming to do manually or things that make adding games easier for people less familiar with the project or programming in general.
 - The build database option will build the online database that the online installer uses to see available games. It also copies any built executables on your computer to the database. Once the database is built and you commit and push your changes to GitHub the GitHub pages will automatically update and the online installer will be able to see any changes to existing games or added games. This option is not reverent to most people.
 - The build multi game installer option will build the online installer, when the online installer is built it will just be put in the `Multi Game Installer` folder. This option is not reverent to most people.
@@ -25,12 +25,12 @@ Information about how this tool works, this information is not needed to add mos
 - The build Steam Cloud runtime and background executables will make the executables for the `SteamCloudSync.ps1` and `Background.ps1` files. You can pick a game to build the executables for or build them for all games. These executables are useless on their own, and need to be built into a single game installer and installed before they can do anything.
 - Add a new game to the build config will add entries for a new game to the `BuildTool.json` file in the root of the project folder. If you have already made a copy of a template and filled in the information for the game, you are adding then this option will automatically fill in the information for you. If you have not done that yet, then you will need to fill in the information manually. It sometimes gets the information incorrect so make sure to double check it.
 - The uninstall Resource Hacker option will uninstall Resource Hacker from your computer. Because the build tool installs Resource Hacker automatically you can use this option to uninstall it if you want to. This option is only available if you have Resource Hacker installed.
-# Templates
+### Templates
 - The templates are not just files that the user can base a new game off of, but they are also used by the build tool to build a game based off a template with the `.Templates` folder, instead of the code that is contained inside the game folder. This makes the project easier to maintain as updating the code for a template will update every game based off that template.
 - Game specific code and variables needs to be above the `Game specific end-----` line, all code below that line will not be used. Instead, the code in the template will be used.
 - All `.ps1` files contained in a template have a template identifier on the first line. This tells the build tool what template the game is based on so that it can use the correct template for that game. If you want to add game specific code, make sure to remove the template identifier from the top of any file you are editing. This will make the build tool build executables and the online install script from the code you wrote instead of the template code. Not using a template makes that game harder for me to maintain and most games don't need custom code so please use a template when possible.
-# Resources
+### Resources
 - Each game has a `Resources` folder. All resources are game specific and not pulled from a template every build. Resources contain an icon used by all executables and version info for each executable.
 - When building the Steam Cloud runtime and background executables you will be prompted for a version number for each exe. This version number is written to the version info file for that exe. The version info is then compiled by ResHack and written to the build executable. The version that you enter in the build tool is the version that will be displayed in the file properties of the built executable and the version number that will be used when it checks for updates.
-# SEDs
+### SEDs
 - The SED files in the `SEDs` folder control information about what files will be packaged, the start command, among other things. The empty felids that say `[FILLED IN BY TOOL]` will be filled in by the build tool when you build an executable. Those felids are filled in on build because they contain computer specific information.
