@@ -578,7 +578,7 @@ while (1) {
                 $sed[34] = "SourceFiles0=$(Get-Location)\$path\"
                 mkdir "C:\$($pid)\"
                 $sed | Set-Content "C:\$($pid)\Background.sed"
-                Start-Process "iexpress.exe" " /N C:\$($pid)\Background.sed" -Wait
+                Start-Process "iexpress.exe" "/Q /N C:\$($pid)\Background.sed" -Wait
                 "funnyword" | Set-Content ".\done"
                 del "C:\$($pid)\Background.sed"
                 rmdir "C:\$($pid)\" -Force
