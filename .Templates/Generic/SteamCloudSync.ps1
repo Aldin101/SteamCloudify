@@ -22,13 +22,13 @@ $updateLink = "[URL FOR GAME LAUNCH TASK]"
 
 $cloudName = "$gameName Steam Cloud"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-$clientVersion = "1.0.0"
 $file = Invoke-WebRequest $databaseURL -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
 $steamid = $config.steamID
 $gamepath = $config.gamepath
+$clientVersion = $(Get-Item -Path "$gamepath\$gameExecutableName").VersionInfo.FileVersion
 if ($database -ne $null) {
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     if ($(Test-Path "$env:appdata\$cloudName\updateBackground.set") -and $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
