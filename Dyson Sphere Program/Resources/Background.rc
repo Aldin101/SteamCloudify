@@ -9,7 +9,7 @@ BLOCK "StringFileInfo"
 {
 	BLOCK "040904B0"
 	{
-		VALUE "CompanyName", "Aldin101"
+		VALUE "CompanyName", "Aldin101 (Support added by DanTheMan)"
 		VALUE "FileDescription", "Steam Cloud Sync Background Task                                                                                    "
 		VALUE "FileVersion", "1.0.0"
 		VALUE "InternalName", "SteamCloudBackground                                                                                    "
