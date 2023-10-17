@@ -122,6 +122,8 @@ while (1) {
                     Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"set-executionpolicy unrestricted`""
                 } catch {
                     echo "you need to accept the admin prompt"
+                    timeout -1
+                    break
                 }
                 echo "Now you need to allow build.ps1 to execute"
                 timeout -1
@@ -129,6 +131,8 @@ while (1) {
                     Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"unblock-file $($MyInvocation.MyCommand.Path)`""
                 } catch {
                     echo "you need to accept the admin prompt"
+                    timeout -1
+                    break
                 }
                 "funnyWord" | Set-Content ".\executionEnabled"
             } else {
