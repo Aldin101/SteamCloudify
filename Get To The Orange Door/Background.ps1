@@ -1,7 +1,7 @@
 # .templates\unity
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "Get To The Orange Door" # name of the game
-$steamAppID = "5412000" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
+$steamAppID = "541200" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "Get To The Orange Door.exe" # executable name should be structured, "GAME NAME.exe"
 $gameFolderName = "Get To The Orange Door" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
 $gameSaveFolder = "$env:appdata\..\locallow\layers deep\get to the orange door" # the folder where saves are located, if the game does not store save files in a folder comment this out-

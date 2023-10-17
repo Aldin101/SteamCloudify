@@ -31,9 +31,9 @@ $gamepath = $config.gamepath
 cd $gamepath
 $exehash=Get-FileHash -Algorithm MD5 "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 while (1) {
-    while (!(Test-Path $gamepath\..\..\Downloading\$steamAppID)) {
+    while (!(Test-Path "$gamepath\..\..\Downloading\$steamAppID")) {
         Start-Sleep -s 3
-        if (!(Test-Path $gamepath\..\..\appmanifest_$steamAppID.acf)) {
+        if (!(Test-Path "$gamepath\..\..\appmanifest_$steamAppID.acf")) {
             $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
                 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe" -Verb runAs
@@ -42,6 +42,7 @@ while (1) {
             taskkill /f /im "$cloudname.exe" 2>$null | Out-Null
             del "$env:appdata\$cloudname\CloudConfig.json"
             del "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe"
+            rmdir "$env:appdata\$cloudname\" -force
             cd ..
             del "$gamepath\" -Recurse
             exit
