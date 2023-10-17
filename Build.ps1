@@ -31,7 +31,7 @@ while (1) {
             echo "[5] Search for game save locations"
             echo "[6] Add a new game to the build config"
             echo "[7] Sync Background.ps1 game specific information with other files"
-            if (test-path "c:/program files (x86)/resource hacker/") {
+            if (test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
                 echo "[8] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
@@ -78,14 +78,27 @@ while (1) {
             }
         }
 
-        if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\")) {
+        if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe")) {
             echo "Resource Hacker is not installed, it is required to build executables."
             $choice = read-host "Would you like to install Resource Hacker [Y/n]"
             if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
                 echo "Installing..."
-                winget install AngusJohnson.ResourceHacker --source winget --force --silent
+                try {
+                    Invoke-WebRequest "http://www.angusj.com/resourcehacker/reshacker_setup.exe" -OutFile ".\ResHackSetup.exe"
+                } catch {
+                    echo "Failed to download installer please check your internet connection and try again, or install manually from https://www.angusj.com/resourcehacker/"""
+                }
+                try {
+                    Start-Process ".\ResHackSetup.exe" -Verb runAs -ArgumentList "/verysilent" -Wait
+                } catch {
+                    echo "You need to accept the admin prompt"
+                    timeout -1
+                    del ".\ResHackSetup.exe"
+                    break
+                }
+                del ".\ResHackSetup.exe"
                 if (!(test-path "C:\Program Files (x86)\Resource Hacker\")) {
-                    echo "Failed to install Resource Hacker, please check your internet connection and try again, or install manually from https://www.angusj.com/resourcehacker/"
+                    echo "Failed to install Resource Hacker. Please try again, or install manually from https://www.angusj.com/resourcehacker/"
                     timeout -1
                     break
                 }
@@ -119,16 +132,7 @@ while (1) {
             $choice = Read-Host "[Y/n]"
             if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
                 try {
-                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"set-executionpolicy unrestricted`""
-                } catch {
-                    echo "you need to accept the admin prompt"
-                    timeout -1
-                    break
-                }
-                echo "Now you need to allow build.ps1 to execute"
-                timeout -1
-                try {
-                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"unblock-file $($MyInvocation.MyCommand.Path)`""
+                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"set-executionpolicy unrestricted; unblock-file $($MyInvocation.MyCommand.Path)`""
                 } catch {
                     echo "you need to accept the admin prompt"
                     timeout -1
@@ -845,10 +849,10 @@ while (1) {
             timeout -1
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 8) {
+        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 8) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
-            if (Test-Path "c:/program files (x86)/resource hacker/") {
+            if (Test-Path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
                 echo "Failed to uninstall Resource Hacker, you can uninstall manually from the add or remove programs menu in settings"
                 timeout -1
             } else {
