@@ -730,7 +730,7 @@ while (1) {
                         echo "$h"
                     }
                     foreach ($h in $savedGames) {
-                        echo $h
+                        echo "$h"
                     }
                     if ($reg -ne $null) {
                         echo "Possable Windows Registry locations:"
@@ -829,7 +829,7 @@ while (1) {
                 ++$i
             }
             $newfile | Set-Content "$($path)OnlineInstaller.ps1"
-            $toFillIn = get-content "$($path)SteamCloudSync.ps1"
+            $toFillIn = Get-Content "$($path)SteamCloudSync.ps1"
             $newfile = New-Object System.Collections.ArrayList
             $i=0
             while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
