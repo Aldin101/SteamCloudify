@@ -25,8 +25,7 @@ $cloudName = "$gameName Steam Cloud"
 
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
-$clientVersion = "1.0.0"
-$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
+$host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Loading..."
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
     $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
@@ -38,6 +37,7 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     }
     taskkill /f /im "Steam Cloud Installer for $gameName.exe" 2>$null | Out-Null
     $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
+    $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion
     try {
         Start-Process "$filelocation1" -Verb RunAs
     } catch {
@@ -56,6 +56,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     exit
 }
 
+$fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
+if ($fileLocation -eq $null) {
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: [ERROR]"
+} else {
+    $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
+    $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: $clientVersion"
+}
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
