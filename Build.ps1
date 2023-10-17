@@ -28,10 +28,11 @@ while (1) {
             echo "[2] Build multi game installer"
             echo "[3] Build single game installer"
             echo "[4] Build Steam Cloud runtime and background executables"
-            echo "[5] Add a new game to the build config"
-            echo "[6] Sync Background.ps1 game specific information with other files"
+            echo "[5] Search for game save locations"
+            echo "[6] Add a new game to the build config"
+            echo "[7] Sync Background.ps1 game specific information with other files"
             if (test-path "c:/program files (x86)/resource hacker/") {
-                echo "[7] Uninstall Resource Hacker"
+                echo "[8] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
         } else {
@@ -652,7 +653,73 @@ while (1) {
             timeout -1 | out-null
             exit
         }
+
         if ($selection -eq 5) {
+            $gameName = read-host "What is the name of the game"
+            echo "Searching..."
+            $appdata = Get-ChildItem "$env:appdata\..\" -Depth 2 -Include "*$gameName*" -ErrorAction SilentlyContinue
+            $documents = Get-ChildItem "C:\Users\$env:username\Documents\" -Depth 1 -Include "*$gameName*" -ErrorAction SilentlyContinue
+            $savedGames = Get-ChildItem "C:\Users\$env:username\Saved Games\" -Depth 1 -Include "*$gameName*" -ErrorAction SilentlyContinue
+            $reg = Get-ChildItem "HKCU:\SOFTWARE\" -Depth 1 -Include "*$gameName*" -ErrorAction SilentlyContinue
+            if ($appdata -ne $null -or $documents -ne $null -or $savedGames -ne $null) {
+                cls
+                echo "Possable locations include:"
+                foreach ($h in $appdata) {
+                    echo "$h"
+                }
+                foreach ($h in $documents) {
+                    echo "$h"
+                }
+                foreach ($h in $savedGames) {
+                    echo "$h"
+                }
+                if ($reg -ne $null) {
+                    echo "Possable Windows Registry locations:"
+                    foreach ($h in $reg) {
+                        echo "REG$($h.hive)\$($h.name)"
+                    }
+                }
+                echo "If you do not find save data in any of those locations it might be in the steam userdata folder"
+            } else {
+                echo "No results found, expanding search..."
+                $gamearray = $gameName -split ' '
+                $appdata = Get-ChildItem "$env:appdata\..\" -Depth 2 -Include ($gamearray | ForEach-Object { "*$_*" }) -ErrorAction SilentlyContinue
+                $documents = Get-ChildItem "C:\Users\$env:username\Documents\" -Depth 1 -Include ($gamearray | ForEach-Object { "*$_*" }) -ErrorAction SilentlyContinue
+                $savedGames = Get-ChildItem "C:\Users\$env:username\Saved Games\" -Depth 1 -Include ($gamearray | ForEach-Object { "*$_*" }) -ErrorAction SilentlyContinue
+                $reg = Get-ChildItem "HKCU:\SOFTWARE\" -Depth 1 -Include ($gamearray | ForEach-Object { "*$_*" }) -ErrorAction SilentlyContinue
+            if ($appdata -ne $null -or $documents -ne $null -or $savedGames -ne $null) {
+                    cls
+                    echo "Expanded search was used, not all possable location are revelent"
+                    echo "Possable location include:"
+                    foreach ($h in $appdata) {
+                        echo "$h"
+                    }
+                    foreach ($h in $documents) {
+                        echo "$h"
+                    }
+                    foreach ($h in $savedGames) {
+                        echo $h
+                    }
+                    if ($reg -ne $null) {
+                        echo "Possable Windows Registry locations:"
+                        foreach ($h in $reg) {
+                            echo "REG$($h.hive)\$($h.name)"
+                        }
+                    }
+                    echo "If you do not find save data in any of those locations it might be in the steam userdata folder"
+                } else {
+                    echo "No results found. Please note that this tool only searches common save location." 
+                    echo "some other possable save location include the steam userdata folder"
+                }
+            }
+            echo "[steam install path]\userdata\[steam app id]"
+            echo "Or it might be in the game install"
+            echo "[steam install path]\steamapps\common\$gameName"
+            echo "If you still can not find it look up `"Where is save data for $gameName on Google`""
+            timeout -1
+        }
+
+        if ($selection -eq 6) {
             $gamesList = [System.Collections.ArrayList]($config.games)
             $files = get-childitem -path ".\" -Depth 1 -include "*.json" -Exclude "BuildTool.json", "Settings.json", "GameList.json"
             $i=1
@@ -684,7 +751,7 @@ while (1) {
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
         }
 
-        if ($selection -eq 6) {
+        if ($selection -eq 7) {
             $i=1
             foreach ($game in $Config.games) {
                 echo "[$i] $($game.name)"
@@ -750,7 +817,7 @@ while (1) {
             timeout -1
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 7) {
+        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 8) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
             if (Test-Path "c:/program files (x86)/resource hacker/") {
