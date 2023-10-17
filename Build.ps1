@@ -134,7 +134,7 @@ while (1) {
                     timeout -1
                     break
                 }
-                "funnyWord" | Set-Content ".\executionEnabled"
+                "This file exists to tell the build script that execution policy has been set correctly and that build.ps1 has been unblocked" | Set-Content ".\executionEnabled"
             } else {
                 echo "You can not build without disabling policy restrictions, please disable before continuing"
                 timeout -1
