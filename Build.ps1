@@ -113,7 +113,31 @@ while (1) {
                 break
             }
         }
-
+        
+        if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path ".\executionEnabled")) {
+            echo "The execution policy for PowerShell 7 will cause builds to fail, would you like to disable execution policy restrictions?"
+            $choice = Read-Host "[Y/n]"
+            if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
+                try {
+                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"set-executionpolicy unrestricted`""
+                } catch {
+                    echo "you need to accept the admin prompt"
+                }
+                echo "Now you need to allow build.ps1 to execute"
+                timeout -1
+                try {
+                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"unblock-file $($MyInvocation.MyCommand.Path)`""
+                } catch {
+                    echo "you need to accept the admin prompt"
+                }
+                "funnyWord" | Set-Content ".\executionEnabled"
+            } else {
+                echo "You can not build without disabling policy restrictions, please disable before continuing"
+                timeout -1
+                break
+            }
+        }
+        
         if ($selection -eq 2) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
                 $versionString = read-host "What is the desired version number, you can have up to 4 numbers separated by periods"
