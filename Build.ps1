@@ -20,6 +20,13 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 }
 cd $script:PSScriptRoot
 $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
+
+if (test-path ".\funnyFile") {
+    del ".\funnyFile"
+    "This file exists to tell the build script that execution policy has been set correctly and that build.ps1 has been unblocked" | Set-Content ".\executionEnabled"
+    exit
+}
+
 while (1) {
     while (1) {
         $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -107,6 +114,7 @@ while (1) {
                 timeout -1
                 break
             }
+            cls
         }
 
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files\PowerShell\7\") -and !(test-path "C:\Program Files (x86)\PowerShell\7\")) {
@@ -125,9 +133,13 @@ while (1) {
                 timeout -1
                 break
             }
+            cls
         }
-        
+
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path ".\executionEnabled")) {
+            if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
+                exit
+            }
             echo "The execution policy for PowerShell 7 will cause builds to fail, would you like to disable execution policy restrictions?"
             $choice = Read-Host "[Y/n]"
             if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
@@ -138,12 +150,21 @@ while (1) {
                     timeout -1
                     break
                 }
-                "This file exists to tell the build script that execution policy has been set correctly and that build.ps1 has been unblocked" | Set-Content ".\executionEnabled"
+                echo "Setting execution policy..."
+                "funnyWord" | Set-Content ".\funnyFile"
+                Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`""
+                if (!(test-path ".\executionEnabled")) {
+                    del .\funnyFile
+                    echo "Failed to set execution policy, please try again."
+                    timeout -1
+                    break
+                }
             } else {
                 echo "You can not build without disabling policy restrictions, please disable before continuing"
                 timeout -1
                 break
             }
+            cls
         }
         
         if ($selection -eq 2) {

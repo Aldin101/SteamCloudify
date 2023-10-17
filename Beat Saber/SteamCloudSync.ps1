@@ -4,7 +4,7 @@ $gameName = "Beat Saber" # name of the game
 $steamAppID = "620980" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "Beat Saber.exe" # executable name should be structured, "GAME NAME.exe"
 $gameFolderName = "Beat Saber" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "$env:appdata\..\locallow\Hyperbolic Magnetism\Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameSaveFolder = "C:\Users\$env:username\appdata\locallow\Hyperbolic Magnetism\Beat Saber" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
 $gameSaveExtensions = ".dat" # the game save folder sometimes contains information other than just game saves, and some-
