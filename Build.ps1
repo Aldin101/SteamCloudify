@@ -113,7 +113,7 @@ while (1) {
                 break
             }
         }
-        
+
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path ".\executionEnabled")) {
             echo "The execution policy for PowerShell 7 will cause builds to fail, would you like to disable execution policy restrictions?"
             $choice = Read-Host "[Y/n]"
@@ -137,7 +137,7 @@ while (1) {
                 break
             }
         }
-        
+
         if ($selection -eq 2) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
                 $versionString = read-host "What is the desired version number, you can have up to 4 numbers separated by periods"
@@ -700,7 +700,7 @@ while (1) {
                 if ($reg -ne $null) {
                     echo "Possable Windows Registry locations:"
                     foreach ($h in $reg) {
-                        echo "REG$($h.hive)\$($h.name)"
+                        echo "Computer$($h.hive)\$($h.name)"
                     }
                 }
                 echo "If you do not find save data in any of those locations it might be in the steam userdata folder"
@@ -727,7 +727,7 @@ while (1) {
                     if ($reg -ne $null) {
                         echo "Possable Windows Registry locations:"
                         foreach ($h in $reg) {
-                            echo "REG$($h.hive)\$($h.name)"
+                            echo "Computer$($h.hive)\$($h.name)"
                         }
                     }
                     echo "If you do not find save data in any of those locations it might be in the steam userdata folder"
