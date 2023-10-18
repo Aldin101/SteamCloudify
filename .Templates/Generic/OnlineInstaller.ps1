@@ -94,9 +94,13 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
         $choice = Read-Host "What would you like to do"
         if ($choice -eq 1) {
             del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
+            cls
+            echo "Setting up Steam Cloud..."
             break
         }
         if ($choice -eq 2) {
+            cls
+            echo "Setting up Steam Cloud..."
             break
         }
         if ($choice -eq 3) {

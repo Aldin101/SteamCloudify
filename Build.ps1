@@ -20,6 +20,13 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 }
 cd $script:PSScriptRoot
 $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
+
+if (test-path ".\funnyFile") {
+    del ".\funnyFile"
+    "This file exists to tell the build script that execution policy has been set correctly and that build.ps1 has been unblocked" | Set-Content ".\executionEnabled"
+    exit
+}
+
 while (1) {
     while (1) {
         $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -31,7 +38,7 @@ while (1) {
             echo "[5] Search for game save locations"
             echo "[6] Add a new game to the build config"
             echo "[7] Sync Background.ps1 game specific information with other files"
-            if (test-path "c:/program files (x86)/resource hacker/") {
+            if (test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
                 echo "[8] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
@@ -78,14 +85,27 @@ while (1) {
             }
         }
 
-        if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\")) {
+        if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe")) {
             echo "Resource Hacker is not installed, it is required to build executables."
             $choice = read-host "Would you like to install Resource Hacker [Y/n]"
             if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
                 echo "Installing..."
-                winget install AngusJohnson.ResourceHacker --source winget --force --silent
+                try {
+                    Invoke-WebRequest "http://www.angusj.com/resourcehacker/reshacker_setup.exe" -OutFile ".\ResHackSetup.exe"
+                } catch {
+                    echo "Failed to download installer please check your internet connection and try again, or install manually from https://www.angusj.com/resourcehacker/"""
+                }
+                try {
+                    Start-Process ".\ResHackSetup.exe" -Verb runAs -ArgumentList "/verysilent" -Wait
+                } catch {
+                    echo "You need to accept the admin prompt"
+                    timeout -1
+                    del ".\ResHackSetup.exe"
+                    break
+                }
+                del ".\ResHackSetup.exe"
                 if (!(test-path "C:\Program Files (x86)\Resource Hacker\")) {
-                    echo "Failed to install Resource Hacker, please check your internet connection and try again, or install manually from https://www.angusj.com/resourcehacker/"
+                    echo "Failed to install Resource Hacker. Please try again, or install manually from https://www.angusj.com/resourcehacker/"
                     timeout -1
                     break
                 }
@@ -94,6 +114,7 @@ while (1) {
                 timeout -1
                 break
             }
+            cls
         }
 
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files\PowerShell\7\") -and !(test-path "C:\Program Files (x86)\PowerShell\7\")) {
@@ -112,30 +133,38 @@ while (1) {
                 timeout -1
                 break
             }
+            cls
         }
 
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path ".\executionEnabled")) {
+            if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
+                exit
+            }
             echo "The execution policy for PowerShell 7 will cause builds to fail, would you like to disable execution policy restrictions?"
             $choice = Read-Host "[Y/n]"
             if ($choice -ne "n" -and $choice -ne "N" -and $choice -ne "no") {
                 try {
-                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"set-executionpolicy unrestricted`""
+                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"set-executionpolicy unrestricted; unblock-file $($MyInvocation.MyCommand.Path)`""
                 } catch {
                     echo "you need to accept the admin prompt"
+                    timeout -1
+                    break
                 }
-                echo "Now you need to allow build.ps1 to execute"
-                timeout -1
-                try {
-                    Start-Process pwsh -Verb runas -WindowStyle Hidden -ArgumentList "-command `"unblock-file $($MyInvocation.MyCommand.Path)`""
-                } catch {
-                    echo "you need to accept the admin prompt"
+                echo "Setting execution policy..."
+                "funnyWord" | Set-Content ".\funnyFile"
+                Start-Process pwsh -WindowStyle Hidden -Wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`""
+                if (!(test-path ".\executionEnabled")) {
+                    del .\funnyFile
+                    echo "Failed to set execution policy, please try again."
+                    timeout -1
+                    break
                 }
-                "funnyWord" | Set-Content ".\executionEnabled"
             } else {
                 echo "You can not build without disabling policy restrictions, please disable before continuing"
                 timeout -1
                 break
             }
+            cls
         }
 
         if ($selection -eq 2) {
@@ -722,7 +751,7 @@ while (1) {
                         echo "$h"
                     }
                     foreach ($h in $savedGames) {
-                        echo $h
+                        echo "$h"
                     }
                     if ($reg -ne $null) {
                         echo "Possable Windows Registry locations:"
@@ -821,7 +850,7 @@ while (1) {
                 ++$i
             }
             $newfile | Set-Content "$($path)OnlineInstaller.ps1"
-            $toFillIn = get-content "$($path)SteamCloudSync.ps1"
+            $toFillIn = Get-Content "$($path)SteamCloudSync.ps1"
             $newfile = New-Object System.Collections.ArrayList
             $i=0
             while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
@@ -841,10 +870,10 @@ while (1) {
             timeout -1
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/") -and $selection -eq 8) {
+        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 8) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
-            if (Test-Path "c:/program files (x86)/resource hacker/") {
+            if (Test-Path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
                 echo "Failed to uninstall Resource Hacker, you can uninstall manually from the add or remove programs menu in settings"
                 timeout -1
             } else {

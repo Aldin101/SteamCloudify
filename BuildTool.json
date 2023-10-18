@@ -6,14 +6,14 @@
       "installer": ".\\Beat Saber\\"
     },
     {
-      "name": "Get To The Orange Door",
-      "steamID": "541200",
-      "installer": ".\\Get To The Orange Door\\"
-    },
-    {
       "name": "Dyson Sphere Program",
       "steamID": "1366540",
       "installer": ".\\Dyson Sphere Program\\"
+    },
+    {
+      "name": "Get To The Orange Door",
+      "steamID": "541200",
+      "installer": ".\\Get To The Orange Door\\"
     }
   ]
 }

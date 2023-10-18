@@ -4,7 +4,7 @@ $gameName = "Dyson Sphere Program" # name of the game
 $steamAppID = "1366540" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "DSPGAME.exe" # executable name should be structured, "GAME NAME.exe"
 $gameFolderName = "Dyson Sphere Program" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "$env:userprofile\Documents\Dyson Sphere Program" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameSaveFolder = "C:\Users\$env:username\Documents\Dyson Sphere Program" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
 $gameSaveExtensions = ".dsv" # the game save folder sometimes contains information other than just game saves, and some-

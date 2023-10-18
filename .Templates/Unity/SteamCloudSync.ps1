@@ -110,7 +110,7 @@ cd $gamepath
 $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
 $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
 foreach ($file in $clientFiles) {
-    if (!(Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.BaseName).od2.vdf")) {
+    if (!(Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf")) {
         $shell = new-object -comobject "Shell.Application"
         $item = $shell.Namespace(0).ParseName("$file")
         $item.InvokeVerb("delete")
