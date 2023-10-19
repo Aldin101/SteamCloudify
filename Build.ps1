@@ -899,11 +899,13 @@ while (1) {
             $gameInfo = [System.Collections.ArrayList]@()
             $gameInfo.add($Background[2].trimstart("`$gameName = `"").trimend("`" # name of the game")) | Out-Null
             $gameInfo.add($Background[3].trimstart("`$steamAppID = `"").trimend("`" # you can find this on https://steamdb.info, it should be structured like this, `"NUMBER`"")) | Out-Null
-            $gameInfo.add(".\$($gameInfo[0])\") | Out-Null
+            $gameInfo.add(".\$($gameInfo[0])\$($gameinfo[0]).json") | Out-Null
+            if (!(test-path $($gameInfo[2]))) {
+                echo "Error, unable to add game, please make sure that the game name in background.ps1, the name of the json file, and the name of the folder are all the same"
+            }
             echo "Is the following information correct?"
             echo "Game name: $($gameInfo[0])"
             echo "Steam App ID: $($gameInfo[1])"
-            echo "Folder Location $($gameInfo[2])"
             $selection = read-host "[Y/n]"
             if ($selection -eq "n" -or $selection -eq "N" -or $selection -eq "no") {
                 $string = read-host "What is the name of the game (if this was correct simply type nothing press enter)"
@@ -913,10 +915,6 @@ while (1) {
                 $string = read-host "What is the steam app id (if this was correct simply type nothing press enter)"
                 if ($string -ne "") {
                     $gameInfo[1] = $string
-                }
-                $string[2] = read-host "What is the folder location (if this was correct simply type nothing press enter)"
-                if ($string -ne "") {
-                    $gameInfo[2] = $string
                 }
             }
             $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]; "isOnline"=$false})

@@ -13,14 +13,10 @@ $gameSaveExtensions = "[INSERT SAVE FILE EXTENSIONS]" # the game save folder som
 # "[EXTENSION1]", "[EXTENSION2]", "[EXTENSION3]"
 $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registry entries are located, if the game does not store save files in the registry-
 # - comment this out by simply putting a "#" before the "$". If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
-$databaseURL = "[DATABASE URL]"
-# The URL where the installer database can be found so that this installer knows where to download the cloud sync util and background task
-$updateLink = "[URL FOR GAME LAUNCH TASK]"
-# The URL where the launch executable can be found so that this background task knows where to download the launch task from. This link is not used by this-
-# installer as all the required files are bundled. This is used by the background task to download the launch task when the game updates.
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
-$cloudName = "$gameName Steam Cloud"
+$databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
+$updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
 $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Loading..."
@@ -38,14 +34,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     try {
         Start-Process "$filelocation1" -Verb RunAs
     } catch {
-        echo "The Steam Cloud installer requires administator privileges, please accept the admin prompt to continue"
+        echo "The Steam Cloud installer requires administrator privileges, please accept the admin prompt to continue"
         echo "Press any key to try again"
         timeout -1 | out-null
         try {
             Start-Process "$filelocation1" -Verb RunAs
         } catch {
             cls
-            echo "The Steam Cloud installer cannot continue without administator privileges"
+            echo "The Steam Cloud installer cannot continue without administrator privileges"
             echo "Press any key to exit"
             timeout -1 | out-null
         }
@@ -78,9 +74,9 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 
 echo "Welcome to Steam Cloud setup"
 echo "Here are some things to know:"
-echo "This tool is not inteded as a backup, it is only inteded to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
+echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
 echo "Your saves will only be synced with other computers that have this tool installed"
-echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
+echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overwritten saves"
 echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
 echo "Steam Deck (and other non-windows devices) are unsupported at this time"
 timeout -1
