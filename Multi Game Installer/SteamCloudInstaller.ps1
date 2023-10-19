@@ -1,6 +1,6 @@
 
 $ProgressPreference = "SilentlyContinue"
-#$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "SilentlyContinue"
 $clientVersion = "1.0.0"
 $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -17,14 +17,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     try {
         Start-Process "$filelocation1" -Verb RunAs
     } catch {
-        echo "The Steam Cloud installer requires administator privileges, please accept the admin prompt to continue"
+        echo "The Steam Cloud installer requires administrator privileges, please accept the admin prompt to continue"
         echo "Press any key to try again"
         timeout -1 | out-null
         try {
             Start-Process "$filelocation1" -Verb RunAs
         } catch {
             cls
-            echo "The Steam Cloud installer cannot continue without administator privileges"
+            echo "The Steam Cloud installer cannot continue without administrator privileges"
             echo "Press any key to exit"
             timeout -1 | out-null
         }
@@ -36,7 +36,7 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
 $database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/GameList.json" -UseBasicParsing
 $database = $database.Content | ConvertFrom-Json
 if ($database -eq $null) {
-    echo "No internet connection, please connect to the ineternet and try again"
+    echo "No internet connection, please connect to the internet and try again"
     echo "Press any key to exit"
     timeout -1 | Out-Null
     exit
@@ -44,7 +44,7 @@ if ($database -eq $null) {
 
 echo "Welcome to Steam Cloud setup"
 echo "Here are some things to know:"
-echo "This tool is not inteded as a backup, it is only inteded to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
+echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
 echo "Your saves will only be synced with other computers that have this tool installed"
 echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
 echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
@@ -174,7 +174,7 @@ echo "[$i] Not listed? Add one!"
 $choice = Read-Host "What game would you like to enable Steam Cloud for?"
 
 if ($choice -eq $i) {
-    echo "Making support for a new game is easy! If the game runs a common game engine like Unity or Unreal" "there are ready to use templates already availble!"
+    echo "Making support for a new game is easy! If the game runs a common game engine like Unity or Unreal" "there are ready to use templates already available!"
     echo "You can find instructions to do so here: TEMP URL"
     echo "Press any key to open the URL and exit"
     timeout -1 | Out-Null

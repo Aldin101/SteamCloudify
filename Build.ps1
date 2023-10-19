@@ -76,16 +76,16 @@ while (1) {
                 $games.installer = $j
                 $game.isOnline = $true
             }
-            $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Database\GameList.json"
+            $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\.Database\GameList.json"
             $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
             foreach ($game in $config.games) {
                 $game.isOnline = $true
             }
             echo "Transferring files..."
             foreach ($games in $config.games) {
-                mkdir ".\Database\$($games.name)" -Force | out-null
-                Copy-Item "$($games.installer)\Built Executables\*" ".\Database\$($games.name)\" -Force
-                Copy-Item "$($games.installer)\$($games.name).json" ".\Database\$($games.name)\" -Force
+                mkdir ".\.Database\$($games.name)" -Force | out-null
+                Copy-Item "$($games.installer)\Built Executables\*" ".\.Database\$($games.name)\" -Force
+                Copy-Item "$($games.installer)\$($games.name).json" ".\.Database\$($games.name)\" -Force
             }
             $selection = $null
         }
@@ -873,7 +873,7 @@ while (1) {
             $files = get-childitem -path ".\" -Depth 1 -include "*.json" -Exclude "BuildTool.json", "Settings.json", "GameList.json"
             $options = [System.Collections.ArrayList]@()
             foreach ($file in $files) {
-                if (!(test-path ".\Database\$($file.basename)\")) {
+                if (!(test-path ".\.Database\$($file.basename)\")) {
                     $options.Add($file) | out-null
                 }
             }
