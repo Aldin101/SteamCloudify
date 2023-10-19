@@ -3,17 +3,26 @@
     {
       "name": "Beat Saber",
       "steamID": "620980",
-      "installer": ".\\Beat Saber\\"
+      "installer": ".\\Beat Saber\\",
+      "isOnline": true
     },
     {
       "name": "Dyson Sphere Program",
       "steamID": "1366540",
-      "installer": ".\\Dyson Sphere Program\\"
+      "installer": ".\\Dyson Sphere Program\\",
+      "isOnline": true
     },
     {
       "name": "Get To The Orange Door",
       "steamID": "541200",
-      "installer": ".\\Get To The Orange Door\\"
+      "installer": ".\\Get To The Orange Door\\",
+      "isOnline": true
+    },
+    {
+      "name": "BONEWORKS",
+      "steamID": "823500",
+      "installer": ".\\BONEWORKS\\",
+      "isOnline": false
     }
   ]
 }

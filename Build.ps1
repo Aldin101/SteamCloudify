@@ -84,6 +84,7 @@ while (1) {
                 Copy-Item "$($games.installer)\Built Executables\*" ".\Database\$($games.name)\" -Force
                 Copy-Item "$($games.installer)\$($games.name).json" ".\Database\$($games.name)\" -Force
             }
+            $selection = $null
         }
 
         if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe")) {
@@ -207,6 +208,7 @@ while (1) {
                 }
                 echo "Build completed"
                 timeout -1
+                $selection = $null
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
@@ -222,6 +224,7 @@ while (1) {
                 del ".\Multi Game Installer\*.res" -Force
                 exit
             }
+            $selection = $null
         }
 
         if ($selection -eq 3) {
@@ -240,7 +243,7 @@ while (1) {
                         ++$i
                     }
                     echo "[$i] Build all games"
-                    $selection = read-host "What game would you like to build executables for"
+                    $selection = read-host "What game would you like to build the installer for"
                 } else {
                     $options = [System.Collections.ArrayList]@()
                     foreach ($game in $config.games) {
@@ -254,7 +257,7 @@ while (1) {
                         ++$i
                     }
                     echo "[$i] More options"
-                    $selection = read-host "What game would you like to build executables for"
+                    $selection = read-host "What game would you like to build the installer for"
                     if ($selection -eq $i) {
                         cls
                         $i=1
@@ -263,7 +266,7 @@ while (1) {
                             ++$i
                         }
                         echo "[$i] All games"
-                        $selection = read-host "What game would you like to build executables for"
+                        $selection = read-host "What game would you like to build the installer for"
                     } else {
                         $h=0
                         foreach ($j in $config.games.name) {
@@ -390,6 +393,7 @@ while (1) {
                 }
                 echo "Build completed"
                 timeout -1
+                $selection = $null
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $path = $2
@@ -441,6 +445,7 @@ while (1) {
                 del ".\$path\Resources\*.res" -Force
                 exit
             }
+            $selection = $null
         }
         if ($selection -eq 4) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
@@ -458,7 +463,7 @@ while (1) {
                         ++$i
                     }
                     echo "[$i] Build all games"
-                    $selection = read-host "What game would you like to build the installer for"
+                    $selection = read-host "What game would you like to build the executables for"
                 } else {
                     $options = [System.Collections.ArrayList]@()
                     foreach ($game in $config.games) {
@@ -472,7 +477,7 @@ while (1) {
                         ++$i
                     }
                     echo "[$i] More options"
-                    $selection = read-host "What game would you like to build the installer for"
+                    $selection = read-host "What game would you like to build the executables for"
                     if ($selection -eq $i) {
                         cls
                         $i=1
@@ -481,7 +486,7 @@ while (1) {
                             ++$i
                         }
                         echo "[$i] All games"
-                        $selection = read-host "What game would you like to build the installer for"
+                        $selection = read-host "What game would you like to build the executables for"
                     } else {
                         $h=0
                         foreach ($j in $config.games.name) {
@@ -652,6 +657,7 @@ while (1) {
                 }
                 echo "Build completed"
                 timeout -1
+                $selection = $null
             }
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $path = $2
@@ -734,6 +740,7 @@ while (1) {
                 del ".\$path\Resources\*.res" -Force
                 exit
             }
+            $selection = $null
         }
         if ($selection -eq 103) {
             foreach ($game in $config.games) {
@@ -801,7 +808,7 @@ while (1) {
             $reg = Get-ChildItem "HKCU:\SOFTWARE\" -Depth 1 -Include "*$gameName*" -ErrorAction SilentlyContinue
             if ($appdata -ne $null -or $documents -ne $null -or $savedGames -ne $null) {
                 cls
-                echo "Possable locations include:"
+                echo "Possible locations include:"
                 foreach ($h in $appdata) {
                     echo "$h"
                 }
@@ -812,7 +819,7 @@ while (1) {
                     echo "$h"
                 }
                 if ($reg -ne $null) {
-                    echo "Possable Windows Registry locations:"
+                    echo "Possible Windows Registry locations:"
                     foreach ($h in $reg) {
                         echo "Computer$($h.hive)\$($h.name)"
                     }
@@ -827,8 +834,8 @@ while (1) {
                 $reg = Get-ChildItem "HKCU:\SOFTWARE\" -Depth 1 -Include ($gamearray | ForEach-Object { "*$_*" }) -ErrorAction SilentlyContinue
             if ($appdata -ne $null -or $documents -ne $null -or $savedGames -ne $null) {
                     cls
-                    echo "Expanded search was used, not all possable location are revelent"
-                    echo "Possable location include:"
+                    echo "Expanded search was used, not all possible location are relevant"
+                    echo "Possible location include:"
                     foreach ($h in $appdata) {
                         echo "$h"
                     }
@@ -839,15 +846,15 @@ while (1) {
                         echo "$h"
                     }
                     if ($reg -ne $null) {
-                        echo "Possable Windows Registry locations:"
+                        echo "Possible Windows Registry locations:"
                         foreach ($h in $reg) {
                             echo "Computer$($h.hive)\$($h.name)"
                         }
                     }
                     echo "If you do not find save data in any of those locations it might be in the steam userdata folder"
                 } else {
-                    echo "No results found. Please note that this tool only searches common save location." 
-                    echo "some other possable save location include the steam userdata folder"
+                    echo "No results found. Please note that this tool only searches common save location."
+                    echo "Some other possible save location include the steam userdata folder"
                 }
             }
             echo "[steam install path]\userdata\[steam app id]"
@@ -855,6 +862,7 @@ while (1) {
             echo "[steam install path]\steamapps\common\$gameName"
             echo "If you still can not find it look up `"Where is save data for $gameName on Google`""
             timeout -1
+            $selection = $null
         }
 
         if ($selection -eq 6) {
@@ -902,6 +910,7 @@ while (1) {
             $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]; "isOnline"=$false})
             $config.games = $gamesList.ToArray()
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
+            $selection = $null
         }
 
         if ($selection -eq 7) {
@@ -1010,6 +1019,7 @@ while (1) {
             $newfile | Set-Content "$($path)SteamCloudSync.ps1"
             echo "All files for $($config.games[$selection-1].name) have had their game specific information synced"
             timeout -1
+            $selection = $null
         }
 
         if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 8) {
