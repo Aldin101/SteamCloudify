@@ -74,6 +74,7 @@ while (1) {
                     "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
                 }
                 $games.installer = $j
+                $game.isOnline = $true
             }
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Database\GameList.json"
             $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
@@ -225,13 +226,55 @@ while (1) {
 
         if ($selection -eq 3) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-                $i=1
+                $fullList = $true
                 foreach ($game in $Config.games) {
-                    echo "[$i] $($game.name)"
-                    ++$i
+                    if ($game.isOnline -eq $false) {
+                        $fullList = $false
+                        break
+                    }
                 }
-                echo "[$i] All games"
-                $selection = read-host "What game would you like to build executables for"
+                if ($fullList -eq $true) {
+                    $i = 1
+                    foreach ($game in $Config.games) {
+                        echo "[$i] $($game.name)"
+                        ++$i
+                    }
+                    echo "[$i] Build all games"
+                    $selection = read-host "What game would you like to build executables for"
+                } else {
+                    $options = [System.Collections.ArrayList]@()
+                    foreach ($game in $config.games) {
+                        if ($game.isOnline -eq $false) {
+                            $options.Add($game) | Out-Null
+                        }
+                    }
+                    $i = 1
+                    foreach ($option in $options) {
+                        echo "[$i] $($option.name)"
+                        ++$i
+                    }
+                    echo "[$i] More options"
+                    $selection = read-host "What game would you like to build executables for"
+                    if ($selection -eq $i) {
+                        cls
+                        $i=1
+                        foreach ($game in $Config.games) {
+                            echo "[$i] $($game.name)"
+                            ++$i
+                        }
+                        echo "[$i] All games"
+                        $selection = read-host "What game would you like to build executables for"
+                    } else {
+                        $h=0
+                        foreach ($j in $config.games.name) {
+                            if ($options[$selection-1].name -eq $j) {
+                                $selection = $h+1
+                                break
+                            }
+                            ++$h
+                        }
+                    }
+                }
                 if ($selection -eq $i) {
                     $i=$i*4-4
                     $i=$i/3
@@ -401,13 +444,55 @@ while (1) {
         }
         if ($selection -eq 4) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-                $i=1
+                $fullList = $true
                 foreach ($game in $Config.games) {
-                    echo "[$i] $($game.name)"
-                    ++$i
+                    if ($game.isOnline -eq $false) {
+                        $fullList = $false
+                        break
+                    }
                 }
-                echo "[$i] All games"
-                $selection = read-host "What game would you like to build executables for"
+                if ($fullList -eq $true) {
+                    $i = 1
+                    foreach ($game in $Config.games) {
+                        echo "[$i] $($game.name)"
+                        ++$i
+                    }
+                    echo "[$i] Build all games"
+                    $selection = read-host "What game would you like to build the installer for"
+                } else {
+                    $options = [System.Collections.ArrayList]@()
+                    foreach ($game in $config.games) {
+                        if ($game.isOnline -eq $false) {
+                            $options.Add($game) | Out-Null
+                        }
+                    }
+                    $i = 1
+                    foreach ($option in $options) {
+                        echo "[$i] $($option.name)"
+                        ++$i
+                    }
+                    echo "[$i] More options"
+                    $selection = read-host "What game would you like to build the installer for"
+                    if ($selection -eq $i) {
+                        cls
+                        $i=1
+                        foreach ($game in $Config.games) {
+                            echo "[$i] $($game.name)"
+                            ++$i
+                        }
+                        echo "[$i] All games"
+                        $selection = read-host "What game would you like to build the installer for"
+                    } else {
+                        $h=0
+                        foreach ($j in $config.games.name) {
+                            if ($options[$selection-1].name -eq $j) {
+                                $selection = $h+1
+                                break
+                            }
+                            ++$h
+                        }
+                    }
+                }
                 if ($selection -eq $i) {
                     $i=$i*9-9
                     $i=$i/3
@@ -775,14 +860,29 @@ while (1) {
         if ($selection -eq 6) {
             $gamesList = [System.Collections.ArrayList]($config.games)
             $files = get-childitem -path ".\" -Depth 1 -include "*.json" -Exclude "BuildTool.json", "Settings.json", "GameList.json"
-            $i=1
+            $options = [System.Collections.ArrayList]@()
             foreach ($file in $files) {
-                echo "[$i] $($file.basename)"
-                ++$i
+                if (!(test-path ".\Database\$($file.basename)\")) {
+                    $options.Add($file) | out-null
+                }
             }
-            $selection = read-host "What game would you like to add"
-            $selection = $selection-1
-            $path = $files[$selection].basename
+            if ($options.basename -eq $null) {
+                echo "All games that were found locally are already in the online database"
+                timeout -1
+                break
+            }
+            if ($options[1].basename -ne $null) {
+                $i=1
+                foreach ($option in $options) {
+                    echo "[$i] $($option.basename)"
+                    ++$i
+                }
+                $selection = read-host "What game would you like to add"
+                $selection = $selection-1
+            } else {
+                $selection = 0
+            }
+            $path = ".\$($options[$selection].basename)"
             $Background = get-content "$path\Background.ps1"
             $Background.Split([Environment]::NewLine) | Out-Null
             $gameInfo = [System.Collections.ArrayList]@()
@@ -799,18 +899,60 @@ while (1) {
                 $gameInfo[1] = read-host "What is the steam app id"
                 $gameInfo[2] = read-host "What is the folder location"
             }
-            $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]})
+            $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]; "isOnline"=$false})
             $config.games = $gamesList.ToArray()
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
         }
 
         if ($selection -eq 7) {
             $i=1
+            $fullList = $true
             foreach ($game in $Config.games) {
-                echo "[$i] $($game.name)"
-                ++$i
+                if ($game.isOnline -eq $false) {
+                    $fullList = $false
+                    break
+                }
             }
-            $selection = read-host "What game would you like to sync game specific information for"
+            if ($fullList -eq $true) {
+                $i = 1
+                foreach ($game in $Config.games) {
+                    echo "[$i] $($game.name)"
+                    ++$i
+                }
+                $selection = read-host "What game would you like to sync game specific information for"
+            } else {
+                $options = [System.Collections.ArrayList]@()
+                foreach ($game in $config.games) {
+                    if ($game.isOnline -eq $false) {
+                        $options.Add($game) | Out-Null
+                    }
+                }
+                $i = 1
+                foreach ($option in $options) {
+                    echo "[$i] $($option.name)"
+                    ++$i
+                }
+                echo "[$i] More options"
+                $selection = read-host "What game would you like to sync game specific information for"
+                if ($selection -eq $i) {
+                    cls
+                    $i=1
+                    foreach ($game in $Config.games) {
+                        echo "[$i] $($game.name)"
+                        ++$i
+                    }
+                    $selection = read-host "What game would you like to sync game specific information for"
+                } else {
+                    $h=0
+                    foreach ($j in $config.games.name) {
+                        if ($options[$selection-1].name -eq $j) {
+                            $selection = $h+1
+                            break
+                        }
+                        ++$h
+                    }
+                }
+            }
             if ($config.games[$selection-1].installer -eq $null) {
                 echo "Invalid game"
                 timeout -1
