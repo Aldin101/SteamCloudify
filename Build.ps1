@@ -85,8 +85,8 @@ while (1) {
             echo "Transferring files..."
             foreach ($games in $config.games) {
                 mkdir ".\.Database\$($games.name)" -Force | out-null
-                Copy-Item "$($games.installer)\Built Executables\*" ".\.Database\$($games.name)\" -Force
-                Copy-Item "$($games.installer)\$($games.name).json" ".\.Database\$($games.name)\" -Force
+                Copy-Item "$($games.installer)\Built Executables\*" ".\.Database\$($games.name)\" -Force -ErrorAction SilentlyContinue
+                Copy-Item "$($games.installer)\$($games.name).json" ".\.Database\$($games.name)\" -Force -ErrorAction SilentlyContinue
             }
             echo "Updating JSONs..."
             foreach ($games in $config.games) {
@@ -119,6 +119,7 @@ while (1) {
                 }
                 $game.updateLink = "https://aldin101.github.io/Steam-Cloud/$($games.name.Replace(' ', '%20'))/SteamCloudSync.exe"
                 $game.gameUpdateChecker = "https://aldin101.github.io/Steam-Cloud/$($games.name.Replace(' ', '%20'))/SteamCloudBackground.exe"
+                $game | ConvertTo-json | format-json | set-content "$($games.installer)$($games.name).json"
                 $game | ConvertTo-json | format-json | set-content ".\.Database\$($games.name)\$($games.name).json"
             }
             $selection = $null
