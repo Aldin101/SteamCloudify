@@ -1,12 +1,12 @@
 {
-    "latestClient": "1.0.0",
-    "allowedClient": [
-        "1.0.0"
-      ],
-    "updateLink": "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/SteamCloudSync.exe",
-    "latestUpdater": "1.0.0",
-    "allowedUpdater": [
-        "1.0.0"
-      ],
-    "gameUpdateChecker": "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/SteamCloudBackground.exe"
+  "latestClient": "1.0.0",
+  "allowedClient": [
+    "1.0.0"
+  ],
+  "updateLink": "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/SteamCloudSync.exe",
+  "latestUpdater": "1.0.0",
+  "allowedUpdater": [
+    "1.0.0"
+  ],
+  "gameUpdateChecker": "https://aldin101.github.io/Steam-Cloud/Beat%20Saber/SteamCloudBackground.exe"
 }
