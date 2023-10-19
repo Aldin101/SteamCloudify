@@ -15,11 +15,6 @@ $gameSaveExtensions = ".dat" # the game save folder sometimes contains informati
 # - comment this out by simply putting a "#" before the "$". If the game does it should be structured like this "HKCU\SOFTWARE\[COMPANY NAME]\[GAME NAME]".
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
-
-$cloudName = "$gameName Steam Cloud"
-
-# Game specific end------------------------------------------------------------------------------------------------------------------------------
-
 $cloudName = "$gameName Steam Cloud"
 $file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json

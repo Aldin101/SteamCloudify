@@ -16,11 +16,6 @@ $gameSaveExtensions = ".dsv" # the game save folder sometimes contains informati
 
 
 $cloudName = "$gameName Steam Cloud"
-
-# Game specific end------------------------------------------------------------------------------------------------------------------------------
-
-
-$cloudName = "$gameName Steam Cloud"
 $file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {

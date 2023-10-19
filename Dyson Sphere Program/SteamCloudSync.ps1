@@ -16,11 +16,6 @@ $gameSaveExtensions = ".dsv" # the game save folder sometimes contains informati
 
 
 $cloudName = "$gameName Steam Cloud"
-
-# Game specific end------------------------------------------------------------------------------------------------------------------------------
-
-
-$cloudName = "$gameName Steam Cloud"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 $clientVersion = "1.0.0"
 $file = Invoke-WebRequest "$databaseURL" -UseBasicParsing

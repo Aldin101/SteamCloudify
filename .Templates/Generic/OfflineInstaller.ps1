@@ -78,7 +78,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 
 echo "Welcome to Steam Cloud setup"
 echo "Here are some things to know:"
-echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
+echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
 echo "Your saves will only be synced with other computers that have this tool installed"
 echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
 echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
