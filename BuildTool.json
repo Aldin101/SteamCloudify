@@ -22,7 +22,7 @@
       "name": "BONEWORKS",
       "steamID": "823500",
       "installer": ".\\BONEWORKS\\",
-      "isOnline": false
+      "isOnline": true
     }
   ]
 }

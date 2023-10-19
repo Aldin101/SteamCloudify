@@ -78,6 +78,9 @@ while (1) {
             }
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\Database\GameList.json"
             $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
+            foreach ($game in $config.games) {
+                $game.isOnline = $true
+            }
             echo "Transferring files..."
             foreach ($games in $config.games) {
                 mkdir ".\Database\$($games.name)" -Force | out-null
