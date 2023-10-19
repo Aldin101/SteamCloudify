@@ -873,12 +873,18 @@ while (1) {
             $files = get-childitem -path ".\" -Depth 1 -include "*.json" -Exclude "BuildTool.json", "Settings.json", "GameList.json"
             $options = [System.Collections.ArrayList]@()
             foreach ($file in $files) {
-                if (!(test-path ".\.Database\$($file.basename)\")) {
+                $found = $false
+                foreach ($game in $config.games) {
+                    if ($game.name -eq $file.basename) {
+                        $found = $true
+                    }
+                }
+                if ($found -eq $false) {
                     $options.Add($file) | out-null
                 }
             }
             if ($options.basename -eq $null) {
-                echo "All games that were found locally are already in the online database"
+                echo "All games that were found are already in the build config."
                 timeout -1
                 break
             }
@@ -896,12 +902,16 @@ while (1) {
             $path = ".\$($options[$selection].basename)"
             $Background = get-content "$path\Background.ps1"
             $Background.Split([Environment]::NewLine) | Out-Null
-            $gameInfo = [System.Collections.ArrayList]@()
-            Invoke-Expression $Background[2]
-            Invoke-Expression $Background[3]
-            $gameInfo.add(".\$gameName)\") | Out-Null
+            if ($Background[0].TrimStart("# .templates") -ne $Background[0]) {
+                Invoke-Expression $Background[2]
+                Invoke-Expression $Background[3]
+            } else {
+                Invoke-Expression $Background[1]
+                Invoke-Expression $Background[2]
+            }
+
             if (!(test-path "$gameName\$gameName.json")) {
-                echo "Error, unable to add game, please make sure that the game name in background.ps1, the name of the json file, and the name of the folder are all the same"
+                echo "Error, unable to add $gameName, please make sure that the game name in background.ps1, the name of the json file, and the name of the folder are all the same"
                 timeout -1
                 break
             }
@@ -919,7 +929,7 @@ while (1) {
                     $steamAppID = $string
                 }
             }
-            $gamesList.Add([PSCustomObject]@{"name"=$gameName;"steamID"=$steamAppID;"installer"=$gameInfo; "isOnline"=$false})
+            $gamesList.Add([PSCustomObject]@{"name"=$gameName;"steamID"=$steamAppID;"installer"=".\$gameName\"; "isOnline"=$false})
             $config.games = $gamesList.ToArray()
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
             $selection = $null
