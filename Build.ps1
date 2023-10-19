@@ -897,27 +897,29 @@ while (1) {
             $Background = get-content "$path\Background.ps1"
             $Background.Split([Environment]::NewLine) | Out-Null
             $gameInfo = [System.Collections.ArrayList]@()
-            $gameInfo.add($Background[2].trimstart("`$gameName = `"").trimend("`" # name of the game")) | Out-Null
-            $gameInfo.add($Background[3].trimstart("`$steamAppID = `"").trimend("`" # you can find this on https://steamdb.info, it should be structured like this, `"NUMBER`"")) | Out-Null
-            $gameInfo.add(".\$($gameInfo[0])\$($gameinfo[0]).json") | Out-Null
-            if (!(test-path $($gameInfo[2]))) {
+            Invoke-Expression $Background[2]
+            Invoke-Expression $Background[3]
+            $gameInfo.add(".\$gameName)\") | Out-Null
+            if (!(test-path "$gameName\$gameName.json")) {
                 echo "Error, unable to add game, please make sure that the game name in background.ps1, the name of the json file, and the name of the folder are all the same"
+                timeout -1
+                break
             }
             echo "Is the following information correct?"
-            echo "Game name: $($gameInfo[0])"
-            echo "Steam App ID: $($gameInfo[1])"
+            echo "Game name: $gameName"
+            echo "Steam App ID: $steamAppID"
             $selection = read-host "[Y/n]"
             if ($selection -eq "n" -or $selection -eq "N" -or $selection -eq "no") {
                 $string = read-host "What is the name of the game (if this was correct simply type nothing press enter)"
                 if ($string -ne "") {
-                    $gameInfo[0] = $string
+                    $gameName = $string
                 }
                 $string = read-host "What is the steam app id (if this was correct simply type nothing press enter)"
                 if ($string -ne "") {
-                    $gameInfo[1] = $string
+                    $steamAppID = $string
                 }
             }
-            $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]; "isOnline"=$false})
+            $gamesList.Add([PSCustomObject]@{"name"=$gameName;"steamID"=$steamAppID;"installer"=$gameInfo; "isOnline"=$false})
             $config.games = $gamesList.ToArray()
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content .\BuildTool.json
             $selection = $null
