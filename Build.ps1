@@ -982,7 +982,7 @@ while (1) {
             $toFillIn = get-content "$($path)OfflineInstaller.ps1"
             $newfile = New-Object System.Collections.ArrayList
             $i=0
-            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+            while ($filledIn[$i].TrimEnd("-") -ne "# Game specific end") {
                 $newfile.Add($filledIn[$i]) | Out-Null
                 ++$i
             }
@@ -998,7 +998,7 @@ while (1) {
             $toFillIn = get-content "$($path)OnlineInstaller.ps1"
             $newfile = New-Object System.Collections.ArrayList
             $i=0
-            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+            while ($filledIn[$i].TrimEnd("-") -ne "# Game specific end") {
                 $newfile.Add($filledIn[$i]) | Out-Null
                 ++$i
             }
@@ -1014,7 +1014,7 @@ while (1) {
             $toFillIn = Get-Content "$($path)SteamCloudSync.ps1"
             $newfile = New-Object System.Collections.ArrayList
             $i=0
-            while ($toFillIn[$i].TrimEnd("-") -ne "# Game specific end") {
+            while ($filledIn[$i].TrimEnd("-") -ne "# Game specific end") {
                 $newfile.Add($filledIn[$i]) | Out-Null
                 ++$i
             }
