@@ -1,12 +1,12 @@
 {
-    "latestClient": "1.0.0",
-    "allowedClient": [
-        "1.0.0"
-      ],
-    "updateLink": "https://aldin101.github.io/Steam-Cloud/Dyson%20Sphere%20Program/SteamCloudSync.exe",
-    "latestUpdater": "1.0.0",
-    "allowedUpdater": [
-        "1.0.0"
-      ],
-    "gameUpdateChecker": "https://aldin101.github.io/Steam-Cloud/Dyson%20Sphere%20Program/SteamCloudBackground.exe"
+  "latestClient": "1.0.0",
+  "allowedClient": [
+    "1.0.0"
+  ],
+  "updateLink": "https://aldin101.github.io/Steam-Cloud/Dyson%20Sphere%20Program/SteamCloudSync.exe",
+  "latestUpdater": "1.0.0",
+  "allowedUpdater": [
+    "1.0.0"
+  ],
+  "gameUpdateChecker": "https://aldin101.github.io/Steam-Cloud/Dyson%20Sphere%20Program/SteamCloudBackground.exe"
 }

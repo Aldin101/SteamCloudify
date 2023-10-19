@@ -74,18 +74,52 @@ while (1) {
                     "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
                 }
                 $games.installer = $j
-                $game.isOnline = $true
+                $games.isOnline = $true
             }
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\.Database\GameList.json"
             $Config = Get-Content .\BuildTool.json | ConvertFrom-Json
             foreach ($game in $config.games) {
                 $game.isOnline = $true
             }
+            $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\BuildTool.json"
             echo "Transferring files..."
             foreach ($games in $config.games) {
                 mkdir ".\.Database\$($games.name)" -Force | out-null
                 Copy-Item "$($games.installer)\Built Executables\*" ".\.Database\$($games.name)\" -Force
                 Copy-Item "$($games.installer)\$($games.name).json" ".\.Database\$($games.name)\" -Force
+            }
+            echo "Updating JSONs..."
+            foreach ($games in $config.games) {
+                $game = get-content ".\.Database\$($games.name)\$($games.name).json" | ConvertFrom-Json
+                $game.latestClient = $(Get-Item -Path ".\.Database\$($games.name)\SteamCloudSync.exe").VersionInfo.FileVersion
+                $game.latestUpdater = $(Get-Item -Path ".\.Database\$($games.name)\SteamCloudBackground.exe").VersionInfo.FileVersion
+                $found = $false
+                foreach ($g in $game.allowedClient) {
+                    if ($game.latestUpdater -eq $g) {
+                        $found = $true
+                        break
+                    }
+                }
+                if ($found -eq $false) {
+                    $allowedClient = [System.Collections.ArrayList]($game.allowedClient)
+                    $allowedClient.add($game.latestClient)
+                    $game.allowedClient = $allowedClient.ToArray()
+                }
+                $found = $false
+                foreach ($g in $game.allowedUpdater) {
+                    if ($game.latestUpdater -eq $g) {
+                        $found = $true
+                        break
+                    }
+                }
+                if ($found -eq $false) {
+                    $allowedUpdater = [System.Collections.ArrayList]($game.allowedUpdater)
+                    $allowedUpdater.add($game.latestUpdater)
+                    $game.allowedUpdater = $allowedUpdater.ToArray()
+                }
+                $game.updateLink = "https://aldin101.github.io/Steam-Cloud/$($games.name.Replace(' ', '%20'))/SteamCloudSync.exe"
+                $game.gameUpdateChecker = "https://aldin101.github.io/Steam-Cloud/$($games.name.Replace(' ', '%20'))/SteamCloudBackground.exe"
+                $game | ConvertTo-json | format-json | set-content ".\.Database\$($games.name)\$($games.name).json"
             }
             $selection = $null
         }
