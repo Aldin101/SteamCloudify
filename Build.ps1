@@ -906,9 +906,18 @@ while (1) {
             echo "Folder Location $($gameInfo[2])"
             $selection = read-host "[Y/n]"
             if ($selection -eq "n" -or $selection -eq "N" -or $selection -eq "no") {
-                $gameInfo[0] = read-host "What is the name of the game"
-                $gameInfo[1] = read-host "What is the steam app id"
-                $gameInfo[2] = read-host "What is the folder location"
+                $string = read-host "What is the name of the game (if this was correct simply type nothing press enter)"
+                if ($string -ne "") {
+                    $gameInfo[0] = $string
+                }
+                $string = read-host "What is the steam app id (if this was correct simply type nothing press enter)"
+                if ($string -ne "") {
+                    $gameInfo[1] = $string
+                }
+                $string[2] = read-host "What is the folder location (if this was correct simply type nothing press enter)"
+                if ($string -ne "") {
+                    $gameInfo[2] = $string
+                }
             }
             $gamesList.Add([PSCustomObject]@{"name"=$gameInfo[0];"steamID"=$gameInfo[1];"installer"=$gameInfo[2]; "isOnline"=$false})
             $config.games = $gamesList.ToArray()
