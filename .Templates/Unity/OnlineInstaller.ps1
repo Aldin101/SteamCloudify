@@ -99,7 +99,7 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
             break
         }
         if ($choice -eq 3) {
-            echo "Installation cancled"
+            echo "Installation canceled"
             echo "Press any key to exit"
             timeout -1 | Out-Null
             exit

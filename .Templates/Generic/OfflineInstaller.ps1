@@ -173,6 +173,37 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     }
 }
 
+if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
+    while ($choice -eq $null) {
+        echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
+        echo "[1] Override your Steam Cloud saves with the ones on this computer"
+        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
+        echo "[3] Cancel installation"
+        $choice = Read-Host "What would you like to do"
+        if ($choice -eq 1) {
+            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
+            cls
+            break
+        }
+        if ($choice -eq 2) {
+            cls
+            break
+        }
+        if ($choice -eq 3) {
+            echo "Installation canceled"
+            echo "Press any key to exit"
+            timeout -1 | Out-Null
+            exit
+        }
+        echo "That is not a valid option"
+        timeout -1
+        $choice = $null
+        cls
+    }
+} else {
+    $choice = 1
+}
+
 echo "Steam Cloud setup is ready to begin, press any key to continue with setup"
 timeout -1 | Out-Null
 cls
@@ -199,39 +230,6 @@ if (test-path "$steamPath\steamapps\common\$gameFolderName\") {
     taskkill /f /im $gameExecutableName 2>$null | Out-Null
 }
 
-if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
-    while ($choice -eq $null) {
-        echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
-        echo "[1] Override your Steam Cloud saves with the ones on this computer"
-        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
-        echo "[3] Cancel installation"
-        $choice = Read-Host "What would you like to do"
-        if ($choice -eq 1) {
-            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
-            cls
-            echo "Setting up Steam Cloud..."
-            break
-        }
-        if ($choice -eq 2) {
-            cls
-            echo "Setting up Steam Cloud..."
-            break
-        }
-        if ($choice -eq 3) {
-            echo "Installation canceled"
-            echo "Press any key to exit"
-            timeout -1 | Out-Null
-            exit
-        }
-        echo "That is not a valid option"
-        timeout -1
-        $choice = $null
-        cls
-        echo "Setting up Steam Cloud..."
-    }
-} else {
-    $choice = 1
-}
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item "$gamepath\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
