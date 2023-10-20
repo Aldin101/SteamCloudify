@@ -28,6 +28,22 @@ $steamid = $config.steamID
 $gamepath = $config.gamepath
 $clientVersion = $(Get-Item -Path "$gamepath\$gameExecutableName").VersionInfo.FileVersion
 if ($database -ne $null) {
+    if ($database.isOnline -eq $false) {
+        [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync is has been deactived $($database.offlineReason) Your saves will not sync with the cloud in the meantime. This issue is being worked on.", "Cloud Sync Disabled", "Ok", "Warning" )
+        Start-Process ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
+        timeout 5
+        $i=0
+        while ($(Get-Process "$($gameExecutableName.TrimEnd(".exe")) Game") -ne $null -or $i -ne 0 -and $i -ne 3) {
+            timeout 1
+            if ($(Get-Process "$($gameExecutableName.TrimEnd(".exe")) Game") -eq $null) {
+                ++$i
+            } else {
+                $i=0
+            }
+        }
+        [System.Windows.Forms.MessageBox]::Show( "Please rembember that Steam Cloud Sync has been deactived, your saves will not sync with the cloud. This issue is being worked on.")
+        exit
+    }
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     if ($(Test-Path "$env:appdata\$cloudName\updateBackground.set") -and $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
@@ -53,7 +69,7 @@ if ($database -ne $null) {
         if ($required -eq "false") {
             $choice = [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, would you like to install this update?", "Update Available", "YesNo", "Question" )
         } else {
-            [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, this update is required to continue due to a major bug in your version.", "Update Available", "Ok", "Information" )
+            [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, this update is required $($database.disallowReason)", "Update Required", "Ok", "Warning" )
             $choice = "Yes"
         }
         if ($choice -eq "Yes") {
@@ -87,7 +103,7 @@ if ($database -ne $null) {
             if ($required -eq "false") {
                 $choice = [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, would you like to install this update?", "Update Available", "YesNo", "Question" )
             } else {
-                [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, this update is required to continue due to a major bug in your version.", "Update Available", "Ok", "Information" )
+                [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, this update is required $($database.disallowReason)", "Update Required", "Ok", "Warning" )
                 $choice = "Yes"
             }
         }
@@ -105,6 +121,27 @@ if ($database -ne $null) {
 del "$env:appdata\$cloudName\updateClient.set"
 del "$env:appdata\$cloudName\updateBackground.set"
 cd $gamepath
+
+if ((Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds - 604800 -gt $($Config.lastBackup)) {
+    if ($gameSaveFolder -ne $null) {
+        Remove-Item "$env:appdata\$cloudName\4\" -Recurse -Force
+        rmdir "$env:appdata\$cloudName\4\" -Force
+        Rename-Item "$env:appdata\$cloudName\3\" "$env:appdata\$cloudName\4\"
+        Rename-Item "$env:appdata\$cloudName\2\" "$env:appdata\$cloudName\3\"
+        Rename-Item "$env:appdata\$cloudName\1\" "$env:appdata\$cloudName\2\"
+        Copy-Item "$gameSaveFolder" "$env:appdata\$cloudName\1\" -Recurse -Force
+    }
+    if ($gameRegistryEntries -ne $null) {
+        Remove-Item "$env:appdata\$cloudName\4.reg"
+        Rename-Item "$env:appdata\$cloudName\3.reg" "$env:appdata\$cloudName\4.reg"
+        Rename-Item "$env:appdata\$cloudName\2.reg" "$env:appdata\$cloudName\3.reg"
+        Rename-Item "$env:appdata\$cloudName\1.reg" "$env:appdata\$cloudName\2.reg"
+        reg export $gameRegistryEntries "$env:appdata\$cloudName\1.reg"
+    }
+    $config.lastBackup = (Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds
+    $config | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
+}
+
 $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
 $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
 foreach ($file in $clientFiles) {

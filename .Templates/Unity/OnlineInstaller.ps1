@@ -39,6 +39,15 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
+        if (test-path "$env:appdata\$cloudName\1\") {
+            echo "This tool made backups of your save data, they are not needed anymore and can be deleted."
+            echo "Deleting them will have no effect on your saves stored locally, stored on other computer or in Steam Cloud."
+            $choice = Read-Host "Would you like to delete local save backups? [Y/n]"
+            if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
+                Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Recurse -Force -Exclude "CloudConfig.json"
+            }
+        }
+        cls
         echo "Disabling cloud sync on this computer..."
         $CloudConfig = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
         cd $CloudConfig.gamepath
@@ -47,7 +56,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
-        Remove-Item "$env:appdata\$cloudName\CloudConfig.json"
+        Remove-Item "$env:appdata\$cloudName\" -Force -Recurse
         echo "Finished, press any key to exit"
         timeout -1 | Out-Null
         exit
@@ -135,6 +144,7 @@ $CloudConfig = @{}
 $CloudConfig.Add("gamepath",$gamepath)
 $CloudConfig.Add("steampath",$steamPath)
 $CloudConfig.Add("steamID",$steamid)
+$CloudConfig.Add("lastBackup",(Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds)
 $CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"

@@ -77,11 +77,12 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 }
 
 echo "Welcome to Steam Cloud setup"
-echo "Here are some things to know:"
-echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
+timeout -1
+cls
+echo "Welcome to Steam Cloud setup"
+echo "Here is some important information:"
 echo "Your saves will only be synced with other computers that have this tool installed"
-echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
-echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
+echo "You can disable Steam Cloud on this computer for any game at any time by using this setup tool again"
 echo "Steam Deck (and other non-windows devices) are unsupported at this time"
 timeout -1
 cls
@@ -155,6 +156,15 @@ if ($steamid.count -gt 1) {
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
+        if (test-path "$env:appdata\$cloudName\1\") {
+            echo "This tool made backups of your save data, they are not needed anymore and can be deleted."
+            echo "Deleting them will have no effect on your saves stored locally, stored on other computer or in Steam Cloud."
+            $choice = Read-Host "Would you like to delete local save backups? [Y/n]"
+            if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
+                Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Recurse -Force -Exclude "CloudConfig.json"
+            }
+        }
+        cls
         echo "Disabling cloud sync on this computer..."
         $CloudConfig = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
         cd $CloudConfig.gamepath
@@ -162,7 +172,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
-        Remove-Item "$env:appdata\$cloudName\CloudConfig.json"
+        Remove-Item "$env:appdata\$cloudName\" -force -Recurse
         echo "Finished, press any key to exit"
         timeout -1 | Out-Null
         exit
@@ -232,6 +242,12 @@ if (test-path "$steamPath\steamapps\common\$gameFolderName\") {
 
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item "$gamepath\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
+if ($gameSaveFolder -ne $null) {
+    Copy-Item "$gameSaveFolder" "$env:appdata\$cloudName\1\" -Recurse -Force | Out-Null
+}
+if ($gameRegistryEntries -ne $null) {
+    reg export $gameRegistryEntries "$env:appdata\$cloudName\1.reg"
+}
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
 Copy-Item ".\SteamCloudSync.exe" "$gamepath\$gameExecutableName" 
 Copy-Item ".\SteamCloudBackground.exe" "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"

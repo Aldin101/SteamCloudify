@@ -371,8 +371,9 @@ while (1) {
                             $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
                             $rc | Set-Content "$($game.installer)Resources\Offline.rc"
                         }
+                        echo "Building... You can see the progress in the new windows that opened"
                         try {
-                            Start-Process pwsh -Verb runAs -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 103"
+                            Start-Process pwsh -Verb runAs -wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 103"
                         }
                         catch {
                             echo "You need to accept the admin prompt"
@@ -555,7 +556,6 @@ while (1) {
                         timeout -1
                         break
                     } else {
-                        mkdir "$($path)Built Executables" -Force | out-null
                         $versionString = read-host "What is the desired version number for the runtime exe, you can have up to 4 numbers separated by periods"
                         $version = $versionString.Split(".")
                         if ($version.count -gt 4) {
@@ -612,8 +612,9 @@ while (1) {
                             $rc[18] = "		VALUE `"ProductVersion`", `"$versionString`""
                             $rc | Set-Content "$($game.installer)Resources\Background.rc"
                         }
+                        echo "Building... You can see the progress in the new windows that opened"
                         try {
-                            Start-Process pwsh -Verb runAs -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 104"
+                            Start-Process pwsh -Verb runAs -wait -ArgumentList "`"$($MyInvocation.MyCommand.Path)`" 104"
                         }
                         catch {
                             echo "You need to accept the admin prompt"
@@ -796,6 +797,7 @@ while (1) {
                     }
                 }
                 catch {
+                    $host.ui.RawUI.WindowTitle = "Build Failed"
                     echo "An error occurred, please try again"
                     echo "Press any key to exit"
                     timeout -1 | out-null
@@ -803,6 +805,7 @@ while (1) {
                 }
                 ++$i
             }
+            $host.ui.RawUI.WindowTitle = "Build Finished!"
             echo "Build completed"
             echo "Press any key to exit"
             timeout -1 | out-null
@@ -824,6 +827,7 @@ while (1) {
                     }
                 }
                 catch {
+                    $host.ui.RawUI.WindowTitle = "Build Failed"
                     echo "An error occurred, please try again"
                     echo "Press any key to exit"
                     timeout -1 | out-null
@@ -831,6 +835,7 @@ while (1) {
                 }
                 ++$i
             }
+            $host.ui.RawUI.WindowTitle = "Build Finished!"
             echo "Build completed"
             echo "Press any key to exit"
             timeout -1 | out-null

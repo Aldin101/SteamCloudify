@@ -1,8 +1,7 @@
 
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
-$clientVersion = "1.0.0"
-$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
+$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Loading..."
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
     $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer.exe'" -ErrorAction SilentlyContinue
@@ -31,7 +30,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     }
     exit
 }
-
+$fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer.exe'" -ErrorAction SilentlyContinue
+if ($fileLocation -eq $null) {
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: [ERROR]"
+} else {
+    $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
+    $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: $clientVersion"
+}
 
 $database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/GameList.json" -UseBasicParsing
 $database = $database.Content | ConvertFrom-Json
@@ -43,11 +49,12 @@ if ($database -eq $null) {
 }
 
 echo "Welcome to Steam Cloud setup"
-echo "Here are some things to know:"
-echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
+timeout -1
+cls
+echo "Welcome to Steam Cloud setup"
+echo "Here is some important information:"
 echo "Your saves will only be synced with other computers that have this tool installed"
-echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
-echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
+echo "You can disable Steam Cloud on this computer for any game at any time by using this setup tool again"
 echo "Steam Deck (and other non-windows devices) are unsupported at this time"
 timeout -1
 cls
@@ -145,10 +152,24 @@ $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
 $joinedLine = $joinedLine -replace ',(\s*[\]}])', '$1'
 $libaryfolders = $joinedLine | ConvertFrom-Json
 
+if (!(test-path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf")) {
+    echo "DISCLAIMER: I am not responsible for any lost or corrupted save files caused by the use of this tool"
+    echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
+    echo "This tool takes many preventive measures to prevent loss of save data:"
+    echo "Weekly backups, every week a local copy of your save data is made, this backup is stored locally and up to four backups" "are kept at a time"
+    echo "Never deletes files, when a file is deleted on another computer and that change is reflected in Steam Cloud it is moved" "to the recycle bin on all other computers."
+    echo "Save Conflicts, when the save files on your computer are newer then the save files in Steam Cloud you are alerted and" "can choose what to keep."
+    echo ""
+    echo "As with any piece of software, this tool is not perfect. While I have never experenced any issues with this tool it is" "always possible that something will happen, in the extremely unlikely event that" "something does happen you can try to restore a backup"
+    echo "More information on the steps taken to prevent loss of save data, how to restore backups, and past data loss" "incidents can be found here: TEMP URL"
+    timeout -1
+    "funnyword" | Out-File "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf"
+}
 
+cls
 $options = [System.Collections.ArrayList](@())
 foreach ($game in $database.games) {
-    if (test-path "$steamPath\steamapps\appmanifest_$($game.steamID).acf") {
+    if (test-path "$steamPath\steamapps\appmanifest_$($game.steamID).acf" -and $game.isOnline -eq $true) {
         $options.add($game) | out-null
     }
 }
@@ -157,7 +178,7 @@ if ($libaryfolders.LibraryFolders.1 -ne $null) {
     while ($libaryfolders.LibraryFolders.$i -ne $null) {
         $steamapps = "$($libaryfolders.LibraryFolders."$i".path)\steamapps"
         foreach ($game in $database.games) {
-            if (test-path "$steamapps\appmanifest_$($game.steamID).acf") {
+            if (test-path "$steamapps\appmanifest_$($game.steamID).acf" -and $game.isOnline -eq $true) {
                 $options.add($game) | out-null
             }
         }
@@ -170,7 +191,7 @@ foreach($game in $options) {
     echo "[$i] $($game.name)"
     ++$i
 }
-echo "[$i] Not listed? Add one!"
+echo "[$i] Not listed? Add it!"
 $choice = Read-Host "What game would you like to enable Steam Cloud for?"
 
 if ($choice -eq $i) {
