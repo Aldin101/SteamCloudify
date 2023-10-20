@@ -1,5 +1,5 @@
 # Steam Cloud
-(NAME) is a tool that aims to allow you to use Steam's built in cloud syncing feature ("Steam Cloud") for as many games as possible, and the list of games supported by this tool is ever growing.
+(NAME) is a tool that aims to allow you to use Steam's built in cloud syncing feature ("Steam Cloud") for as many games as possible. The list of supported games can be found [here](https://github.com/users/Aldin101/projects/1), and the list of games supported by this tool is ever growing. If the game is not already supported then add it using the instructions below!
 
 ## Adding Games
 Adding games is super easy, and you can do it yourself! Just follow the steps below or use this [video tutorial](link). Get stuck? Contact me on Discord by sending a friend request to @aldin101
