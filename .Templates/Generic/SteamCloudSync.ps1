@@ -19,7 +19,7 @@ $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registr
 $cloudName = "$gameName Steam Cloud"
 $databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
 $updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
-[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 $file = Invoke-WebRequest $databaseURL -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
@@ -51,7 +51,7 @@ if ((test-path "$env:userprofile\uninstall.set") -and $currentPrincipal.IsInRole
     Remove-Item "$gamepath\$gameExecutableName"
     Rename-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
     Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
-    $choice = [System.Windows.Forms.MessageBox]::Show( "This tool made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, stored on other computer or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
+    $choice = [System.Windows.Forms.MessageBox]::Show( "This tool made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
     if ($choice -eq "No") {
         Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
     }
@@ -79,7 +79,7 @@ if (test-path "$env:userprofile\uninstall.set") {
 
 if (Test-Path "$env:userprofile\Modify.set") {
     Remove-Item "$env:userprofile\Modify.set"
-    $host.RawUI.WindowTitle = "$cloudname Backup Utility"
+    $host.ui.RawUI.WindowTitle = "$cloudname Backup Utility"
     cls
     echo "Welcome to the Steam Cloud Sync backup manager"
     echo "This tool allows you to manage your backups for $gamename"

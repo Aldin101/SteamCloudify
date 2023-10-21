@@ -158,7 +158,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
         if (test-path "$env:appdata\$cloudName\1\") {
             echo "This tool made backups of your save data, they are not needed anymore and can be deleted."
-            echo "Deleting them will have no effect on your saves stored locally, stored on other computer or in Steam Cloud."
+            echo "Deleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud."
             $choice = Read-Host "Would you like to delete local save backups? [Y/n]"
             if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
                 Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
