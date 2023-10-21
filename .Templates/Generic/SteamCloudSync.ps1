@@ -27,9 +27,25 @@ $steamPath = $config.steamPath
 $steamid = $config.steamID
 $gamepath = $config.gamepath
 $clientVersion = $(Get-Item -Path "$gamepath\$gameExecutableName").VersionInfo.FileVersion
+
+function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
+    $indent = 0;
+    ($json -Split '\n' |
+      % {
+        if ($_ -match '[\}\]]') {
+          $indent--
+        }
+        $line = (' ' * $indent * 2) + $_.TrimStart().Replace(':  ', ': ')
+        if ($_ -match '[\{\[]') {
+          $indent++
+        }
+        $line
+    }) -Join "`n"
+}
+
 if ($database -ne $null) {
     if ($database.isOnline -eq $false) {
-        [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync is has been deactived $($database.offlineReason) Your saves will not sync with the cloud in the meantime. This issue is being worked on.", "Cloud Sync Disabled", "Ok", "Warning" )
+        [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync is has been deactivated $($database.offlineReason) Your saves will not sync with the cloud in the meantime. This issue is being worked on.", "Cloud Sync Disabled", "Ok", "Warning" )
         Start-Process ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
         timeout 5
         $i=0
@@ -41,7 +57,7 @@ if ($database -ne $null) {
                 $i=0
             }
         }
-        [System.Windows.Forms.MessageBox]::Show( "Please rembember that Steam Cloud Sync has been deactived, your saves will not sync with the cloud. This issue is being worked on.")
+        [System.Windows.Forms.MessageBox]::Show( "Please remember that Steam Cloud Sync has been deactivated, your saves will not sync with the cloud. This issue is being worked on.")
         exit
     }
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -124,11 +140,10 @@ cd $gamepath
 
 if ((Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds - 604800 -gt $($Config.lastBackup)) {
     if ($gameSaveFolder -ne $null) {
-        Remove-Item "$env:appdata\$cloudName\4\" -Recurse -Force
-        rmdir "$env:appdata\$cloudName\4\" -Force
-        Rename-Item "$env:appdata\$cloudName\3\" "$env:appdata\$cloudName\4\"
-        Rename-Item "$env:appdata\$cloudName\2\" "$env:appdata\$cloudName\3\"
-        Rename-Item "$env:appdata\$cloudName\1\" "$env:appdata\$cloudName\2\"
+        Remove-Item "$env:appdata\$cloudName\4" -Recurse -Force
+        Rename-Item "$env:appdata\$cloudName\3" "$env:appdata\$cloudName\4"
+        Rename-Item "$env:appdata\$cloudName\2" "$env:appdata\$cloudName\3"
+        Rename-Item "$env:appdata\$cloudName\1" "$env:appdata\$cloudName\2"
         Copy-Item "$gameSaveFolder" "$env:appdata\$cloudName\1\" -Recurse -Force
     }
     if ($gameRegistryEntries -ne $null) {
@@ -139,27 +154,25 @@ if ((Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds - 
         reg export $gameRegistryEntries "$env:appdata\$cloudName\1.reg"
     }
     $config.lastBackup = (Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds
-    $config | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
+    $config | ConvertTo-Json | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 }
-
 $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
 $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
-foreach ($file in $clientFiles) {
-    if (!(Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf")) {
-        $shell = new-object -comobject "Shell.Application"
-        $item = $shell.Namespace(0).ParseName("$file")
-        $item.InvokeVerb("delete")
-    }
-}
-$choice = "Yes"
-foreach ($file in $cloudFiles) {
-    if ($(Get-Item -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.Name)").LastWriteTimeUtc -lt $(Get-Item -Path "$gameSaveFolder\$($file.BaseName)").LastWriteTimeUtc) {
-        $choice = [System.Windows.Forms.MessageBox]::Show( "Sync conflict: The save files on your computer is newer then the files on Steam Cloud. Would you like to override the save files on your computer with the Steam Cloud files?", "Sync Conflict", "YesNo", "Warning" )
-    }
-}
 if ($choice -eq "Yes") {
-    foreach ($file in $cloudFiles) {
-        Copy-Item $file "$gameSaveFolder\$($file.BaseName)"
+    if ($gameSaveFolder -ne $null) {
+        $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
+        foreach ($file in $clientFiles) {
+            Remove-Item "$file"
+        }
+        Get-ChildItem "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) | `
+        ForEach-Object {
+            $targetFile = "$gameSaveFolder\" + $_.FullName.SubString("$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\".Length);
+            New-Item -ItemType File -Path $targetFile -Force;
+            Copy-Item $_.FullName -destination $targetFile
+        }        $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
+        foreach ($file in $clientFiles) {
+            Rename-Item $file $file.basename
+        }
     }
     if ($gameRegistryEntries -ne $null) {
         reg import "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
@@ -184,7 +197,17 @@ $clientFiles = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensio
 if ($gameRegistryEntries -ne $null) {
     reg export $gameRegistryEntries "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
 }
-foreach ($file in $clientFiles) {
-    mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
-    Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf"
+if ($gameSaveFolder -ne $null) {
+    $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_.vdf" }) -File -Recurse
+    Get-ChildItem $gameSaveFolder -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
+    ForEach-Object {
+        $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString($gameSaveFolder.Length);
+        New-Item -ItemType File -Path $targetFile -Force;
+        Copy-Item $_.FullName -destination $targetFile
+    }    foreach ($file in $cloudFiles) {
+        Remove-Item $file
+    }    $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
+    foreach ($file in $cloudFiles) {
+        Rename-Item $file "$($file.Name).vdf"
+    }
 }

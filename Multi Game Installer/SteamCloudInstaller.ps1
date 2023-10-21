@@ -155,10 +155,7 @@ $libaryfolders = $joinedLine | ConvertFrom-Json
 if (!(test-path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf")) {
     echo "DISCLAIMER: I am not responsible for any lost or corrupted save files caused by the use of this tool"
     echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
-    echo "This tool takes many preventive measures to prevent loss of save data:"
-    echo "Weekly backups, every week a local copy of your save data is made, this backup is stored locally and up to four backups" "are kept at a time"
-    echo "Never deletes files, when a file is deleted on another computer and that change is reflected in Steam Cloud it is moved" "to the recycle bin on all other computers."
-    echo "Save Conflicts, when the save files on your computer are newer then the save files in Steam Cloud you are alerted and" "can choose what to keep."
+    echo "This tool takes many measures to prevent data loss, including weekly backups that are only stored locally. In the extremely" "unlikely event that something does happen you can restore a backup using this tool: TEMP URL"
     echo ""
     echo "As with any piece of software, this tool is not perfect. While I have never experenced any issues with this tool it is" "always possible that something will happen, in the extremely unlikely event that" "something does happen you can try to restore a backup"
     echo "More information on the steps taken to prevent loss of save data, how to restore backups, and past data loss" "incidents can be found here: TEMP URL"
