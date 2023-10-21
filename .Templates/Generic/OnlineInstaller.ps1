@@ -57,6 +57,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
         Remove-Item "$env:appdata\$cloudName\" -force -Recurse
+        Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
         echo "Finished, press any key to exit"
         timeout -1 | Out-Null
         exit
@@ -161,6 +162,17 @@ $CloudConfig.Add("steamID",$steamid)
 $CloudConfig.Add("lastBackup",(Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds)
 $CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
+New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayIcon" -Value "$gamepath\$gameExecutableName" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayName" -Value "$cloudName" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayVersion" -Value $(Get-Item $gamepath\$gameExecutableName).VersionInfo.FileVersion -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "EstimatedSize" -Value 754 -PropertyType "DWORD" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "InstallDate" -Value $(Get-Date -Format "M/d/yyyy") -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "InstallLocation" -Value $gamePath -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "NoRepair" -Value 1 -PropertyType "DWORD" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "Publisher" -Value "Aldin101" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "UninstallString" -Value "$gamePath\$gameExecutableName /C:`"powershell -executionPolicy bypass -windowstyle hidden -command set-content -value 1 $env:userprofile\uninstall.set; .\SteamCloudSync.ps1`"" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "ModifyPath" -Value "$gamePath\$gameExecutableName /C:`"cmd /c powershell -executionPolicy bypass -command set-content -value 1 $env:userprofile\modify.set; .\SteamCloudSync.ps1`"" -PropertyType "String" -Force | Out-Null
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 cls
 echo "Steam Cloud setup has completed, remember to install on other computers to sync saves"

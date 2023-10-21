@@ -18,6 +18,8 @@ $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registr
 $cloudName = "$gameName Steam Cloud"
 $databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
 $updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
+$ErrorActionPreference = "SilentlyContinue"
+$ProgressPreference = "SilentlyContinue"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 $file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
@@ -41,6 +43,115 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
         $line
     }) -Join "`n"
 }
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if ((test-path "$env:userprofile\uninstall.set") -and $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
+    taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
+    taskkill /f /im "$gameExecutableName" 2>$null | Out-Null
+    Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
+    Remove-Item "$gamepath\$gameExecutableName"
+    Rename-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
+    Remove-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -force -recurse
+    Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
+    $choice = [System.Windows.Forms.MessageBox]::Show( "This tool made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, stored on other computer or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
+    if ($choice -eq "No") {
+        Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
+    }
+    Remove-Item "$env:appdata\$cloudName" -Recurse -Force
+    Remove-Item "$env:userprofile\uninstall.set"
+    [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync has been uninstalled successfully", "Uninstalled!", "Ok", "Information" )
+    exit
+}
+
+if (test-path "$env:userprofile\uninstall.set") {
+    $choice = [System.Windows.Forms.MessageBox]::Show( "Would you like to uninstall Steam Cloud Sync?", "Uninstall", "YesNo", "Question" )
+    if ($choice -eq "Yes") {
+        try {
+            Start-Process $gamepath\$gameExecutableName -Verb RunAs
+        } catch {
+            Remove-Item "$env:userprofile\uninstall.set"
+            [System.Windows.Forms.MessageBox]::Show( "Failed to uninstall, insufficient permissions", "Uninstall Failed", "Ok", "Error" )
+        } finally {
+            exit
+        }
+    } else {
+        exit
+    }
+}
+
+if (Test-Path "$env:userprofile\Modify.set") {
+    Remove-Item "$env:userprofile\Modify.set"
+    $host.RawUI.WindowTitle = "$cloudname Backup Utility"
+    cls
+    echo "Welcome to the Steam Cloud Sync backup manager"
+    echo "This tool allows you to manage your backups for $gamename"
+    echo "This Steam Cloud Sync makes local backups of your save games weekly, just incase something goes wrong."
+    $choice = Read-Host "Would you like to restore a backup? [Y/n]"
+    if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
+        echo "Press any key to exit"
+        timeout -1 | Out-Null
+        exit
+    }
+    cls
+    if ((test-path $env:appdata\$cloudName\1) -or (test-path $env:appdata\$cloudName\1.reg)) {
+        if (!(test-path $env:appdata\$cloudName\1)) {
+            echo "[1] Backup from $((Get-Item -Path $env:appdata\$cloudName\1.reg).LastWriteTime)"
+        } else {
+            echo "[1] Backup from $((Get-Item -Path $env:appdata\$cloudName\1).LastWriteTime)"
+        }
+    }
+    if ((test-path $env:appdata\$cloudName\2) -or (test-path $env:appdata\$cloudName\2.reg)) {
+        if (!(test-path $env:appdata\$cloudName\2)) {
+            echo "[2] Backup from $((Get-Item -Path $env:appdata\$cloudName\2.reg).LastWriteTime)"
+        } else {
+            echo "[2] Backup from $((Get-Item -Path $env:appdata\$cloudName\2).LastWriteTime)"
+        }
+    }
+    if ((test-path $env:appdata\$cloudName\3) -or (test-path $env:appdata\$cloudName\3.reg)) {
+        if (!(test-path $env:appdata\$cloudName\3)) {
+            echo "[3] Backup from $((Get-Item -Path $env:appdata\$cloudName\3.reg).LastWriteTime)"
+        } else {
+            echo "[3] Backup from $((Get-Item -Path $env:appdata\$cloudName\3).LastWriteTime)"
+        }
+    }
+    if ((test-path $env:appdata\$cloudName\4) -or (test-path $env:appdata\$cloudName\4.reg)) {
+        if (!(test-path $env:appdata\$cloudName\4)) {
+            echo "[4] Backup from $((Get-Item -Path $env:appdata\$cloudName\4.reg).LastWriteTime)"
+        } else {
+            echo "[4] Backup from $((Get-Item -Path $env:appdata\$cloudName\4).LastWriteTime)"
+        }
+    }
+    $choice = Read-Host "What backup would you like to revert to?"
+    if (!(Test-Path $env:appdata\$cloudName\$choice) -and !(Test-Path $env:appdata\$cloudName\$choice.reg)) {
+        echo "Invalid choice"
+        echo "Press any key to exit"
+        timeout -1 | Out-Null
+        exit
+    }
+    if ($gameSaveFolder -ne $null) {
+        remove-item "$gameSaveFolder" -Recurse -Force
+        copy-item "$env:appdata\$cloudName\$choice\" "$gameSaveFolder" -Recurse -Force
+        Get-ChildItem "$env:appdata\$cloudName\$choice\" -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
+        ForEach-Object {
+            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString("$env:appdata\$cloudName\$choice\".Length);
+            New-Item -ItemType File -Path $targetFile -Force;
+            Copy-Item $_.FullName -destination $targetFile
+        }
+    }
+    if ($gameRegistryEntries -ne $null) {
+        reg import "$env:appdata\$cloudName\$choice.reg"
+        reg export $gameRegistryEntries "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
+    }
+    $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
+    foreach ($file in $cloudFiles) {
+        Rename-Item $file "$($file.Name).vdf"
+    }
+    cls
+    echo "Backup restored successfully!"
+    echo "Press any key to exit"
+    timeout -1 | Out-Null
+    exit
+}
+
 
 if ($database -ne $null) {
     if ($database.isOnline -eq $false) {

@@ -54,7 +54,9 @@ cls
 echo "Welcome to Steam Cloud setup"
 echo "Here is some important information:"
 echo "Your saves will only be synced with other computers that have this tool installed"
-echo "You can disable Steam Cloud on this computer for any game at any time by using this setup tool again"
+echo "If Steam notices a save conflict it will tell you that your controller layouts are conflicting, this is actually your save data"
+echo "If (NAME) notices a save conflict you will receive a message about it on launch."
+echo "You can disable Steam Cloud on this computer for any game at any time from the add or remove programs menu, or with this tool"
 echo "Steam Deck (and other non-windows devices) are unsupported at this time"
 timeout -1
 cls
@@ -155,7 +157,7 @@ $libaryfolders = $joinedLine | ConvertFrom-Json
 if (!(test-path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf")) {
     echo "DISCLAIMER: I am not responsible for any lost or corrupted save files caused by the use of this tool"
     echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
-    echo "This tool takes many measures to prevent data loss, including weekly backups that are only stored locally. In the extremely" "unlikely event that something does happen you can restore a backup using this tool: TEMP URL"
+    echo "This tool takes many measures to prevent data loss, including weekly backups that are only stored locally. In the extremely" "unlikely event that something does happen you can restore a backup using these instructions: TEMP URL"
     echo ""
     echo "As with any piece of software, this tool is not perfect. While I have never experenced any issues with this tool it is" "always possible that something will happen, in the extremely unlikely event that" "something does happen you can try to restore a backup"
     echo "More information on the steps taken to prevent loss of save data, how to restore backups, and past data loss" "incidents can be found here: TEMP URL"
