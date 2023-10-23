@@ -1,12 +1,11 @@
-# .templates\generic
+# .templates\saves in game folder
 # Game specific start----------------------------------------------------------------------------------------------------------------------------
 $gameName = "[INSERT GAME NAME]" # name of the game
 $steamAppID = "[INSERT STEAM APP ID]" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "[INSERT EXECUTABLE NAME]" # executable name should be structured, "GAME NAME.exe"
 $gameFolderName = "[INSERT FOLDER NAME]" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "[INSERT SAVE LOCATION]" # the folder where saves are located, if the game does not store save files in a folder comment this out-
-# -If the game does it should be structured like this "Full\Folder\Path". Make sure not to include user/computer specific information and use-
-# -environment variables instead.
+$gameSaveFolder = '$gameSaveFolder = "$gamepath\[INSERT SAVE LOCATION]"' # the folder where saves are located, if the game does not store save files in a folder comment this out-
+# -If the game does it should be structured like this "$gamepath\location\to\saves". 
 # If you do not know where save files are use option 5 in the build tool (open Build.ps1 and press the play button in the top right corner)
 $gameSaveExtensions = "[INSERT SAVE FILE EXTENSIONS]" # the game save folder sometimes contains information other than just game saves, and some-
 # -files should not be uploaded to Steam Cloud. If there is one extension format it like this ".[EXTENSION]". If there are more that one format it like this
@@ -26,6 +25,7 @@ $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-J
 $steamPath = $config.steamPath
 $steamid = $config.steamID
 $gamepath = $config.gamepath
+$gameSaveFolder | iex
 cd $gamepath
 $exehash=Get-FileHash -Algorithm MD5 "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 while (1) {
@@ -42,8 +42,7 @@ while (1) {
             del "$env:appdata\$cloudname\CloudConfig.json"
             del "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe"
             rmdir "$env:appdata\$cloudname\" -force
-            cd ..
-            del "$gamepath\" -Recurse
+            del ".\$($gameExecutableName.TrimEnd('.exe')) Game.exe"
             exit
         }
         if ($(Get-FileHash -Algorithm MD5 "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe").Hash -ne $exehash.Hash) {

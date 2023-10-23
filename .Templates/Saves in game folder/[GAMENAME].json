@@ -1,0 +1,15 @@
+{
+    "latestClient": "1.0.0",
+    "allowedClient": [
+        "1.0.0"
+      ],
+    "updateLink": "[GAME LAUNCH TASK LINK]",
+    "latestUpdater": "1.0.0",
+    "allowedUpdater": [
+        "1.0.0"
+      ],
+    "gameUpdateChecker": "[BACKGROUND TASK LINK]",
+    "isOnline" : true,
+    "disallowReason" : "because your installation is misconfigured.",
+    "offlineReason" : "This is a bug, no games have been brought offline at this time."
+}

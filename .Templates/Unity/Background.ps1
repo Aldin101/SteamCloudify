@@ -19,6 +19,7 @@ $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registr
 $cloudName = "$gameName Steam Cloud"
 $databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
 $updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
+[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
@@ -32,6 +33,7 @@ while (1) {
         if (!(Test-Path "$gamepath\..\..\appmanifest_$steamAppID.acf")) {
             $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
+                [System.Windows.Forms.MessageBox]::Show( "Looks like you uninstalled $gamename, uninstalling $gamename does not uninstall (NAME). Simply press ok to uninstall (NAME) for $gamename", "Uninstalling (NAME)", "Ok", "Information")
                 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe" -Verb runAs
                 exit
             }

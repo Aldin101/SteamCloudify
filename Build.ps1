@@ -900,10 +900,12 @@ while (1) {
                     echo "Some other possible save location include the steam userdata folder"
                 }
             }
-            echo "[steam install path]\userdata\[steam app id]"
+            echo "[steam install path]\userdata\[steam user id]\[steam app id]"
             echo "Or it might be in the game install"
             echo "[steam install path]\steamapps\common\$gameName"
             echo "If you still can not find it look up `"Where is save data for $gameName on Google`""
+			echo "If the saves are in the game folder please use the `"Saves in game folder`" template"
+			echo "If the saves are in the userdata folder then the game probably supports steam cloud, if it does not contact me on discord (send a friend request to @aldin101)"
             timeout -1
             $selection = $null
         }
