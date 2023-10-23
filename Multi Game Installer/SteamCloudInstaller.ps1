@@ -168,7 +168,7 @@ if (!(test-path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\c
 cls
 $options = [System.Collections.ArrayList](@())
 foreach ($game in $database.games) {
-    if (test-path "$steamPath\steamapps\appmanifest_$($game.steamID).acf" -and $game.isOnline -eq $true) {
+    if ((test-path "$steamPath\steamapps\appmanifest_$($game.steamID).acf") -and $game.isOnline -eq $true) {
         $options.add($game) | out-null
     }
 }
@@ -177,7 +177,7 @@ if ($libaryfolders.LibraryFolders.1 -ne $null) {
     while ($libaryfolders.LibraryFolders.$i -ne $null) {
         $steamapps = "$($libaryfolders.LibraryFolders."$i".path)\steamapps"
         foreach ($game in $database.games) {
-            if (test-path "$steamapps\appmanifest_$($game.steamID).acf" -and $game.isOnline -eq $true) {
+            if ((test-path "$steamapps\appmanifest_$($game.steamID).acf") -and $game.isOnline -eq $true) {
                 $options.add($game) | out-null
             }
         }
