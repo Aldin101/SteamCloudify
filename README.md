@@ -7,7 +7,7 @@
 Adding games is super easy, and you can do it yourself! Just follow the steps below or use this [video tutorial](link). Get stuck? Contact me on Discord by sending a friend request to @aldin101
 
 1. Download the projects source code
-2. Open the project folder in [Visual Studio Code](https://code.visualstudio.com/) or in any other text editor (these instructions assume you are using VScode). Don't worry, you do not need to write any code in order to add support for most games. 
+2. Open the project folder in [Visual Studio Code](https://code.visualstudio.com/) or in any other text editor (these instructions assume you are using VScode). Don't worry, you do not need to write any code in order to add support for most games.
 3. Once VScode is installed you will need to install the PowerShell extension. You can find the PowerShell extension in the extensions tab on the left side bar.
 4. Once you have the project downloaded and open `.Templates` folder. If the game runs on the Unity engine, then make a copy of the `Unity` folder and put it outside of the templates folder. If the game does not run on the Unity engine, then make a copy of the `Generic` folder and put it outside of the templates folder. If you do not know what engine the game runs on do the following. Right click the game in Steam and press browse local files. In the game folder if you see a file named `UnityPlayer.dll` in the game folder it runs on unity, if not then it runs on a different engine, what engine does not matter in most cases so just use the generic template.
 5. Rename your copied template folder to the name of the game.
