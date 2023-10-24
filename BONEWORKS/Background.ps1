@@ -17,6 +17,9 @@ $gameSaveExtensions = ".dat" # the game save folder sometimes contains informati
 
 
 $cloudName = "$gameName Steam Cloud"
+$databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
+$updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
+[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
@@ -30,15 +33,25 @@ while (1) {
         if (!(Test-Path "$gamepath\..\..\appmanifest_$steamAppID.acf")) {
             $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-                Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe" -Verb runAs
+                [System.Windows.Forms.MessageBox]::Show( "Looks like you uninstalled $gamename, uninstalling $gamename does not uninstall (NAME). Simply press ok to uninstall (NAME) for $gamename", "Uninstalling (NAME)", "Ok", "Information")
+                try {
+                    Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe" -Verb runAs
+                } catch {
+                    [System.Windows.Forms.MessageBox]::Show( "Failed to uninstall, insufficient permissions.`nPlease uninstall from the add or remove programs menu.`nNot doing so will result in an uninstall prompt next time you turn on your PC.", "Uninstall Failed", "Ok", "Error" )
+                }
                 exit
             }
-            taskkill /f /im "$cloudname.exe" 2>$null | Out-Null
-            del "$env:appdata\$cloudname\CloudConfig.json"
-            rmdir "$env:appdata\$cloudname\" -force
-            del "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe"
-            cd ..
-            del "$gamepath\" -Recurse
+            cd $script:PSScriptRoot
+            taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
+            Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
+            Remove-Item $gamepath -Recurse
+            Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
+            $choice = [System.Windows.Forms.MessageBox]::Show( "This tool made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
+            if ($choice -eq "No") {
+                Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
+            }
+            Remove-Item "$env:appdata\$cloudName" -Recurse -Force
+            [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync has been uninstalled successfully", "Uninstalled!", "Ok", "Information" )
             exit
         }
         if ($(Get-FileHash -Algorithm MD5 "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe").Hash -ne $exehash.Hash) {
@@ -49,10 +62,9 @@ while (1) {
         Start-Sleep -s 1
     }
     Start-Sleep -s 3
-    Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
     Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
+    New-Item -Path ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -ItemType Junction -Value ".\$($gameExecutableName.TrimEnd(".exe"))_Data" | out-null
     taskkill /f /im "$gameExecutableName"
     Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
     Invoke-WebRequest $config.CloudSyncDownload -OutFile ".\$gameExecutableName"
-    Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
 }

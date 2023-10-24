@@ -15,11 +15,11 @@ $gameSaveExtensions = ".dat" # the game save folder sometimes contains informati
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
 $cloudName = "$gameName Steam Cloud"
-
+$databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
+$updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
-$clientVersion = "1.0.0"
-$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
+$host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Loading..."
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
     $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
@@ -34,14 +34,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     try {
         Start-Process "$filelocation1" -Verb RunAs
     } catch {
-        echo "The Steam Cloud installer requires administator privileges, please accept the admin prompt to continue"
+        echo "The Steam Cloud installer requires administrator privileges, please accept the admin prompt to continue"
         echo "Press any key to try again"
         timeout -1 | out-null
         try {
             Start-Process "$filelocation1" -Verb RunAs
         } catch {
             cls
-            echo "The Steam Cloud installer cannot continue without administator privileges"
+            echo "The Steam Cloud installer cannot continue without administrator privileges"
             echo "Press any key to exit"
             timeout -1 | out-null
         }
@@ -49,6 +49,14 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
     exit
 }
 
+$fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
+if ($fileLocation -eq $null) {
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: [ERROR]"
+} else {
+    $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
+    $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: $clientVersion"
+}
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     $indent = 0;
     ($json -Split '\n' |
@@ -65,11 +73,12 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 }
 
 echo "Welcome to Steam Cloud setup"
-echo "Here are some things to know:"
-echo "This tool is not inteded as a backup, it is only inteded to sync your saves between computers, please us other tools for" "backups such as GameSaveManager"
+timeout -1
+cls
+echo "Welcome to Steam Cloud setup"
+echo "Here is some important information:"
 echo "Your saves will only be synced with other computers that have this tool installed"
-echo "When you install on another computer you will have the choice to download your saves from the cloud or upload your saves" "to the cloud, once you choose to override saves on a computer or the cloud you will not be able to recover the" "overritten saves"
-echo "You can disable Steam Cloud on this computer for any game by using this setup tool again"
+echo "You can disable Steam Cloud on this computer for any game at any time by using this setup tool again"
 echo "Steam Deck (and other non-windows devices) are unsupported at this time"
 timeout -1
 cls
@@ -141,8 +150,17 @@ if ($steamid.count -gt 1) {
 }
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
-    $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
+    $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [Y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
+        if (test-path "$env:appdata\$cloudName\1\") {
+            echo "This tool made backups of your save data, they are not needed anymore and can be deleted."
+            echo "Deleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud."
+            $choice = Read-Host "Would you like to delete local save backups? [Y/n]"
+            if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
+                Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
+            }
+        }
+        cls
         echo "Disabling cloud sync on this computer..."
         $CloudConfig = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
         cd $CloudConfig.gamepath
@@ -151,7 +169,8 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         Rename-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
         taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
         Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
-        Remove-Item "$env:appdata\$cloudName\CloudConfig.json"
+        Remove-Item "$env:appdata\$cloudName\" -Force -Recurse
+        Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
         echo "Finished, press any key to exit"
         timeout -1 | Out-Null
         exit
@@ -162,13 +181,44 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     }
 }
 
+if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
+    while ($choice -eq $null) {
+        echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
+        echo "[1] Override your Steam Cloud saves with the ones on this computer"
+        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
+        echo "[3] Cancel installation"
+        $choice = Read-Host "What would you like to do"
+        if ($choice -eq 1) {
+            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
+            cls
+            break
+        }
+        if ($choice -eq 2) {
+            cls
+            break
+        }
+        if ($choice -eq 3) {
+            echo "Installation canaled"
+            echo "Press any key to exit"
+            timeout -1 | Out-Null
+            exit
+        }
+        echo "That is not a valid option"
+        timeout -1
+        $choice = $null
+        cls
+    }
+} else {
+    $choice = 1
+}
+
 echo "Steam Cloud setup is ready to begin, press any key to continue with setup"
 timeout -1 | Out-Null
 cls
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
 $i=0
-if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName") {
+if (test-path "$steamPath\steamapps\common\$gameFolderName\") {
     $gamepath = "$steamPath\steamapps\common\$gameFolderName\"
 } else {
     explorer.exe "steam://launch/$steamAppID"
@@ -188,47 +238,31 @@ if (test-path "$steamPath\steamapps\common\$gameFolderName\$gameExecutableName")
     taskkill /f /im $gameExecutableName 2>$null | Out-Null
 }
 
-if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
-    while ($choice -eq $null) {
-        echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
-        echo "[1] Override your Steam Cloud saves with the ones on this computer"
-        echo "[2] Override your saves on this computer with the ones in Steam Cloud"
-        echo "[3] Cancel installation"
-        $choice = Read-Host "What would you like to do"
-        if ($choice -eq 1) {
-            del "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
-            break
-        }
-        if ($choice -eq 2) {
-            break
-        }
-        if ($choice -eq 3) {
-            echo "Installation cancled"
-            echo "Press any key to exit"
-            timeout -1 | Out-Null
-            exit
-        }
-        echo "That is not a valid option"
-        timeout -1
-        $choice = $null
-        cls
-        echo "Setting up Steam Cloud..."
-    }
-} else {
-    $choice = 1
-}
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item "$gamepath\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
-Copy-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe"))_Data" "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
-mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
+New-Item -Path "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -ItemType Junction -Value "$gamepath\$($gameExecutableName.TrimEnd(".exe"))_Data" | Out-Null
+
+mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID" | out-null
+if ($gameSaveFolder -ne $null) {
+    Copy-Item "$gameSaveFolder" "$env:appdata\$cloudName\1\" -Recurse -Force | Out-Null
+}
+if ($gameRegistryEntries -ne $null) {
+    reg export $gameRegistryEntries "$env:appdata\$cloudName\1.reg"
+}
 Copy-Item ".\SteamCloudSync.exe" "$gamepath\$gameExecutableName" 
 Copy-Item ".\SteamCloudBackground.exe" "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
-        $files = Get-ChildItem -Path "$gameSaveFolder" -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
-        foreach ($file in $files) {
-            mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder).TrimEnd($file.name))"
-            Copy-Item $file "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\$($file.VersionInfo.FileName.TrimStart($gameSaveFolder)).vdf"        }
+        Get-ChildItem $gameSaveFolder -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
+        ForEach-Object {
+            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString($gameSaveFolder.Length);
+            New-Item -ItemType File -Path $targetFile -Force;
+            Copy-Item $_.FullName -destination $targetFile
+        }
+        $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
+        foreach ($file in $cloudFiles) {
+            Rename-Item $file "$($file.Name).vdf"
+        }
     }
     if ($gameRegistryEntries -ne $null) {
         reg export $gameRegistryEntries "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\regEntries.reg"
@@ -239,8 +273,21 @@ $CloudConfig = @{}
 $CloudConfig.Add("gamepath",$gamepath)
 $CloudConfig.Add("steampath",$steamPath)
 $CloudConfig.Add("steamID",$steamid)
+$CloudConfig.Add("lastBackup",(Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds)
 $CloudConfig.Add("CloudSyncDownload", $updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
+New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayIcon" -Value "$gamepath\$gameExecutableName" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayName" -Value "$cloudName" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayVersion" -Value $(Get-Item $gamepath\$gameExecutableName).VersionInfo.FileVersion -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "EstimatedSize" -Value 754 -PropertyType "DWORD" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "InstallDate" -Value $(Get-Date -Format "M/d/yyyy") -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "InstallLocation" -Value $gamePath -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "NoRepair" -Value 1 -PropertyType "DWORD" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "Publisher" -Value "Aldin101" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "UninstallString" -Value "$gamePath\$gameExecutableName /C:`"powershell -executionPolicy bypass -windowstyle hidden -command set-content -value 1 $env:userprofile\uninstall.set; .\SteamCloudSync.ps1`"" -PropertyType "String" -Force | Out-Null
+New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "ModifyPath" -Value "$gamePath\$gameExecutableName /C:`"cmd /c powershell -executionPolicy bypass -command set-content -value 1 $env:userprofile\modify.set; .\SteamCloudSync.ps1`"" -PropertyType "String" -Force | Out-Null
+
 Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
 cls
 echo "Steam Cloud setup has completed, remember to install on other computers to sync saves"

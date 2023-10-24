@@ -38,8 +38,9 @@ while (1) {
             echo "[5] Search for game save locations"
             echo "[6] Add a new game to the build config"
             echo "[7] Sync Background.ps1 game specific information with other files"
+            echo "[8] Rebase all original files off templates"
             if (test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
-                echo "[8] Uninstall Resource Hacker"
+                echo "[9] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
         } else {
@@ -1088,7 +1089,94 @@ while (1) {
             $selection = $null
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 8) {
+        if ($selection -eq 8) {
+            $selection = read-host  "This will overwrite any changes you have made to the original files, are you sure you want to continue? [y/N]"
+            if ($selection -eq "y" -or $selection -eq "Y" -or $selection -eq "yes") {
+                echo "Working..."
+            } else {
+                echo "Canceled"
+                timeout -1
+                break
+            }
+            foreach ($games in $config.games) {
+                $s = Get-Content "$($games.installer)OnlineInstaller.ps1"
+                $s.Split([Environment]::NewLine) | Out-Null
+                if (test-path ".\$($s[0].TrimStart("# "))\OnlineInstaller.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\OnlineInstaller.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    $newfile | Set-Content "$($games.installer)OnlineInstaller.ps1"
+                }
+                if (test-path ".\$($s[0].TrimStart("# "))\OfflineInstaller.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\OfflineInstaller.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    $newfile | Set-Content "$($games.installer)OfflineInstaller.ps1"
+                }
+                if (test-path ".\$($s[0].TrimStart("# "))\Background.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\Background.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    $newfile | Set-Content "$($games.installer)Background.ps1"
+                }
+                if (test-path ".\$($s[0].TrimStart("# "))\SteamCloudSync.ps1") {
+                    $template = get-content ".\$($s[0].TrimStart("# "))\SteamCloudSync.ps1"
+                    $newfile = New-Object System.Collections.ArrayList
+                    $i=0
+                    while ($s[$i].TrimEnd("-") -ne "# Game specific end") {
+                        $newfile.Add($s[$i]) | Out-Null
+                        ++$i
+                    }
+                    $i=0
+                    while ($template[$i].TrimEnd("-") -ne "# Game specific end") {
+                        ++$i
+                    }
+                    while ($i -lt $template.count) {
+                        $newfile.Add($template[$i]) | Out-Null
+                        ++$i
+                    }
+                    $newfile | Set-Content "$($games.installer)SteamCloudSync.ps1"
+                }
+            }
+        }
+
+        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 9) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
             if (Test-Path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
