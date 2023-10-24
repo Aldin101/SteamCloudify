@@ -35,7 +35,6 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
     }) -Join "`n"
 }
 
-
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
     $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
@@ -123,6 +122,7 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
 } else {
     $choice = 1
 }
+
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
@@ -147,6 +147,7 @@ if ($choice -eq 1) {
     }
     "isConfigured" | Set-Content "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf"
 }
+
 $CloudConfig = @{}
 $CloudConfig.Add("gamepath",$gamepath)
 $CloudConfig.Add("steampath",$steamPath)

@@ -159,7 +159,7 @@ if (!(test-path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\c
     echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
     echo "This tool takes many measures to prevent data loss, including weekly backups that are only stored locally. In the extremely" "unlikely event that something does happen you can restore a backup using these instructions: TEMP URL"
     echo ""
-    echo "As with any piece of software, this tool is not perfect. While I have never experenced any issues with this tool it is" "always possible that something will happen, in the extremely unlikely event that" "something does happen you can try to restore a backup"
+    echo "As with any piece of software, this tool is not perfect. While I have never experienced any issues with this tool it is" "always possible that something will happen, in the extremely unlikely event that" "something does happen you can try to restore a backup"
     echo "More information on the steps taken to prevent loss of save data, how to restore backups, and past data loss" "incidents can be found here: TEMP URL"
     timeout -1
     "funnyword" | Out-File "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf"
@@ -187,7 +187,7 @@ if ($libaryfolders.LibraryFolders.1 -ne $null) {
 
 $i=1
 foreach($game in $options) {
-    echo "[$i] $($game.name)"
+    echo "[$i] $(if(test-path "$env:appdata\$($game.name) Steam Cloud\CloudConfig.json"){"Disable Steam Cloud for "})$($game.name)"
     ++$i
 }
 echo "[$i] Not listed? Add it!"
