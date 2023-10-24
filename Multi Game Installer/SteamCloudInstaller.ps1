@@ -32,11 +32,11 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
 }
 $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer.exe'" -ErrorAction SilentlyContinue
 if ($fileLocation -eq $null) {
-    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: [ERROR]"
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: [ERROR]"
 } else {
     $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
     $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion
-    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: $clientVersion"
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
 }
 
 $database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/GameList.json" -UseBasicParsing
