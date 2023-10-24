@@ -1,8 +1,11 @@
 # Steam Cloud
+
 (NAME) is a tool that aims to allow you to use Steam's built in cloud syncing feature ("Steam Cloud") for as many games as possible. The list of supported games can be found [here](https://github.com/users/Aldin101/projects/1), and the list of games supported by this tool is ever growing. If the game is not already supported then add it using the instructions below!
 
 ## Adding Games
+
 Adding games is super easy, and you can do it yourself! Just follow the steps below or use this [video tutorial](link). Get stuck? Contact me on Discord by sending a friend request to @aldin101
+
 1. Download the projects source code
 2. Open the project folder in [Visual Studio Code](https://code.visualstudio.com/) or in any other text editor (these instructions assume you are using VScode). Don't worry, you do not need to write any code in order to add support for most games. 
 3. Once VScode is installed you will need to install the PowerShell extension. You can find the PowerShell extension in the extensions tab on the left side bar.
@@ -17,8 +20,11 @@ Adding games is super easy, and you can do it yourself! Just follow the steps be
 12. Once you have finished setting up the game you can make a pull request to add it to the online list. To do this you will need to fork the project, make your changes, commit them and then make a pull request. If you don't know how to do this then you can watch this [video tutorial](link to video tutorial). Once you have made the pull request, I will review it and if everything looks good, I will merge it and your game will be added to the online list for others to enjoy. Once it is added to the online list you should disable and re-enable cloud sync using the [link to online installer](online installer) so that the game will be re-patched whenever it updates.
 
 ## Additional technical information
+
 Information about how this tool works, this information is not needed to add most games, but is here for those who are interested.
+
 ### Build Tool
+
 - The build tool is the `Build.ps1` file in root of the project. It does a lot of things that would be time consuming to do manually or things that make adding games easier for people less familiar with the project or programming in general.
 - The build database option will build the online database that the online installer uses to see available games. It also copies any built executables on your computer to the database. Once the database is built and you commit and push your changes to GitHub the GitHub pages will automatically update and the online installer will be able to see any changes to existing games or added games. This option is not reverent to most people.
 - The build multi game installer option will build the online installer, when the online installer is built it will just be put in the `Multi Game Installer` folder. This option is not reverent to most people.
@@ -29,12 +35,18 @@ Information about how this tool works, this information is not needed to add mos
 - The sync Background.ps1 option will use the information that you entered in Background.ps1 to sync that information to all other files for that game so that you don't have to retype it for each file (or copy+paste).
 - The rebase all original files off templates option will override all game specific files with the template version while keeping the game specific information intact. This serves little purpose and is not relevant to most people.
 - The uninstall Resource Hacker option will uninstall Resource Hacker from your computer. Because the build tool installs Resource Hacker automatically you can use this option to uninstall it if you want to. This option is only available if you have Resource Hacker installed.
+
 ### Templates
+
 - The templates are not just files that the user can base a new game off of, but they are also used by the build tool to build a game based off a template with the `.Templates` folder, instead of the code that is contained inside the game folder. This makes the project easier to maintain as updating the code for a template will update every game based off that template.
 - Game specific code and variables needs to be above the `Game specific end-----` line, all code below that line will not be used. Instead, the code in the template will be used.
 - All `.ps1` files contained in a template have a template identifier on the first line. This tells the build tool what template the game is based on so that it can use the correct template for that game. If you want to add game specific code, make sure to remove the template identifier from the top of any file you are editing. This will make the build tool build executables and the online install script from the code you wrote instead of the template code. Not using a template makes that game harder for me to maintain and most games don't need custom code so please use a template when possible.
+
 ### Resources
+
 - Each game has a `Resources` folder. All resources are game specific and not pulled from a template every build. Resources contain an icon used by all executables and version info for each executable.
 - When building the Steam Cloud runtime and background executables you will be prompted for a version number for each exe. This version number is written to the version info file for that exe. The version info is then compiled by ResHack and written to the build executable. The version that you enter in the build tool is the version that will be displayed in the file properties of the built executable and the version number that will be used when it checks for updates.
+
 ### SEDs
+
 - The SED files in the `SEDs` folder control information about what files will be packaged, the start command, among other things. The empty felids that say `[FILLED IN BY TOOL]` will be filled in by the build tool when you build an executable. Those felids are filled in on build because they contain computer specific information.
