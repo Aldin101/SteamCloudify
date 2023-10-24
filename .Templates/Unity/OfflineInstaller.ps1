@@ -20,7 +20,7 @@ $databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', 
 $updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
-$host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Loading..."
+$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Loading..."
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
     $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
@@ -52,7 +52,7 @@ if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
 
 $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer for $gameName.exe'" -ErrorAction SilentlyContinue
 if ($fileLocation -eq $null) {
-    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer | Version: [ERROR]"
+    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: [ERROR]"
 } else {
     $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
     $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion

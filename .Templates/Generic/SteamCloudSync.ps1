@@ -128,6 +128,9 @@ if (Test-Path "$env:userprofile\Modify.set") {
         timeout -1 | Out-Null
         exit
     }
+    Remove-Item "$steampath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" -Recurse
+    mkdir "$steampath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" | out-null
+    "funnyword" | Set-Content "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf"
     if ($gameSaveFolder -ne $null) {
         remove-item "$gameSaveFolder" -Recurse -Force
         copy-item "$env:appdata\$cloudName\$choice\" "$gameSaveFolder" -Recurse -Force
