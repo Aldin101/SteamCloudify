@@ -67,8 +67,10 @@ while (1) {
                         ++$i
                     }
                     $newfile | Set-Content ".\temp.ps1"
-                    $s = Get-Content ".\temp.ps1"
+                    $s = Get-Content ".\temp.ps1" | Out-String
                     del ".\temp.ps1"
+                } else {
+                    $s = Get-Content "$($games.installer)OnlineInstaller.ps1" | Out-String
                 }
                 $j = [PSCustomObject]@{
                     "Script" =  [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($s))
