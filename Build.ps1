@@ -39,8 +39,9 @@ while (1) {
             echo "[6] Add a new game to the build config"
             echo "[7] Sync Background.ps1 game specific information with other files"
             echo "[8] Rebase all original files off templates"
+            echo "[9] Create Microsoft Security submission file"
             if (test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
-                echo "[9] Uninstall Resource Hacker"
+                echo "[10] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
         } else {
@@ -1176,7 +1177,16 @@ while (1) {
             }
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 9) {
+        if ($selection -eq 9) {
+            $installers = [System.Collections.ArrayList]@()
+            $installers.add(".\Multi Game Installer\Steam Cloud Installer.exe")
+            foreach ($game in $config.games) {
+                $installers.add("$($game.installer)Built Executables\Steam Cloud Installer for $($game.name).exe")
+            }
+            Compress-Archive $installers .\MicrosoftSecuritySubmission.zip
+        }
+
+        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 10) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
             if (Test-Path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
