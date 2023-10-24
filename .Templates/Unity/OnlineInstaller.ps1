@@ -125,7 +125,7 @@ if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\con
 
 mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
 Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
-mklink /J ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" | out-null
+New-Item -Path "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -ItemType Junction -Value "$gamepath\$($gameExecutableName.TrimEnd(".exe"))_Data" | Out-Null
 New-Item -Path ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -ItemType Junction -Value ".\$($gameExecutableName.TrimEnd(".exe"))_Data" | out-null
 Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName" 
 Invoke-WebRequest $database.gameUpdateChecker -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
