@@ -141,8 +141,8 @@ if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
         Get-ChildItem $gameSaveFolder -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
         ForEach-Object {
-            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString($gameSaveFolder.Length);
-            New-Item -ItemType File -Path $targetFile -Force;
+            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString($gameSaveFolder.Length)
+            New-Item -ItemType File -Path $targetFile -Force | Out-Null
             Copy-Item $_.FullName -destination $targetFile
         }
         $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
@@ -162,7 +162,7 @@ $CloudConfig.Add("steamID",$steamid)
 $CloudConfig.Add("lastBackup",(Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds)
 $CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
-New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName
+New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayIcon" -Value "$gamepath\$gameExecutableName" -PropertyType "String" -Force | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayName" -Value "$cloudName" -PropertyType "String" -Force | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayVersion" -Value $(Get-Item $gamepath\$gameExecutableName).VersionInfo.FileVersion -PropertyType "String" -Force | Out-Null

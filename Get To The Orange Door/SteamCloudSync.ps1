@@ -4,7 +4,7 @@ $gameName = "Get To The Orange Door" # name of the game
 $steamAppID = "541200" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "Get To The Orange Door.exe" # executable name should be structured, "GAME NAME.exe"
 $gameFolderName = "Get To The Orange Door" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "C:\Users\$env:username\appdata\locallow\layers deep\get to the orange door" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameSaveFolder = "C:\Users\$env:username\appdata\locallow\layers deep\Get To The Orange Door" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
 $gameSaveExtensions = ".od2" # the game save folder sometimes contains information other than just game saves, and some-
@@ -44,6 +44,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 }
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ((test-path "$env:userprofile\uninstall.set") -and $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
+    Remove-Item "$env:userprofile\uninstall.set"
     taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
     taskkill /f /im "$gameExecutableName" 2>$null | Out-Null
     Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
@@ -131,8 +132,8 @@ if (Test-Path "$env:userprofile\Modify.set") {
         copy-item "$env:appdata\$cloudName\$choice\" "$gameSaveFolder" -Recurse -Force
         Get-ChildItem "$env:appdata\$cloudName\$choice\" -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
         ForEach-Object {
-            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString("$env:appdata\$cloudName\$choice\".Length);
-            New-Item -ItemType File -Path $targetFile -Force;
+            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString("$env:appdata\$cloudName\$choice\".Length)
+            New-Item -ItemType File -Path $targetFile -Force | Out-Null
             Copy-Item $_.FullName -destination $targetFile
         }
     }

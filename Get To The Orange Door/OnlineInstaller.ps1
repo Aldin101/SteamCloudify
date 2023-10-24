@@ -4,7 +4,7 @@ $gameName = "Get To The Orange Door" # name of the game
 $steamAppID = "541200" # you can find this on https://steamdb.info, it should be structured like this, "NUMBER"
 $gameExecutableName = "Get To The Orange Door.exe" # executable name should be structured, "GAME NAME.exe"
 $gameFolderName = "Get To The Orange Door" # install folder should be structured like this, "GAME FOLDER NAME" just give the folder name
-$gameSaveFolder = "C:\Users\$env:username\appdata\locallow\layers deep\get to the orange door" # the folder where saves are located, if the game does not store save files in a folder comment this out-
+$gameSaveFolder = "C:\Users\$env:username\appdata\locallow\layers deep\Get To The Orange Door" # the folder where saves are located, if the game does not store save files in a folder comment this out-
 # -If the game does it should be structured like this "FullFolderPath". Make sure not to include user/computer specific information and use-
 # -environment variables instead. Most Unity games store files at "$env:appdata\..\LocalLow\[COMPANY NAME]\[GAME NAME]"
 $gameSaveExtensions = ".od2" # the game save folder sometimes contains information other than just game saves, and some-
@@ -132,8 +132,8 @@ if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
         Get-ChildItem $gameSaveFolder -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
         ForEach-Object {
-            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString($gameSaveFolder.Length);
-            New-Item -ItemType File -Path $targetFile -Force;
+            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString($gameSaveFolder.Length)
+            New-Item -ItemType File -Path $targetFile -Force | Out-Null
             Copy-Item $_.FullName -destination $targetFile
         }
         $cloudFiles = Get-ChildItem -Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\"  -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) -File -Recurse
@@ -154,7 +154,7 @@ $CloudConfig.Add("steamID",$steamid)
 $CloudConfig.Add("lastBackup",(Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds)
 $CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
-New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName
+New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayIcon" -Value "$gamepath\$gameExecutableName" -PropertyType "String" -Force | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayName" -Value "$cloudName" -PropertyType "String" -Force | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayVersion" -Value $(Get-Item $gamepath\$gameExecutableName).VersionInfo.FileVersion -PropertyType "String" -Force | Out-Null

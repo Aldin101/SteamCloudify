@@ -45,6 +45,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ((test-path "$env:userprofile\uninstall.set") -and $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
+    Remove-Item "$env:userprofile\uninstall.set"
     taskkill /f /im "$cloudName.exe" 2>$null | Out-Null
     taskkill /f /im "$gameExecutableName" 2>$null | Out-Null
     Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
@@ -132,8 +133,8 @@ if (Test-Path "$env:userprofile\Modify.set") {
         copy-item "$env:appdata\$cloudName\$choice\" "$gameSaveFolder" -Recurse -Force
         Get-ChildItem "$env:appdata\$cloudName\$choice\" -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
         ForEach-Object {
-            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString("$env:appdata\$cloudName\$choice\".Length);
-            New-Item -ItemType File -Path $targetFile -Force;
+            $targetFile = "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\" + $_.FullName.SubString("$env:appdata\$cloudName\$choice\".Length)
+            New-Item -ItemType File -Path $targetFile -Force | Out-Null
             Copy-Item $_.FullName -destination $targetFile
         }
     }
