@@ -62,10 +62,9 @@ while (1) {
         Start-Sleep -s 1
     }
     Start-Sleep -s 3
-    Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
     Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
+    New-Item -Path ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -ItemType Junction -Value ".\$($gameExecutableName.TrimEnd(".exe"))_Data" | out-null
     taskkill /f /im "$gameExecutableName"
     Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
     Invoke-WebRequest $config.CloudSyncDownload -OutFile ".\$gameExecutableName"
-    Copy-Item ".\$($gameExecutableName.TrimEnd(".exe"))_Data" ".\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
 }

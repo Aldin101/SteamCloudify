@@ -79,6 +79,7 @@ if (test-path "$env:userprofile\uninstall.set") {
             exit
         }
     } else {
+        Remove-Item "$env:userprofile\uninstall.set"
         exit
     }
 }

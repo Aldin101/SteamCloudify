@@ -50,14 +50,13 @@ if ((test-path "$env:userprofile\uninstall.set") -and $currentPrincipal.IsInRole
     Remove-Item "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
     Remove-Item "$gamepath\$gameExecutableName"
     Rename-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
-    Remove-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -force -recurse
+    Remove-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -Recurse
     Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
     $choice = [System.Windows.Forms.MessageBox]::Show( "This tool made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
     if ($choice -eq "No") {
         Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
     }
     Remove-Item "$env:appdata\$cloudName" -Recurse -Force
-    Remove-Item "$env:userprofile\uninstall.set"
     [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync has been uninstalled successfully", "Uninstalled!", "Ok", "Information" )
     exit
 }
@@ -74,6 +73,7 @@ if (test-path "$env:userprofile\uninstall.set") {
             exit
         }
     } else {
+        Remove-Item "$env:userprofile\uninstall.set"
         exit
     }
 }
