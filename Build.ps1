@@ -40,8 +40,13 @@ while (1) {
             echo "[7] Sync Background.ps1 game specific information with other files"
             echo "[8] Rebase all original files off templates"
             echo "[9] Create Microsoft Security submission file"
+            if (Get-InstalledModule burnttoast -ErrorAction SilentlyContinue) {
+                echo "[10] Disable notifications"
+            } else {
+                echo "[10] Enable notifications"
+            }
             if (test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
-                echo "[10] Uninstall Resource Hacker"
+                echo "[11] Uninstall Resource Hacker"
             }
             $selection = Read-Host "What would you like to do"
         } else {
@@ -211,6 +216,23 @@ while (1) {
             cls
         }
 
+        if ($selection -eq 2 -or $selection -eq 3 -or $selection -eq 4 -and !(test-path .\notificationsRequested) -and !(Get-InstalledModule burnttoast -ErrorAction SilentlyContinue)) {
+            $choice = read-host "Would you like to enable notifications for when builds finish (optional)? [y/N]"
+            if ($choice -eq "y" -or $choice -eq "Y" -or $choice -eq "yes") {
+                echo "Working..."
+                try {
+                    Start-Process pwsh -Verb runAs -Wait -ArgumentList '-command "Install-Module burnttoast -Confirm:$False -Force"'
+                } catch {
+                    echo "You need to accept the admin prompt"
+                    timeout -1
+                    break
+                }
+            } else {
+                "funnyWord" | Set-Content ".\notificationsRequested"
+            }
+            cls
+        }
+
         if ($selection -eq 2) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
                 $versionString = read-host "What is the desired version number, you can have up to 4 numbers separated by periods"
@@ -247,6 +269,9 @@ while (1) {
                     echo "You need to accept the admin prompt"
                     timeout -1
                     break
+                }
+                if (!(test-path .\notificationsRequested)) {
+                    New-BurntToastNotification -text 'Build Tool', 'Build Finished!' -AppLogo .\icon\icon.ico -ErrorAction SilentlyContinue
                 }
                 echo "Build completed"
                 timeout -1
@@ -433,6 +458,9 @@ while (1) {
                     echo "You need to accept the admin prompt"
                     timeout -1
                     break
+                }
+                if (!(test-path .\notificationsRequested)) {
+                    New-BurntToastNotification -text 'Build Tool', 'Build Finished!' -AppLogo .\icon\icon.ico -ErrorAction SilentlyContinue
                 }
                 echo "Build completed"
                 timeout -1
@@ -698,6 +726,9 @@ while (1) {
                     timeout -1
                     break
                 }
+                if (!(test-path .\notificationsRequested)) {
+                    New-BurntToastNotification -text 'Build Tool', 'Build Finished!' -AppLogo .\icon\icon.ico -ErrorAction SilentlyContinue
+                }
                 echo "Build completed"
                 timeout -1
                 $selection = $null
@@ -809,6 +840,9 @@ while (1) {
                 }
                 ++$i
             }
+            if (!(test-path .\notificationsRequested)) {
+                New-BurntToastNotification -text 'Build Tool', 'Build Finished!' -AppLogo .\icon\icon.ico -ErrorAction SilentlyContinue
+            }
             $host.ui.RawUI.WindowTitle = "Build Finished!"
             echo "Build completed"
             echo "Press any key to exit"
@@ -838,6 +872,9 @@ while (1) {
                     exit
                 }
                 ++$i
+            }
+            if (!(test-path .\notificationsRequested)) {
+                New-BurntToastNotification -text 'Build Tool', 'Build Finished!' -AppLogo .\icon\icon.ico -ErrorAction SilentlyContinue
             }
             $host.ui.RawUI.WindowTitle = "Build Finished!"
             echo "Build completed"
@@ -1187,7 +1224,35 @@ while (1) {
             Compress-Archive $installers .\MicrosoftSecuritySubmission.zip
         }
 
-        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 10) {
+        if ((Get-InstalledModule burnttoast -ErrorAction SilentlyContinue) -and $selection -eq 10) {    
+            echo "The powershell session will exit, press any key to continue"
+            timeout -1
+            try {
+                Start-Process pwsh -Verb runAs -WindowStyle Hidden -ArgumentList '-command "Uninstall-Module burnttoast -Confirm:$False -Force"'
+            } catch {
+                echo "You need to accept the admin prompt"
+                timeout -1
+                break
+            }
+            "funnyWord" | Set-Content ".\notificationsRequested"
+            taskkill /f /pid $pid | Out-Null
+            exit
+        }
+
+        if (!(Get-InstalledModule burnttoast -ErrorAction SilentlyContinue) -and $selection -eq 10) {
+            echo "Working..."
+            try {
+                Start-Process pwsh -WindowStyle Hidden -Verb runAs -wait -ArgumentList '-command "Install-Module burnttoast -Confirm:$False -Force"'
+            } catch {
+                echo "You need to accept the admin prompt"
+                timeout -1
+                break
+            }
+            Remove-Item .\notificationsRequested
+            break
+        }
+
+        if ($(test-path "c:/program files (x86)/resource hacker/ResourceHacker.exe") -and $selection -eq 11) {
             winget uninstall AngusJohnson.ResourceHacker --silent
             timeout 3 /nobreak | Out-Null
             if (Test-Path "c:/program files (x86)/resource hacker/ResourceHacker.exe") {
