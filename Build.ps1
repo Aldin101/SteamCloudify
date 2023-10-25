@@ -1180,7 +1180,7 @@ while (1) {
         if ($selection -eq 9) {
             del .\MicrosoftSecuritySubmission.zip -ErrorAction SilentlyContinue
             $installers = [System.Collections.ArrayList]@()
-            $installers.add(".\Multi Game Installer\Steam Cloud Installer.exe")
+            $installers.add(".\Multi Game Installer\Steam Cloud Installer.exe") | out-null
             foreach ($game in $config.games) {
                 $installers.add("$($game.installer)Built Executables\Steam Cloud Installer for $($game.name).exe") | out-null
             }

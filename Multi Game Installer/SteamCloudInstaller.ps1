@@ -1,4 +1,3 @@
-
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
 $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Loading..."
@@ -62,69 +61,73 @@ timeout -1
 cls
 
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
-$ids = Get-ChildItem -Path "$steamPath\userdata\"
-$steamid = [System.Collections.ArrayList](@())
-foreach ($id in $ids) {
-    if (test-path "$steamPath\userdata\$($id.basename)\inventorymsgcache\") {
-        $steamid.add($id.basename) | Out-Null
-    }
-}
+$steamid = $(Get-ItemProperty "HKCU:\SOFTWARE\Valve\Steam\ActiveProcess").ActiveUser
 
-if ($steamid.count -eq 0) {
-    echo "Unable to find your Steam ID"
-    echo "Press any key to exit"
-    timeout -1 | Out-Null
-    exit
-}
-
-if ($steamid.count -gt 1) {
-    foreach ($id in $steamid) {
-        $lines = Get-Content "$steampath\userdata\$($id)\config\localconfig.vdf"
-        $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
-        $newLines.Add("{") | Out-Null
-        foreach ($line in $lines) {
-            $matchCollection = [regex]::Matches($line, '\s*(\".*?\")')
-            if ($matchCollection.Count -eq 2) {
-                $line = $line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))
-                $secondVal = $matchCollection[1].Groups[1].Value.Clone()
-                [int64]$tryLongVal = 0
-                if ([int64]::TryParse($secondVal.Replace('"', ''), [ref] $tryLongVal)) {
-                    $secondVal = $secondVal.Replace('"', '')
-                }
-                $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal))) | Out-Null
-            } elseif ($matchCollection.Count -eq 1) {
-                $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))) | Out-Null
-            } else {
-                $newLines.Add($line) | Out-Null
-            }
+if ($steamid -eq 0) {
+    $ids = Get-ChildItem -Path "$steamPath\userdata\"
+    $steamid = [System.Collections.ArrayList](@())
+    foreach ($id in $ids) {
+        if (test-path "$steamPath\userdata\$($id.basename)\ugc\0_subscriptions.vdf") {
+            $steamid.add($id.basename) | Out-Null
         }
-        $newLines.Add("}") | Out-Null
-        $joinedLine = $newLines -join "`n"
-        $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
-        $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
-        $startIndex = $joinedLine.IndexOf('"friends"') + 10
-        $endIndex = $joinedLine.IndexOf('"Offline"', $startIndex)-3
-        $validJson = $joinedLine.Substring($startIndex, $endIndex - $startIndex)
-        $validJson = "$validJson"
-        $validJson = $validJson -replace ',(\s*[\]}])', '$1'
-        $data = ConvertFrom-Json $validJson
+    }
 
-        $steamAccountName = [System.Collections.ArrayList](@())
-        $steamAccountName.add($data.PersonaName) | Out-Null
-    }
-    echo "Multiple Steam accounts found, please select the one you would like to use"
-    $i=1
-    foreach ($name in $steamAccountName) {
-        echo "[$i] $name"
-        ++$i
-    }
-    $choice = Read-Host "What Steam account would you like to use?"
-    $steamid = $steamid[$choice-1]
-    if ($steamid -eq $null) {
-        echo "That is not a valid Steam account"
+    if ($steamid.count -eq 0) {
+        echo "No Steam accounts found. Please make sure that steam is running, you are logged in, and Steam can access the internet"
         echo "Press any key to exit"
         timeout -1 | Out-Null
         exit
+    }
+
+    if ($steamid.count -gt 1) {
+        foreach ($id in $steamid) {
+            $lines = Get-Content "$steampath\userdata\$($id)\config\localconfig.vdf"
+            $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
+            $newLines.Add("{") | Out-Null
+            foreach ($line in $lines) {
+                $matchCollection = [regex]::Matches($line, '\s*(\".*?\")')
+                if ($matchCollection.Count -eq 2) {
+                    $line = $line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))
+                    $secondVal = $matchCollection[1].Groups[1].Value.Clone()
+                    [int64]$tryLongVal = 0
+                    if ([int64]::TryParse($secondVal.Replace('"', ''), [ref] $tryLongVal)) {
+                        $secondVal = $secondVal.Replace('"', '')
+                    }
+                    $newLines.Add($line.Replace($matchCollection[1].Groups[1].Value, ("{0}," -f $secondVal))) | Out-Null
+                } elseif ($matchCollection.Count -eq 1) {
+                    $newLines.Add($line.Replace($matchCollection[0].Groups[1].Value, ("{0}:" -f $matchCollection[0].Groups[1].Value))) | Out-Null
+                } else {
+                    $newLines.Add($line) | Out-Null
+                }
+            }
+            $newLines.Add("}") | Out-Null
+            $joinedLine = $newLines -join "`n"
+            $joinedLine = [regex]::Replace($joinedLine, '\}(\s*\n\s*\")', '},$1', "Multiline")
+            $joinedLine = [regex]::Replace($joinedLine, '\"\,(\n\s*\})', '"$1', "Multiline")
+            $startIndex = $joinedLine.IndexOf('"friends"') + 10
+            $endIndex = $joinedLine.IndexOf('"Offline"', $startIndex)-3
+            $validJson = $joinedLine.Substring($startIndex, $endIndex - $startIndex)
+            $validJson = "$validJson"
+            $validJson = $validJson -replace ',(\s*[\]}])', '$1'
+            $data = ConvertFrom-Json $validJson
+
+            $steamAccountName = [System.Collections.ArrayList](@())
+            $steamAccountName.add($data.PersonaName) | Out-Null
+        }
+        echo "Multiple Steam accounts found, please select the one you would like to use"
+        $i=1
+        foreach ($name in $steamAccountName) {
+            echo "[$i] $name"
+            ++$i
+        }
+        $choice = Read-Host "What Steam account would you like to use?"
+        $steamid = $steamid[$choice-1]
+        if ($steamid -eq $null) {
+            echo "That is not a valid Steam account"
+            echo "Press any key to exit"
+            timeout -1 | Out-Null
+            exit
+        }
     }
 }
 
