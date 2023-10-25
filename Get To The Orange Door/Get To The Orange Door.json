@@ -3,12 +3,12 @@
   "allowedClient": [
     "1.0.0"
   ],
-  "updateLink": "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/SteamCloudSync.exe",
+  "updateLink": "https://aldin101.github.io/SteamCloudify/Get%20To%20The%20Orange%20Door/SteamCloudSync.exe",
   "latestUpdater": "1.0.0",
   "allowedUpdater": [
     "1.0.0"
   ],
-  "gameUpdateChecker": "https://aldin101.github.io/Steam-Cloud/Get%20To%20The%20Orange%20Door/SteamCloudBackground.exe",
+  "gameUpdateChecker": "https://aldin101.github.io/SteamCloudify/Get%20To%20The%20Orange%20Door/SteamCloudBackground.exe",
   "isOnline": true,
   "disallowReason": "because your installation is misconfigured.",
   "offlineReason": "This is a bug, no games have been brought offline at this time."

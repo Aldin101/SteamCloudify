@@ -190,7 +190,7 @@ if ($libaryfolders.LibraryFolders.1 -ne $null) {
 
 $i=1
 foreach($game in $options) {
-    echo "[$i] $(if(test-path "$env:appdata\$($game.name) SteamCloudify\CloudConfig.json"){"Disable SteamCloudify for "})$($game.name)"
+    echo "[$i] $(if(test-path "$env:appdata\SteamCloudify for $($game.name)\CloudConfig.json"){"Disable SteamCloudify for "})$($game.name)"
     ++$i
 }
 echo "[$i] Not listed? Add it!"
