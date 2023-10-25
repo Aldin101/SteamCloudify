@@ -1,6 +1,6 @@
-# Steam Cloud
+# SteamCloudify
 
-(NAME) is a tool that aims to allow you to use Steam's built in cloud syncing feature ("Steam Cloud") for as many games as possible. The list of supported games can be found [here](https://github.com/users/Aldin101/projects/1), and the list of games supported by this tool is ever growing. If the game is not already supported then add it using the instructions below!
+SteamCloudify is a tool that aims to allow you to use Steam's built in cloud syncing feature ("Steam Cloud") for as many games as possible. The list of supported games can be found [here](https://github.com/users/Aldin101/projects/1), and the list of games supported by this tool is ever growing. If the game is not already supported then add it using the instructions below!
 
 ## Adding Games
 
@@ -29,7 +29,7 @@ Information about how this tool works, this information is not needed to add mos
 - The build database option will build the online database that the online installer uses to see available games. It also copies any built executables on your computer to the database. Once the database is built and you commit and push your changes to GitHub the GitHub pages will automatically update and the online installer will be able to see any changes to existing games or added games. This option is not reverent to most people.
 - The build multi game installer option will build the online installer, when the online installer is built it will just be put in the `Multi Game Installer` folder. This option is not reverent to most people.
 - The build single game installer will build an installer for a single game. You can also have it build a single game installer for all games, although each game will still get its own installer. This installer does not need connection to the internet in order to function. It is meant for testing games not on the online list yet but can also be used for preservation purposes.
-- The build Steam Cloud runtime and background executables will make the executables for the `SteamCloudSync.ps1` and `Background.ps1` files. You can pick a game to build the executables for or build them for all games. These executables are useless on their own, and need to be built into a single game installer and installed before they can do anything.
+- The build SteamCloudify launch task and background task executables will make the executables for the `SteamCloudSync.ps1` and `Background.ps1` files. You can pick a game to build the executables for or build them for all games. These executables are useless on their own, and need to be built into a single game installer and installed before they can do anything.
 - The search for game save locations will allow you to search for game saves while only knowing the name, it searches common save location for what you entered and if it finds stuff it will display it. This is useful for finding save locations for games.
 - Add a new game to the build config will add entries for a new game to the `BuildTool.json` file in the root of the project folder. If you have already made a copy of a template and filled in the information for the game, you are adding then this option will automatically fill in the information for you. If you have not done that yet, then you will need to fill in the information manually. It sometimes gets the information incorrect so make sure to double check it.
 - The sync Background.ps1 option will use the information that you entered in Background.ps1 to sync that information to all other files for that game so that you don't have to retype it for each file (or copy+paste).
@@ -46,7 +46,7 @@ Information about how this tool works, this information is not needed to add mos
 ### Resources
 
 - Each game has a `Resources` folder. All resources are game specific and not pulled from a template every build. Resources contain an icon used by all executables and version info for each executable.
-- When building the Steam Cloud runtime and background executables you will be prompted for a version number for each exe. This version number is written to the version info file for that exe. The version info is then compiled by ResHack and written to the build executable. The version that you enter in the build tool is the version that will be displayed in the file properties of the built executable and the version number that will be used when it checks for updates.
+- When building the SteamCloudify launch task and background task executables you will be prompted for a version number for each exe. This version number is written to the version info file for that exe. The version info is then compiled by ResHack and written to the build executable. The version that you enter in the build tool is the version that will be displayed in the file properties of the built executable and the version number that will be used when it checks for updates.
 
 ### SEDs
 

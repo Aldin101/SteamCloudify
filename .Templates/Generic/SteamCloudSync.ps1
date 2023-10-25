@@ -16,9 +16,9 @@ $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registr
 # -(this is where most games store entires).
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
-$cloudName = "$gameName Steam Cloud"
-$databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
-$updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
+$cloudName = "SteamCloudify for $gameName"
+$databaseURL = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
+$updateLink = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 $file = Invoke-WebRequest $databaseURL -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
@@ -52,18 +52,18 @@ if ((test-path "$env:userprofile\uninstall.set") -and $currentPrincipal.IsInRole
     Remove-Item "$gamepath\$gameExecutableName"
     Rename-Item "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game.exe" "$gameExecutableName"
     Remove-Item HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Recurse -Force
-    $choice = [System.Windows.Forms.MessageBox]::Show( "This tool made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
+    $choice = [System.Windows.Forms.MessageBox]::Show( "SteamCloudify made backups of your save data, they are not needed anymore and can be deleted.`nDeleting them will have no effect on your saves stored locally, on other computers, or in Steam Cloud.`nWould you like to delete the backups?", "Delete Backups", "YesNo", "Question" )
     if ($choice -eq "No") {
         Move-Item "$env:appdata\$cloudName\" "$env:userprofile\desktop\Save Backups for $gamename\" -Force -Exclude "CloudConfig.json"
     }
     Remove-Item "$env:appdata\$cloudName" -Recurse -Force
     Remove-Item "$env:userprofile\uninstall.set"
-    [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync has been uninstalled successfully", "Uninstalled!", "Ok", "Information" )
+    [System.Windows.Forms.MessageBox]::Show( "SteamCloudify uninstalled successfully!", "Uninstalled!", "Ok", "Information" )
     exit
 }
 
 if (test-path "$env:userprofile\uninstall.set") {
-    $choice = [System.Windows.Forms.MessageBox]::Show( "Would you like to uninstall Steam Cloud Sync?", "Uninstall", "YesNo", "Question" )
+    $choice = [System.Windows.Forms.MessageBox]::Show( "Would you like to uninstall SteamCloudify?", "Uninstall", "YesNo", "Question" )
     if ($choice -eq "Yes") {
         try {
             Start-Process $gamepath\$gameExecutableName -Verb RunAs
@@ -81,11 +81,10 @@ if (test-path "$env:userprofile\uninstall.set") {
 
 if (Test-Path "$env:userprofile\Modify.set") {
     Remove-Item "$env:userprofile\Modify.set"
-    $host.ui.RawUI.WindowTitle = "$cloudname Backup Utility"
+    $host.ui.RawUI.WindowTitle = "$cloudname Backup Manager"
     cls
-    echo "Welcome to the Steam Cloud Sync backup manager"
-    echo "This tool allows you to manage your backups for $gamename"
-    echo "This Steam Cloud Sync makes local backups of your save games weekly, just incase something goes wrong."
+    echo "Welcome to the SteamCloudify Sync backup manager"
+    echo "SteamCloudify made local backups of your save games weekly, just incase something goes wrong. You can restore them here"
     $choice = Read-Host "Would you like to restore a backup? [Y/n]"
     if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
         echo "Press any key to exit"
@@ -158,7 +157,7 @@ if (Test-Path "$env:userprofile\Modify.set") {
 
 if ($database -ne $null) {
     if ($database.isOnline -eq $false) {
-        [System.Windows.Forms.MessageBox]::Show( "Steam Cloud Sync is has been deactivated $($database.offlineReason) Your saves will not sync with the cloud in the meantime. This issue is being worked on.", "Cloud Sync Disabled", "Ok", "Warning" )
+        [System.Windows.Forms.MessageBox]::Show( "SteamCloudify is has been deactivated $($database.offlineReason) Your saves will not sync with the cloud in the meantime. This issue is being worked on.", "Cloud Sync Disabled", "Ok", "Warning" )
         Start-Process ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
         timeout 5
         $i=0
@@ -170,7 +169,7 @@ if ($database -ne $null) {
                 $i=0
             }
         }
-        [System.Windows.Forms.MessageBox]::Show( "Please remember that Steam Cloud Sync has been deactivated, your saves will not sync with the cloud. This issue is being worked on.")
+        [System.Windows.Forms.MessageBox]::Show( "Please remember that SteamCloudify has been deactivated, your saves will not sync with Steam Cloud. This issue is being worked on.")
         exit
     }
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -196,9 +195,9 @@ if ($database -ne $null) {
             ++$i
         }
         if ($required -eq "false") {
-            $choice = [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, would you like to install this update?", "Update Available", "YesNo", "Question" )
+            $choice = [System.Windows.Forms.MessageBox]::Show( "An update for SteamCloudify is available, would you like to install this update?", "Update Available", "YesNo", "Question" )
         } else {
-            [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, this update is required $($database.disallowReason)", "Update Required", "Ok", "Warning" )
+            [System.Windows.Forms.MessageBox]::Show( "An update for SteamCloudify is available, this update is required $($database.disallowReason)", "Update Required", "Ok", "Warning" )
             $choice = "Yes"
         }
         if ($choice -eq "Yes") {
@@ -230,9 +229,9 @@ if ($database -ne $null) {
             del "$env:appdata\$cloudName\updateClient.set"
         } else {
             if ($required -eq "false") {
-                $choice = [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, would you like to install this update?", "Update Available", "YesNo", "Question" )
+                $choice = [System.Windows.Forms.MessageBox]::Show( "An update for SteamCloudify Sync is available, would you like to install this update?", "Update Available", "YesNo", "Question" )
             } else {
-                [System.Windows.Forms.MessageBox]::Show( "An update for Steam Cloud Sync is available, this update is required $($database.disallowReason)", "Update Required", "Ok", "Warning" )
+                [System.Windows.Forms.MessageBox]::Show( "An update for SteamCloudify Sync is available, this update is required $($database.disallowReason)", "Update Required", "Ok", "Warning" )
                 $choice = "Yes"
             }
         }

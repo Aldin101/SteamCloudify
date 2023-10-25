@@ -21,9 +21,9 @@ $gameRegistryEntries = "[INSERT REGISTRY LOCATION]" # the location where registr
 # -(this is where most games store entires).
 # Game specific end------------------------------------------------------------------------------------------------------------------------------
 
-$cloudName = "$gameName Steam Cloud"
-$databaseURL = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
-$updateLink = "https://aldin101.github.io/Steam-Cloud/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
+$cloudName = "SteamCloudify for $gamename"
+$databaseURL = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
+$updateLink = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 $file = Invoke-WebRequest $databaseURL -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
@@ -43,10 +43,10 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
-    $disableChoice = Read-Host "Steam Cloud is already enabled for this game. Would you like to disable Steam Cloud [Y/n]"
+    $disableChoice = Read-Host "SteamCloudify is already installed for this game. Would you like to disable SteamCloudify [Y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
         if (test-path "$env:appdata\$cloudName\1\") {
-            echo "This tool made backups of your save data, they are not needed anymore and can be deleted."
+            echo "SteamCloudify made backups of your save data, they are not needed anymore and can be deleted."
             echo "Deleting them will have no effect on your saves stored locally, stored on other computer or in Steam Cloud."
             $choice = Read-Host "Would you like to delete local save backups? [Y/n]"
             if ($choice -eq "n" -or $choice -eq "N" -or $choice -eq "no") {
@@ -99,7 +99,7 @@ $gameSaveFolder | iex
 cd $gamepath
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
-        echo "Steam Cloud has already been setup on another computer, and saves for that computer are already in Steam Cloud"
+        echo "SteamCloudify has already been installed on another computer, and saves for that computer are already in Steam Cloud"
         echo "[1] Override your Steam Cloud saves with the ones on this computer"
         echo "[2] Override your saves on this computer with the ones in Steam Cloud"
         echo "[3] Cancel installation"
@@ -137,7 +137,7 @@ if ($gameRegistryEntries -ne $null) {
     reg export $gameRegistryEntries "$env:appdata\$cloudName\1.reg"
 }
 
-mkdir "$env:appdata\$gamename Steam Cloud\" | out-null
+mkdir "$env:appdata\$cloudname\" | out-null
 Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
 mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID"
 Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName" 
@@ -178,8 +178,8 @@ New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$clou
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "Publisher" -Value "Aldin101" -PropertyType "String" -Force | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "UninstallString" -Value "$gamePath\$gameExecutableName /C:`"powershell -executionPolicy bypass -windowstyle hidden -command set-content -value 1 $env:userprofile\uninstall.set; .\SteamCloudSync.ps1`"" -PropertyType "String" -Force | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "ModifyPath" -Value "$gamePath\$gameExecutableName /C:`"cmd /c powershell -executionPolicy bypass -command set-content -value 1 $env:userprofile\modify.set; .\SteamCloudSync.ps1`"" -PropertyType "String" -Force | Out-Null
-Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$gameName Steam Cloud.exe"
+Start-Process "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 cls
-echo "Steam Cloud setup has completed, remember to install on other computers to sync saves"
+echo "SteamCloudify setup has completed, remember to install on other computers to sync saves"
 echo "Press any key to exit"
 timeout -1 |Out-Null

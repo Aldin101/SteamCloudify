@@ -34,7 +34,7 @@ while (1) {
             echo "[1] Build database"
             echo "[2] Build multi game installer"
             echo "[3] Build single game installer"
-            echo "[4] Build Steam Cloud runtime and background executables"
+            echo "[4] Build SteamCloudify runtime and background executables"
             echo "[5] Search for game save locations"
             echo "[6] Add a new game to the build config"
             echo "[7] Sync Background.ps1 game specific information with other files"
@@ -255,14 +255,14 @@ while (1) {
             if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true) {
                 $sed = Get-Content ".\Multi Game Installer\SteamCloudInstaller.sed"
                 $sed.Split([Environment]::NewLine)
-                $sed[26] = "TargetName=$(Get-Location)\Multi Game Installer\Steam Cloud Installer.exe"
+                $sed[26] = "TargetName=$(Get-Location)\Multi Game Installer\SteamCloudify Installer.exe"
                 $sed[34] = "SourceFiles0=$(Get-Location)\Multi Game Installer"
                 $sed | Set-Content "C:\SteamCloudInstaller.sed"
                 Start-Process "iexpress.exe" "/Q /N C:\SteamCloudInstaller.sed" -Wait
                 del "C:\SteamCloudInstaller.sed"
                 Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.rc`" -save `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -action compile" -Wait
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033" -Wait
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\Steam Cloud Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\SteamCloudify Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\SteamCloudify Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\Icon.ico`" -mask ICONGROUP,3000,1033" -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\Multi Game Installer\SteamCloudify Installer.exe`" -save `"$($script:PSScriptRoot)\Multi Game Installer\SteamCloudify Installer.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\Multi Game Installer\VersionInfo.res`" -mask VERSIONINFO,1,1033" -Wait
                 del ".\Multi Game Installer\*.res" -Force
                 exit
             }
@@ -341,7 +341,7 @@ while (1) {
                     } else {
                         foreach ($game in $config.games) {
                             if (!(test-path "$($game.installer)Built Executables\SteamCloudSync.exe")) {
-                                echo "Steam Cloud Sync executables for $($game.name) not found, please build it first using option 4"
+                                echo "SteamCloudify executables for $($game.name) not found, please build them first using option 4"
                                 echo "Press any key to exit"
                                 timeout -1 | out-null
                                 exit
@@ -395,7 +395,7 @@ while (1) {
                     break
                 }
                 if (!(test-path "$($path)Built Executables\SteamCloudSync.exe")) {
-                    echo "Steam Cloud Sync executables not found, please build it first using option 4"
+                    echo "SteamCloudify executables not found, please build them first using option 4"
                     timeout -1
                     break
                 }
@@ -469,7 +469,7 @@ while (1) {
                 }
                 $sed = Get-Content ".\$path\SEDs\OfflineInstaller.sed"
                 $sed.Split([Environment]::NewLine)
-                $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\Steam Cloud Installer for $gameName.exe"
+                $sed[26] = "TargetName=$(Get-Location)\$path\Built Executables\SteamCloudify Installer for $gameName.exe"
                 $sed[36] = "SourceFiles0=$(Get-Location)\$path\"
                 $sed[37] = "SourceFiles1=$(Get-Location)\$path\Built Executables\"
                 mkdir "C:\$($pid)\"
@@ -483,8 +483,8 @@ while (1) {
                     Rename-Item ".\$path\OfflineInstaller.ps1.bak" "OfflineInstaller.ps1"
                 }
                 Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Resources\Offline.rc`" -save `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -action compile"  -Wait
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -mask VERSIONINFO,1,1033"  -Wait
-                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\Steam Cloud Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"  -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudify Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudify Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Offline.res`" -mask VERSIONINFO,1,1033"  -Wait
+                Start-Process "C:\Program Files (x86)\Resource Hacker\ResourceHacker.exe" "-open `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudify Installer for $gameName.exe`" -save `"$($script:PSScriptRoot)\$path\Built Executables\SteamCloudify Installer for $gameName.exe`" -action addoverwrite -res `"$($script:PSScriptRoot)\$path\Resources\Icon.ico`" -mask ICONGROUP,3000,1033"  -Wait
                 del ".\$path\Resources\*.res" -Force
                 exit
             }
@@ -909,7 +909,7 @@ while (1) {
             echo "[steam install path]\steamapps\common\$gameName"
             echo "If you still can not find it look up `"Where is save data for $gameName on Google`""
 			echo "If the saves are in the game folder please use the `"Saves in game folder`" template"
-			echo "If the saves are in the userdata folder then the game probably supports steam cloud, if it does not contact me on discord (send a friend request to @aldin101)"
+			echo "If the saves are in the userdata folder then the game probably supports Steam Cloud, if it does not contact me on discord (send a friend request to @aldin101)"
             timeout -1
             $selection = $null
         }
@@ -1180,9 +1180,9 @@ while (1) {
         if ($selection -eq 9) {
             del .\MicrosoftSecuritySubmission.zip -ErrorAction SilentlyContinue
             $installers = [System.Collections.ArrayList]@()
-            $installers.add(".\Multi Game Installer\Steam Cloud Installer.exe") | out-null
+            $installers.add(".\Multi Game Installer\SteamCloudify Installer.exe") | out-null
             foreach ($game in $config.games) {
-                $installers.add("$($game.installer)Built Executables\Steam Cloud Installer for $($game.name).exe") | out-null
+                $installers.add("$($game.installer)Built Executables\SteamCloudify Installer for $($game.name).exe") | out-null
             }
             Compress-Archive $installers .\MicrosoftSecuritySubmission.zip
         }

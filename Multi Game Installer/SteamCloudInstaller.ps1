@@ -1,44 +1,44 @@
 $ProgressPreference = "SilentlyContinue"
 $ErrorActionPreference = "SilentlyContinue"
-$host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Loading..."
+$host.ui.RawUI.WindowTitle = "SteamCloudify Installer  |  Loading..."
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $false) {
-    $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer.exe'" -ErrorAction SilentlyContinue
+    $fileLocation = Get-CimInstance Win32_Process -Filter "name = 'SteamCloudify Installer.exe'" -ErrorAction SilentlyContinue
     if ($fileLocation -eq $null) {
         echo "Unable request admin, please manually run the program as administrator to continue"
         echo "Press any key to exit"
         timeout -1 |out-null
         exit
     }
-    taskkill /f /im "Steam Cloud Installer.exe" 2>$null | Out-Null
+    taskkill /f /im "SteamCloudify Installer.exe" 2>$null | Out-Null
     $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
     try {
         Start-Process "$filelocation1" -Verb RunAs
     } catch {
-        echo "The Steam Cloud installer requires administrator privileges, please accept the admin prompt to continue"
+        echo "The SteamCloudify installer requires administrator privileges, please accept the admin prompt to continue"
         echo "Press any key to try again"
         timeout -1 | out-null
         try {
             Start-Process "$filelocation1" -Verb RunAs
         } catch {
             cls
-            echo "The Steam Cloud installer cannot continue without administrator privileges"
+            echo "The SteamCloudify installer cannot continue without administrator privileges"
             echo "Press any key to exit"
             timeout -1 | out-null
         }
     }
     exit
 }
-$fileLocation = Get-CimInstance Win32_Process -Filter "name = 'Steam Cloud Installer.exe'" -ErrorAction SilentlyContinue
+$fileLocation = Get-CimInstance Win32_Process -Filter "name = 'SteamCloudify Installer.exe'" -ErrorAction SilentlyContinue
 if ($fileLocation -eq $null) {
-    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: [ERROR]"
+    $host.ui.RawUI.WindowTitle = "SteamCloudify Installer  |  Version: [ERROR]"
 } else {
     $fileLocation1 = $fileLocation.CommandLine -replace '"', ""
     $clientVersion = $(Get-Item -Path "$fileLocation1").VersionInfo.FileVersion
-    $host.ui.RawUI.WindowTitle = "Steam Cloud Installer  |  Version: $clientVersion"
+    $host.ui.RawUI.WindowTitle = "SteamCloudify Installer  |  Version: $clientVersion"
 }
 
-$database = Invoke-WebRequest "https://aldin101.github.io/Steam-Cloud/GameList.json" -UseBasicParsing
+$database = Invoke-WebRequest "https://aldin101.github.io/SteamCloudify/GameList.json" -UseBasicParsing
 $database = $database.Content | ConvertFrom-Json
 if ($database -eq $null) {
     echo "No internet connection, please connect to the internet and try again"
@@ -47,15 +47,15 @@ if ($database -eq $null) {
     exit
 }
 
-echo "Welcome to Steam Cloud setup"
+echo "Welcome to SteamCloudify setup"
 timeout -1
 cls
-echo "Welcome to Steam Cloud setup"
+echo "Welcome to SteamCloudify setup"
 echo "Here is some important information:"
 echo "Your saves will only be synced with other computers that have this tool installed"
-echo "If Steam notices a save conflict it will tell you that your controller layouts are conflicting, this is actually your save data"
-echo "If (NAME) notices a save conflict you will receive a message about it on launch."
-echo "You can disable Steam Cloud on this computer for any game at any time from the add or remove programs menu, or with this tool"
+echo "If Steam notices a save conflict it will tell you that your controller layouts are conflicting, this is actually your" "save data"
+echo "If SteamCloudify notices a save conflict you will receive a message about it on launch."
+echo "You can disable Steam Cloud for any game at any time by uninstalling SteamCloudify from the add or remove programs menu" "or using this installer"
 echo "Steam Deck (and other non-windows devices) are unsupported at this time"
 timeout -1
 cls
@@ -190,11 +190,11 @@ if ($libaryfolders.LibraryFolders.1 -ne $null) {
 
 $i=1
 foreach($game in $options) {
-    echo "[$i] $(if(test-path "$env:appdata\$($game.name) Steam Cloud\CloudConfig.json"){"Disable Steam Cloud for "})$($game.name)"
+    echo "[$i] $(if(test-path "$env:appdata\$($game.name) SteamCloudify\CloudConfig.json"){"Disable SteamCloudify for "})$($game.name)"
     ++$i
 }
 echo "[$i] Not listed? Add it!"
-$choice = Read-Host "What game would you like to enable Steam Cloud for?"
+$choice = Read-Host "What game would you like to enable Steam CLoud for?"
 
 if ($choice -eq $i) {
     echo "Making support for a new game is easy! If the game runs a common game engine like Unity or Unreal" "there are ready to use templates already available!"
