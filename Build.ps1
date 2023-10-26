@@ -92,6 +92,7 @@ while (1) {
             }
             $Config | ConvertTo-Json -depth 32 | Format-Json | Set-Content ".\BuildTool.json"
             echo "Transferring files..."
+            copy-item ".\Multi Game Installer\SteamCloudify Installer.exe" ".\.Database\" -Force -ErrorAction SilentlyContinue
             foreach ($games in $config.games) {
                 mkdir ".\.Database\$($games.name)" -Force | out-null
                 Copy-Item "$($games.installer)\Built Executables\*" ".\.Database\$($games.name)\" -Force -ErrorAction SilentlyContinue

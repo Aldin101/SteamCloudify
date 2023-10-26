@@ -194,7 +194,7 @@ foreach($game in $options) {
     ++$i
 }
 echo "[$i] Not listed? Add it!"
-$choice = Read-Host "What game would you like to enable Steam CLoud for?"
+$choice = Read-Host "What game would you like to enable Steam Cloud for?"
 
 if ($choice -eq $i) {
     echo "Making support for a new game is easy! If the game runs a common game engine like Unity or Unreal" "there are ready to use templates already available!"
