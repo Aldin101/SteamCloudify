@@ -91,6 +91,7 @@ if (test-path "$steamPath\steamapps\common\$gameFolderName\") {
 }
 
 cd $gamepath
+$choice = $null
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
     $disableChoice = Read-Host "SteamCloudify is already enabled for this game. Would you like to disable SteamCloudify [Y/n]"
@@ -129,6 +130,15 @@ Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game
 New-Item -Path "$gamepath\$($gameExecutableName.TrimEnd(".exe")) Game_Data" -ItemType Junction -Value "$gamepath\$($gameExecutableName.TrimEnd(".exe"))_Data" | Out-Null
 Invoke-WebRequest $database.updateLink -OutFile ".\$gameExecutableName" 
 Invoke-WebRequest $database.gameUpdateChecker -OutFile "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
+
+mkdir "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID" | out-null
+if ($gameSaveFolder -ne $null) {
+    Copy-Item "$gameSaveFolder" "$env:appdata\$cloudName\1\" -Recurse -Force | Out-Null
+}
+if ($gameRegistryEntries -ne $null) {
+    reg export $gameRegistryEntries "$env:appdata\$cloudName\1.reg"
+}
+
 if ($choice -eq 1) {
     if ($gameSaveFolder -ne $null) {
         Get-ChildItem $gameSaveFolder -recurse -Include ($gameSaveExtensions | ForEach-Object { "*$_" }) | `
@@ -155,7 +165,7 @@ $CloudConfig.Add("steamID",$steamid)
 $CloudConfig.Add("lastBackup",(Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds)
 $CloudConfig.Add("CloudSyncDownload", $database.updateLink)
 $CloudConfig | ConvertTo-Json -depth 32 | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | out-null
 Install-Module -Name BurntToast -Confirm:$false -Force
 New-Item -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName | Out-Null
 New-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$cloudName -Name "DisplayIcon" -Value "$gamepath\$gameExecutableName" -PropertyType "String" -Force | Out-Null
