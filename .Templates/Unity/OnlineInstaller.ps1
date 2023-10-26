@@ -36,7 +36,7 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
 }
 
 if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
-    $disableChoice = Read-Host "SteamCloudify is already installed for this game. Would you like to disable SteamCloudify [Y/n]"
+    $disableChoice = Read-Host "Are you sure you want to uninstall SteamCloudify? [Y/n]"
     if ($disableChoice -ne "n" -and $disableChoice -ne "N" -and $disableChoice -ne "no") {
         if (test-path "$env:appdata\$cloudName\1\") {
             echo "SteamCloudify made backups of your save data, they are not needed anymore and can be deleted."
@@ -66,7 +66,7 @@ if (test-path "$env:appdata\$cloudName\CloudConfig.json") {
         exit
     }
 }
-
+cls
 echo "Setting up Steam Cloud..."
 $steamPath = (Get-ItemProperty -path 'HKCU:\SOFTWARE\Valve\Steam').steamPath
 $i=0
