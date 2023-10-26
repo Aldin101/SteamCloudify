@@ -64,12 +64,15 @@ while (1) {
             exit
         }
     }
+    New-BurntToastNotification -text 'SteamCloudify', "Looks like $gamename is updating, SteamCloudify will automatically re-patch the game when this update finishes, please do not launch the game till re-patching finishes" -AppLogo hIsTheBestLetter -UniqueIdentifier "gameUpdate"
     while (Test-Path $gamepath\..\..\Downloading\$steamAppID) {
         Start-Sleep -s 1
     }
+    New-BurntToastNotification -text 'SteamCloudify', "$gamename has finished updating, re-patching now..." -AppLogo hIsTheBestLetter -UniqueIdentifier "gameUpdate" -Silent
     Start-Sleep -s 3
     Remove-Item ".\$($gameExecutableName.TrimEnd(".exe")) Game.exe"
     taskkill /f /im "$gameExecutableName"
     Rename-Item ".\$gameExecutableName" "$($gameExecutableName.TrimEnd(".exe")) Game.exe"
     Invoke-WebRequest $config.CloudSyncDownload -OutFile ".\$gameExecutableName"
+    New-BurntToastNotification -text 'SteamCloudify', "SteamCloudify has finished re-patching $gamename, have fun!" -AppLogo hIsTheBestLetter -UniqueIdentifier "gameUpdate"
 }

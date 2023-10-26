@@ -10,12 +10,12 @@ BLOCK "StringFileInfo"
 	BLOCK "040904B0"
 	{
 		VALUE "CompanyName", "Aldin101"
-		VALUE "FileDescription", "Steam Cloud Sync                                                                                    "
+		VALUE "FileDescription", "SteamCloudify launcher                                                                                    "
 		VALUE "FileVersion", "1.0.0"
 		VALUE "InternalName", "SteamCloudSync                                                                                    "
 		VALUE "LegalCopyright", "Aldin101"
 		VALUE "OriginalFilename", "SteamCloudSync.exe"
-		VALUE "ProductName", "Steam Cloud"
+		VALUE "ProductName", "SteamCloudify"
 		VALUE "ProductVersion", "1.0.0"
 	}
 }

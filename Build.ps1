@@ -126,8 +126,8 @@ while (1) {
                     $allowedUpdater.add($game.latestUpdater)
                     $game.allowedUpdater = $allowedUpdater.ToArray()
                 }
-                $game.updateLink = "https://aldin101.github.io/Steam-Cloud/$($games.name.Replace(' ', '%20'))/SteamCloudSync.exe"
-                $game.gameUpdateChecker = "https://aldin101.github.io/Steam-Cloud/$($games.name.Replace(' ', '%20'))/SteamCloudBackground.exe"
+                $game.updateLink = "https://aldin101.github.io/SteamCloudify/$($games.name.Replace(' ', '%20'))/SteamCloudSync.exe"
+                $game.gameUpdateChecker = "https://aldin101.github.io/SteamCloudify/$($games.name.Replace(' ', '%20'))/SteamCloudBackground.exe"
                 $game | ConvertTo-json | format-json | set-content "$($games.installer)$($games.name).json"
                 $game | ConvertTo-json | format-json | set-content ".\.Database\$($games.name)\$($games.name).json"
             }

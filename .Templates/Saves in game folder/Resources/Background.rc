@@ -10,12 +10,12 @@ BLOCK "StringFileInfo"
 	BLOCK "040904B0"
 	{
 		VALUE "CompanyName", "Aldin101"
-		VALUE "FileDescription", "Steam Cloud Sync Background Task                                                                                    "
+		VALUE "FileDescription", "SteamCloudify Background Task                                                                                    "
 		VALUE "FileVersion", "1.0.0"
 		VALUE "InternalName", "SteamCloudBackground                                                                                    "
 		VALUE "LegalCopyright", "Aldin101"
 		VALUE "OriginalFilename", "SteamCloudBackground.exe"
-		VALUE "ProductName", "Steam Cloud"
+		VALUE "ProductName", "SteamCloudify"
 		VALUE "ProductVersion", "1.0.0"
 	}
 }
