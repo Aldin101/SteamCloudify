@@ -131,6 +131,22 @@ if ($steamid -eq 0) {
     }
 }
 
+if (!(test-path 'C:\Program Files (x86)\Steam\steamapps\common\Steam Controller Configs')) {
+    echo "Steam Input has never been configured, Steam Input needs to be configured before SteamCloudify can be used"
+    echo "You can enable Steam Input using the using the steps below (no controller required):"
+    echo "1. Open Steam and click on the Big Picture icon in the top right corner"
+    echo "2. After finishing the Big Picture tutorial go to the bottom left corner and click on the Steam button"
+    echo "3. Click on the Settings button on the left side bar"
+    echo "4. Click on controller"
+    echo "5. Click on the edit button right next to `"Desktop Layout`""
+    echo "Once those steps are completed and you are on the Steam Input screen this message will be dismissed"
+    while (!(test-path 'C:\Program Files (x86)\Steam\steamapps\common\Steam Controller Configs')) {
+        Start-Sleep -Seconds 1
+    }
+    [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
+    [System.Windows.Forms.MessageBox]::Show("Steam Input has been configured, you can now exit Steam Big Picture", "SteamCloudify", "OK", "Information", 0, 131072)
+}
+
 $lines = Get-Content "$steamPath\steamapps\libraryfolders.vdf"
 $newLines = New-Object -TypeName 'System.Collections.Generic.List[string]' -ArgumentList $lines.Count
 $newLines.Add("{") | Out-Null

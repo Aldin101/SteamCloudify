@@ -1,6 +1,6 @@
 1 VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
+FILEVERSION 1,0,1,0
+PRODUCTVERSION 1,0,1,0
 FILEOS 0x40004
 FILETYPE 0x1
 {
@@ -10,12 +10,12 @@ BLOCK "StringFileInfo"
 	{
 		VALUE "CompanyName", "Aldin101"
 		VALUE "FileDescription", "SteamCloudify Installer                                                                                    "
-		VALUE "FileVersion", "1.0.0"
+		VALUE "FileVersion", "1.0.1"
 		VALUE "InternalName", "SteamCloudify Installer                                                                                    "
 		VALUE "LegalCopyright", "Aldin101"
 		VALUE "OriginalFilename", "SteamCloudify Installer.exe"
 		VALUE "ProductName", "SteamCloudify"
-		VALUE "ProductVersion", "1.0.0"
+		VALUE "ProductVersion", "1.0.1"
 	}
 }
 
