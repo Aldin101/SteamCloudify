@@ -26,7 +26,7 @@ In the unlikely event that you need to restore a backup of your saves, you can d
 1. Open the settings app (not the control panel) and go to `Apps`.
 2. In the apps or features menu search for `SteamCloudify`.
 3. Then click on `SteamCloudify for [game]` with game being the name of the game you want to restore a backup for.
-4. Click on `Modify` and then accept the admin prompt.
+4. Click on `Modify` and accept the admin prompt.
 5. Press `y` and then hit enter to open the backup list
 6. Type the number next to the backup you want to restore and hit enter. The newest backup is always number 1.
 7. Launch the game and make sure the backup was restored.
