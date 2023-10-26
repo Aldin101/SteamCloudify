@@ -31,7 +31,7 @@ In the unlikely event that you need to restore a backup of your saves, you can d
 6. Type the number next to the backup you want to restore and hit enter. The newest backup is always number 1.
 7. Launch the game and make sure the backup was restored.
 
-## Additional technical information
+## Additional Technical Information
 
 Information about how this tool works, this information is not needed to add most games, but is here for those who are interested.
 
