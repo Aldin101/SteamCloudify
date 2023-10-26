@@ -95,6 +95,7 @@ cd $gamepath
 $choice = $null
 if (Test-Path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\$steamAppID\isConfigured.vdf") {
     while ($choice -eq $null) {
+        cls
         echo "SteamCloudify has already been installed on another computer, and saves for that computer are already in Steam Cloud"
         echo "[1] Override your Steam Cloud saves with the ones on this computer"
         echo "[2] Override your saves on this computer with the ones in Steam Cloud"
