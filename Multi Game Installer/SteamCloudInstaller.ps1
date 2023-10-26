@@ -160,10 +160,10 @@ $libaryfolders = $joinedLine | ConvertFrom-Json
 if (!(test-path "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf")) {
     echo "DISCLAIMER: I am not responsible for any lost or corrupted save files caused by the use of this tool"
     echo "This tool is not intended as a backup, it is only intended to sync your saves between computers, please us other tools" "for backups such as GameSaveManager"
-    echo "This tool takes many measures to prevent data loss, including weekly backups that are only stored locally. In the extremely" "unlikely event that something does happen you can restore a backup using these instructions: TEMP URL"
+    echo "This tool takes many measures to prevent data loss, including weekly backups that are only stored locally. In the" "extremely unlikely event that something does happen you can restore a backup using these instructions: https://github.com/Aldin101/SteamCloudify#restoring-backups"
     echo ""
     echo "As with any piece of software, this tool is not perfect. While I have never experienced any issues with this tool it is" "always possible that something will happen, in the extremely unlikely event that" "something does happen you can try to restore a backup"
-    echo "More information on the steps taken to prevent loss of save data, how to restore backups, and past data loss" "incidents can be found here: TEMP URL"
+    echo "More information on the steps taken to prevent loss of save data, how to restore backups, and past data loss" "incidents can be found here: https://github.com/Aldin101/SteamCloudify#Known-Data-Loss-Incidents"
     timeout -1
     "funnyword" | Out-File "$steamPath\steamapps\common\Steam Controller Configs\$steamid\config\disclaimerGiven.vdf"
 }
@@ -198,9 +198,10 @@ $choice = Read-Host "What game would you like to enable Steam Cloud for?"
 
 if ($choice -eq $i) {
     echo "Making support for a new game is easy! If the game runs a common game engine like Unity or Unreal" "there are ready to use templates already available!"
-    echo "You can find instructions to do so here: TEMP URL"
-    echo "Press any key to open the URL and exit"
+    echo "You can find instructions to do so here: https://github.com/Aldin101/SteamCloudify#adding-games"
+    echo "Press any key to open the above URL and exit"
     timeout -1 | Out-Null
+    explorer.exe "https://github.com/Aldin101/SteamCloudify#adding-games"
     exit
 }
 

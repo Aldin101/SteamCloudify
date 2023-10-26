@@ -19,6 +19,18 @@ Adding games is super easy, and you can do it yourself! Just follow the steps be
 11. Use option 3 to build the single game installer for the game you are adding, same as step 10, just select the game you are adding and hit enter. Enter a version number and once built you can find the installer in the `Built Executables` folder. This installer will install the cloud sync mod and background task for the game you are adding. Simply run the installer, accept the admin prompt and follow the onscreen instructions. Once installed you can run the game from Steam as your normally would. Your saves will not sync between computers without installing the tool on every computer to want to sync saves between. So make sure to put that installer onto a flash drive and install it on another computer. Once installed your saves will be synced between the two computers, and any other computer you install it on!  If the game does not launch or crashes when launched contact me on Discord for help (send a friend request to @aldin101).
 12. Once you have finished setting up the game you can make a pull request to add it to the online list. To do this you will need to fork the project, make your changes, commit them and then make a pull request. If you don't know how to do this then you can watch this [video tutorial](link to video tutorial). Once you have made the pull request, I will review it and if everything looks good, I will merge it and your game will be added to the online list for others to enjoy. Once it is added to the online list you should disable and re-enable cloud sync using the [link to online installer](online installer) so that the game will be re-patched whenever it updates.
 
+## Restoring Backups
+
+In the unlikely event that you need to restore a backup of your saves, you can do so by following the steps below.
+
+1. Open the settings app (not the control panel) and go to `Apps`.
+2. In the apps or features menu search for `SteamCloudify`.
+3. Then click on `SteamCloudify for [game]` with game being the name of the game you want to restore a backup for.
+4. Click on `Modify` and then accept the admin prompt.
+5. Press `y` and then hit enter to open the backup list
+6. Type the number next to the backup you want to restore and hit enter. The newest backup is always number 1.
+7. Launch the game and make sure the backup was restored.
+
 ## Additional technical information
 
 Information about how this tool works, this information is not needed to add most games, but is here for those who are interested.
@@ -51,3 +63,7 @@ Information about how this tool works, this information is not needed to add mos
 ### SEDs
 
 - The SED files in the `SEDs` folder control information about what files will be packaged, the start command, among other things. The empty felids that say `[FILLED IN BY TOOL]` will be filled in by the build tool when you build an executable. Those felids are filled in on build because they contain computer specific information.
+
+## Known Data Loss Incidents
+
+There are no known cases of data loss from this tool at this time, as with any program SteamCloudify is not perfect. In the case that something goes wrong you can [restore a backup of your saves](https://github.com/Aldin101/SteamCloudify#restoring-backups). If you do experience data loss please report it either by making an issue on GitHub or by contacting me on Discord by sending a friend request to @aldin101. If you do not report it I cannot fix it. I take these types of issues very seriously and will immediately deactivate SteamCloudify for all affected games until the issue is fixed.
