@@ -20,11 +20,13 @@ $cloudName = "SteamCloudify for $gameName"
 $databaseURL = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
 $updateLink = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
+[System.Windows.Forms.Application]::EnableVisualStyles()
 
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json
 $steamPath = $config.steamPath
 $steamid = $config.steamID
 $gamepath = $config.gamepath
+$fail = $false
 cd $gamepath
 $exehash=Get-FileHash -Algorithm MD5 "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudName.exe"
 while (1) {
@@ -53,6 +55,15 @@ while (1) {
             Remove-Item "$env:appdata\$cloudName" -Recurse -Force
             [System.Windows.Forms.MessageBox]::Show( "SteamCloudify uninstalled successfully!", "Uninstalled!", "Ok", "Information" )
             exit
+        }
+        try {
+            $startup = Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder" -Name "SteamCloudify for $gameName.exe"
+        } catch {
+            $fail = $true
+        }
+        if ($($startup)."steamcloudify for $gamename.exe"[0] -ne 2 -and $($startup)."steamcloudify for $gamename.exe"[0] -ne 6 -and $fail -eq $false) {
+            [System.Windows.Forms.MessageBox]::Show("SteamCloudify is not allowed to run at startup. This means that if $gamename updates or the game files are validated SteamCloudify will be unable to re-patch the game.`n`nThis will cause your save data to stop syncing and might even result in data loss.`n`n`Please re-enable SteamCloudify in Task Manger's startup tab or uninstall SteamCloudify. Until one of those actions have been completed you will be unable to launch $gamename", "SteamCloudify", "Ok", "Warning")
+            $fail = $true
         }
         if ($(Get-FileHash -Algorithm MD5 "$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\$cloudname.exe").Hash -ne $exehash.Hash) {
             exit

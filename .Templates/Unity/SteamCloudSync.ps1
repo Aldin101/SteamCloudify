@@ -270,10 +270,14 @@ if ((Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds - 
     $config.lastBackup = (Get-Date).ToUniversalTime().Subtract((Get-Date "1/1/1970")).TotalSeconds
     $config | ConvertTo-Json | Format-Json | Set-Content "$env:appdata\$cloudName\CloudConfig.json"
 }
-
-$startup = Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder" -Name "SteamCloudify for $gameName.exe"
-if ($($startup)."steamcloudify for $gamename.exe"[0] -ne 2 -and $($startup)."steamcloudify for $gamename.exe"[0] -ne 6) {
-    [System.Windows.Forms.MessageBox]::Show("SteamCloudify is not allowed to run at startup. This means that if $gamename updates or the game files are validated SteamCloudify will be unable to re-patch the game.`n`nThis will cause your save to stop syncing and might even result in data loss.`n`n`Please re-enable SteamCloudify in Task Manger's startup tab or uninstall SteamCloudify. After either of those actions are completed you will be able to launch the game again.", "SteamCloudify", "Ok", "Warning")
+$fail = $false
+try {
+    $startup = Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder" -Name "SteamCloudify for $gameName.exe"
+} catch {
+    $fail = $true
+}
+if ($($startup)."steamcloudify for $gamename.exe"[0] -ne 2 -and $($startup)."steamcloudify for $gamename.exe"[0] -ne 6 -and $fail -eq $false) {
+    [System.Windows.Forms.MessageBox]::Show("SteamCloudify is not allowed to run at startup. This means that if $gamename updates or the game files are validated SteamCloudify will be unable to re-patch the game.`n`nThis will cause your save data to stop syncing and might even result in data loss.`n`n`Please re-enable SteamCloudify in Task Manger's startup tab or uninstall SteamCloudify. After either of those actions are completed you will be able to launch the game again.", "SteamCloudify", "Ok", "Warning")
     exit
 }
 $choice = "Yes"
