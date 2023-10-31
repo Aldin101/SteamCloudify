@@ -25,6 +25,7 @@ $cloudName = "SteamCloudify for $gameName"
 $databaseURL = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/$($gameName.Replace(' ', '%20')).json"
 $updateLink = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ', '%20'))/SteamCloudSync.exe"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
+[System.Windows.Forms.Application]::EnableVisualStyles()
 $file = Invoke-WebRequest $databaseURL -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json

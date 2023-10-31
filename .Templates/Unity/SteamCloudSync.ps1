@@ -21,6 +21,7 @@ $updateLink = "https://aldin101.github.io/SteamCloudify/$($gameName.Replace(' ',
 $ErrorActionPreference = "SilentlyContinue"
 $ProgressPreference = "SilentlyContinue"
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
+[System.Windows.Forms.Application]::EnableVisualStyles()
 $file = Invoke-WebRequest "$databaseURL" -UseBasicParsing
 $database = $file.Content | ConvertFrom-Json
 $config = Get-Content "$env:appdata\$cloudName\CloudConfig.json" | ConvertFrom-Json

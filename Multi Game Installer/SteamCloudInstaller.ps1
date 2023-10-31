@@ -144,6 +144,7 @@ if (!(test-path 'C:\Program Files (x86)\Steam\steamapps\common\Steam Controller 
         Start-Sleep -Seconds 1
     }
     [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
+    [System.Windows.Forms.Application]::EnableVisualStyles()
     [System.Windows.Forms.MessageBox]::Show("Steam Input has been configured, you can now exit Steam Big Picture", "SteamCloudify", "OK", "Information", 0, 131072)
 }
 
